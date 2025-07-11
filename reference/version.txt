@@ -1,0 +1,27 @@
+# CoDrone EDU Python Library Version Information
+
+## Version Detection
+**CONFIRMED VERSION: 2.3** ✅
+
+Source: Automatically updated from PyPI via Gradle task
+
+## Package Information
+- Name: codrone-edu
+- Version: 2.3
+- Summary: Python CoDrone EDU library
+- Home-page: UNKNOWN
+- Author: 
+- Author-email: 
+- License: UNKNOWN
+- Location: /Users/scerruti/JCoDroneEdu/python-venv/lib/python3.12/site-packages
+- Requires: colorama, numpy, Pillow, pyserial
+- Required-by: 
+- 
+
+## Last Update
+- **Date**: 2025-07-11T18:53:03.169911
+- **Method**: Gradle updateReferenceCode task
+- **Source**: pip install codrone-edu
+
+---
+**Auto-generated**: Do not edit manually - run './gradlew updateReferenceCode'
