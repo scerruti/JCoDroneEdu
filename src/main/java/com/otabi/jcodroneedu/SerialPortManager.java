@@ -2,6 +2,8 @@ package com.otabi.jcodroneedu;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.otabi.jcodroneedu.receiver.Receiver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.io.InputStream;
  */
 public class SerialPortManager {
 
+    private static final Logger log = LogManager.getLogger(SerialPortManager.class);
     private static final int CDE_CONTROLLER_VID = 1155; // Vendor ID for CoDrone EDU controller
     private SerialPort serialPort = null;
     private InputStream inputStream = null;
@@ -36,11 +39,16 @@ public class SerialPortManager {
         if (targetPortName == null) {
             targetPortName = findControllerPort();
             if (targetPortName == null) {
+                // Student-friendly error message
                 System.err.println("CoDrone EDU controller not found. Please ensure it's connected.");
-                // return false;
+                // Developer logging
+                log.error("CoDrone EDU controller not found. Please ensure it's connected.");
                 throw new DroneNotFoundException(portName);
             }
+            // Student-friendly success message
             System.out.printf("Detected CoDrone EDU controller at port %s.\n", targetPortName);
+            // Developer logging
+            log.info("Detected CoDrone EDU controller at port {}", targetPortName);
         }
 
         try {
@@ -51,18 +59,27 @@ public class SerialPortManager {
             serialPort.setNumDataBits(8);
 
             if (!serialPort.openPort()) {
+                // Student-friendly error message
                 System.err.println("Failed to open serial port. Check permissions or if it's in use.");
+                // Developer logging
+                log.error("Failed to open serial port. Check permissions or if it's in use.");
                 return false;
             }
 
             serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
             inputStream = serialPort.getInputStream();
             startReaderThread();
+            // Student-friendly success message
             System.out.printf("Connected to %s.\n", targetPortName);
+            // Developer logging
+            log.info("Connected to {}", targetPortName);
             return true;
 
         } catch (Exception e) {
+            // Student-friendly error message
             System.err.println("Error connecting to device: " + e.getMessage());
+            // Developer logging
+            log.error("Error connecting to device: {}", e.getMessage(), e);
             disconnect();
             return false;
         }
@@ -82,7 +99,9 @@ public class SerialPortManager {
                 }
             }
         } catch (Exception e) {
+            // This is a fatal system error that affects both students and developers
             System.err.println("Serial library not installed or failed to load.");
+            log.fatal("Serial library not installed or failed to load.", e);
             System.exit(-1);
         }
         return null;
@@ -105,9 +124,9 @@ public class SerialPortManager {
                 } catch (IOException e) {
                     if (isRunning) {
                         errorCount++;
-                        System.err.println("Error reading from serial port: " + e.getMessage());
+                        log.warn("Error reading from serial port: {}", e.getMessage());
                         if (errorCount > 5) {
-                            System.err.println("Repeated communication errors. Closing port.");
+                            log.error("Repeated communication errors. Closing port.");
                             disconnect();
                         }
                     }
@@ -133,7 +152,10 @@ public class SerialPortManager {
 
         if (isOpen()) {
             serialPort.closePort();
+            // Student-friendly message
             System.out.println("Serial port disconnected.");
+            // Developer logging
+            log.info("Serial port disconnected.");
         }
         serialPort = null;
     }
@@ -152,8 +174,8 @@ public class SerialPortManager {
         if (isOpen()) {
             serialPort.writeBytes(data, data.length);
         } else {
-            // Or handle this error more robustly
-            System.err.println("Cannot write, serial port is not open.");
+            // This is more of a developer error - student shouldn't see this during normal operation
+            log.error("Cannot write, serial port is not open.");
         }
     }
 }

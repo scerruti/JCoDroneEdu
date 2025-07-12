@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Console Appender for development -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        
+        <!-- File Appender for detailed logging -->
+        <File name="FileAppender" fileName="logs/codrone-edu.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </File>
+        
+        <!-- Rolling File Appender for production -->
+        <RollingFile name="RollingFileAppender" fileName="logs/codrone-edu.log" 
+                     filePattern="logs/codrone-edu-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        
+        <!-- Student-friendly console output for educational messages -->
+        <Console name="StudentConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="[CoDrone EDU] %msg%n"/>
+        </Console>
+    </Appenders>
+    
+    <Loggers>
+        <!-- Root logger - catches all unspecified loggers -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Root>
+        
+        <!-- Specific loggers for different components -->
+        
+        <!-- Serial communication - more verbose for debugging connection issues -->
+        <Logger name="com.otabi.jcodroneedu.SerialPortManager" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        
+        <!-- Main Drone class - balance of info for students and debug for developers -->
+        <Logger name="com.otabi.jcodroneedu.Drone" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        
+        <!-- Flight controller - debug level for detailed movement tracking -->
+        <Logger name="com.otabi.jcodroneedu.FlightController" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        
+        <!-- Receiver - can be noisy, so INFO level by default -->
+        <Logger name="com.otabi.jcodroneedu.receiver" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        
+        <!-- Educational examples - these should remain using System.out -->
+        <Logger name="com.otabi.jcodroneedu.example" level="OFF" additivity="false">
+            <!-- No appenders - these classes will use System.out directly -->
+        </Logger>
+        
+        <!-- Test classes -->
+        <Logger name="com.otabi.jcodroneedu" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+    </Loggers>
+</Configuration>

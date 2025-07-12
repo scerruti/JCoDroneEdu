@@ -168,17 +168,28 @@ public class Drone implements AutoCloseable {
 
         if (currentState != null && currentState.isReady() && info != null) {
             this.isConnected = true;
+            
+            // Student-friendly console output
             System.out.println("Successfully connected to CoDrone EDU.");
             System.out.printf("Model: %s, Firmware: %s\n", info.getModelNumber(), info.getVersion());
             System.out.printf("Battery: %d%%\n", currentState.getBattery());
+            
+            // Developer logging
+            log.info("Connection established - Model: {}, Firmware: {}, Battery: {}%", 
+                    info.getModelNumber(), info.getVersion(), currentState.getBattery());
 
             // Set initial speed and reset controls
             changeSpeed(2);
             flightController.resetMoveValues();
         } else {
+            // Student-friendly error messages
             System.err.println("Could not verify connection with CoDrone EDU.");
             System.err.println("Check that the drone is on and paired to the controller.");
             System.err.println("How to pair: https://youtu.be/kMJhf5ykLSo");
+            
+            // Developer logging
+            log.error("Connection verification failed - State ready: {}, Info available: {}", 
+                    currentState != null && currentState.isReady(), info != null);
             disconnect();
         }
 

@@ -272,6 +272,7 @@ public class FlightController {
      */
     @Deprecated
     public void print_move_values(){
+        // Keep System.out for student debugging - this is educational output
         System.out.println(Arrays.toString(new byte[]{control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle()}));
     }
 
