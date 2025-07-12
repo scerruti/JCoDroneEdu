@@ -131,11 +131,11 @@ public class FlightController {
     /**
      * Commands the drone to hover in place for a specific duration by sending a single
      * command to cease all movement and then pausing the thread.
-     * @param durationMs The duration to hover, in milliseconds.
+     * @param durationSeconds The duration to hover, in seconds (matching Python behavior).
      */
-    public void hover(long durationMs) {
+    public void hover(double durationSeconds) {
         sendControl(0, 0, 0, 0);
-        sleep(durationMs);
+        sleep((long)(durationSeconds * 1000));
     }
 
     /**
@@ -145,7 +145,7 @@ public class FlightController {
      */
     public void resetMoveValues(int attempts) {
         for (int i = 0; i < attempts; i++) {
-            hover(10); // Send a brief hover command
+            hover(0.01); // Send a brief 10ms hover command
         }
     }
 
@@ -364,6 +364,85 @@ public class FlightController {
         positionMessage.heading = (short) Math.max(-360, Math.min(heading, 360));
         positionMessage.rotationalVelocity = (short) Math.max(10, Math.min(rotationalVelocity, 360));
         drone.sendMessage(positionMessage, DeviceType.Base, DeviceType.Drone);
+    }
+
+    /**
+     * Fly in a given direction for the given duration and power.
+     * 
+     * This is the primary educational movement API, matching the Python implementation exactly.
+     * Students can use simple commands like drone.go("forward", 30, 1) for intuitive movement.
+     * 
+     * Implementation matches Python's go() method:
+     * - Resets all control variables to 0
+     * - Sets the appropriate control variable based on direction
+     * - Calls move(duration) to execute the movement
+     * - Calls hover(1) to stabilize after movement
+     * 
+     * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     * @param power Power level from 0-100 (defaults to 50 if not specified)
+     * @param duration Duration in seconds (defaults to 1 if not specified)
+     */
+    public void go(String direction, int power, int duration) {
+        try {
+            // Reset all control variables to 0 (match Python implementation)
+            setRoll(0);
+            setPitch(0);
+            setYaw(0);
+            setThrottle(0);
+            
+            // Validate and clamp power to 0-100 range
+            if (power > 100) power = 100;
+            else if (power < 0) power = 0;
+            
+            // Set the appropriate control variable based on direction
+            String dir = direction.toLowerCase();
+            switch (dir) {
+                case "forward":
+                    setPitch(power);
+                    break;
+                case "backward":
+                    setPitch(-power);
+                    break;
+                case "right":
+                    setRoll(power);
+                    break;
+                case "left":
+                    setRoll(-power);
+                    break;
+                case "up":
+                    setThrottle(power);
+                    break;
+                case "down":
+                    setThrottle(-power);
+                    break;
+                default:
+                    System.out.println("Warning: Invalid direction '" + direction + "'. Valid directions are: forward, backward, left, right, up, down");
+                    return;
+            }
+            
+            // Execute the movement for the specified duration
+            move(duration);
+            
+            // Hover for 1 second to stabilize (match Python implementation)
+            hover(1);
+            
+        } catch (Exception e) {
+            System.out.println("Warning: Invalid arguments. Please check your parameters.");
+        }
+    }
+    
+    /**
+     * Overloaded go() method with default power (50)
+     */
+    public void go(String direction, int duration) {
+        go(direction, 50, duration);
+    }
+    
+    /**
+     * Overloaded go() method with default power (50) and duration (1 second)
+     */
+    public void go(String direction) {
+        go(direction, 50, 1);
     }
 
     /**

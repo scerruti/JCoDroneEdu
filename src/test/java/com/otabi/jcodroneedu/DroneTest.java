@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *         // This is where you put the student's code to test
  *         mockDrone.pair();
  *         mockDrone.takeoff();
- *         mockDrone.hover(5000);
+ *         mockDrone.hover(5);
  *         mockDrone.land();
  *         mockDrone.close();
  *     }

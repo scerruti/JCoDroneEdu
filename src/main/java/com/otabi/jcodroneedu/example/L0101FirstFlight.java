@@ -37,6 +37,7 @@ public class L0101FirstFlight
             System.out.println("Program complete");
         } catch (DroneNotFoundException e)
         {
+            drone.close();
             throw new RuntimeException(e);
         }
     }

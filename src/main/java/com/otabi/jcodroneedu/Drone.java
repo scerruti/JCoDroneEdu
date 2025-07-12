@@ -29,7 +29,9 @@ import java.util.concurrent.TimeoutException;
  * Drone drone = new Drone();
  * drone.pair();                    // Connect to your drone
  * drone.takeoff();                 // Launch into the air
- * drone.hover(5);                  // Hover for 5 seconds  
+ * drone.go("forward", 30, 2);      // Move forward at 30% power for 2 seconds
+ * drone.go("right", 25, 1);        // Turn right at 25% power for 1 second
+ * drone.hover(3);                   // Hover for 3 seconds  
  * drone.land();                    // Land safely
  * drone.close();                   // Clean up resources
  * 
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeoutException;
  * try (Drone drone = new Drone()) {
  *     drone.pair();
  *     drone.takeoff();
+ *     drone.go("forward", 50, 1);  // Primary educational movement API
  *     drone.hover(5);
  *     drone.land();
  * }
@@ -52,6 +55,7 @@ import java.util.concurrent.TimeoutException;
  * 
  * <h3>🔧 Movement Methods (L0102+):</h3>
  * <ul>
+ *   <li>{@link #go(String, int, int)} - Primary educational movement API (matches Python)</li>
  *   <li>{@link #setPitch(int)}, {@link #setRoll(int)} - Advanced manual control</li>
  *   <li>{@link #move()}, {@link #move(int)} - Execute movement commands</li>
  * </ul>
@@ -480,10 +484,10 @@ public class Drone implements AutoCloseable {
      * Commands the drone to hover in place for a specific duration by sending zero
      * values for roll, pitch, yaw, and throttle.
      *
-     * @param durationMs The duration to hover, in milliseconds.
+     * @param durationSeconds The duration to hover, in seconds (matching Python behavior).
      */
-    public void hover(long durationMs) {
-        flightController.hover(durationMs);
+    public void hover(double durationSeconds) {
+        flightController.hover(durationSeconds);
     }
 
     /**
@@ -805,5 +809,76 @@ public class Drone implements AutoCloseable {
     public Receiver getReceiver()
     {
         return receiver;
+    }
+    
+    /**
+     * Fly in a given direction for the given duration and power.
+     * 
+     * <p>This is the <strong>primary educational movement API</strong> for CoDrone EDU,
+     * matching the Python implementation exactly. Students can use simple commands
+     * like {@code drone.go("forward", 30, 1)} for intuitive movement.</p>
+     * 
+     * <h3>🎯 Educational Usage Examples:</h3>
+     * <pre>{@code
+     * // Basic movement patterns
+     * drone.go("forward", 30, 2);    // Move forward at 30% power for 2 seconds
+     * drone.go("backward", 50, 1);   // Move backward at 50% power for 1 second
+     * drone.go("left", 25, 3);       // Move left at 25% power for 3 seconds
+     * drone.go("right", 40, 1);      // Move right at 40% power for 1 second
+     * drone.go("up", 30, 2);         // Move up at 30% power for 2 seconds
+     * drone.go("down", 30, 1);       // Move down at 30% power for 1 second
+     * 
+     * // Simple square pattern
+     * for (int i = 0; i < 4; i++) {
+     *     drone.go("forward", 50, 1);
+     *     drone.go("right", 30, 1);  // Turn (though turn_right() is preferred)
+     * }
+     * }</pre>
+     * 
+     * <h3>🔧 How it works:</h3>
+     * <ol>
+     *   <li>Resets all control variables to 0</li>
+     *   <li>Sets the appropriate control variable based on direction</li>
+     *   <li>Executes the movement for the specified duration</li>
+     *   <li>Hovers for 1 second to stabilize</li>
+     * </ol>
+     * 
+     * <p><strong>💡 Pro Tips:</strong></p>
+     * <ul>
+     *   <li>Start with low power values (20-30) when learning</li>
+     *   <li>Use short durations (1-2 seconds) for precise control</li>
+     *   <li>Valid directions: "forward", "backward", "left", "right", "up", "down"</li>
+     *   <li>Direction names are case-insensitive</li>
+     * </ul>
+     * 
+     * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     * @param power Power level from 0-100 (higher = faster movement)
+     * @param duration Duration in seconds (how long to fly in that direction)
+     */
+    public void go(String direction, int power, int duration) {
+        flightController.go(direction, power, duration);
+    }
+    
+    /**
+     * Fly in a given direction for the given duration using default power (50%).
+     * 
+     * <p>Simplified version of {@link #go(String, int, int)} with moderate power.</p>
+     * 
+     * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     * @param duration Duration in seconds
+     */
+    public void go(String direction, int duration) {
+        flightController.go(direction, duration);
+    }
+    
+    /**
+     * Fly in a given direction for 1 second using default power (50%).
+     * 
+     * <p>Simplified version of {@link #go(String, int, int)} with moderate power and short duration.</p>
+     * 
+     * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     */
+    public void go(String direction) {
+        flightController.go(direction);
     }
 }
