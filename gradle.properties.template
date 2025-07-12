@@ -1,0 +1,29 @@
+# =============================================================================
+# Release Configuration Template
+# =============================================================================
+# Copy this file to gradle.properties (gitignored) and fill in your credentials
+
+# Maven Central (OSSRH) Credentials
+# Get these from: https://issues.sonatype.org/
+ossrhUsername=your_sonatype_username
+ossrhPassword=your_sonatype_password
+
+# GitHub Packages Credentials  
+# Generate token at: https://github.com/settings/tokens
+gpr.user=your_github_username
+gpr.key=your_github_personal_access_token
+
+# Code Signing (Required for Maven Central)
+# Generate GPG key: gpg --gen-key
+# Export private key: gpg --export-secret-keys --armor KEY_ID
+signingKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
+signingPassword=your_gpg_passphrase
+
+# =============================================================================
+# GitHub Actions Secrets (set in repository settings)
+# =============================================================================
+# These should be set as GitHub repository secrets:
+# - OSSRH_USERNAME
+# - OSSRH_PASSWORD  
+# - SIGNING_KEY
+# - SIGNING_PASSWORD

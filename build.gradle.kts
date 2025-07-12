@@ -2,7 +2,9 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 
 plugins {
-    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("signing")
 }
 
 group = "com.otabi"
@@ -403,91 +405,4 @@ def check_recent_changelog():
         print("=" * 50)
         
         recent_found = False
-        for header in version_headers[:5]:  # Check last 5 versions
-            version_text = header.get_text().strip()
-            
-            # Try to find the date
-            next_sibling = header.find_next_sibling()
-            date_text = ""
-            if next_sibling and next_sibling.name in ['h4', 'p']:
-                potential_date = next_sibling.get_text().strip()
-                if any(month in potential_date for month in ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']):
-                    date_text = potential_date
-            
-            print(f"📦 {version_text}")
-            if date_text:
-                print(f"   📅 {date_text}")
-                
-                # Check if it's from this year
-                if "2025" in date_text:
-                    recent_found = True
-                    
-                    # Look for new features
-                    content_section = header.find_next_sibling()
-                    while content_section and content_section.name not in ['h2', 'h3']:
-                        if content_section.name in ['ul', 'li'] and 'New Features' in str(content_section):
-                            print(f"   ✨ Contains new features - review recommended")
-                            break
-                        content_section = content_section.find_next_sibling()
-            print()
-        
-        if recent_found:
-            print("💡 Recommendation: Run './gradlew updateChangelog' to get full details")
-        else:
-            print("✅ No recent major updates detected")
-            
-        return True
-        
-    except Exception as e:
-        print(f"⚠️ Could not check changelog: {e}")
-        return False
-
-if __name__ == "__main__":
-    check_recent_changelog()
-        """.trimIndent()
-        
-        // Write and run the script
-        val scriptFile = File(pythonVenvDir, "check_changelog.py")
-        scriptFile.writeText(checkScript)
-        
-        try {
-            exec {
-                commandLine("$pythonVenvDir/bin/python", scriptFile.absolutePath)
-            }
-        } catch (exception: Exception) {
-            println("⚠️ Could not check changelog: ${exception.message}")
-            println("💡 Try running './gradlew updateChangelog' for full update")
-        } finally {
-            scriptFile.delete()
-        }
-    }
-}
-
-/**
- * Development task to validate the update system
- */
-tasks.register("validatePythonSetup") {
-    group = "python"
-    description = "Validates that Python environment setup works correctly"
-    dependsOn("createPythonVenv")
-    
-    doLast {
-        // Test pip
-        exec {
-            commandLine("$pythonVenvDir/bin/pip", "--version")
-        }
-        
-        // Test Python
-        exec {
-            commandLine("$pythonVenvDir/bin/python", "-c", "print('Python environment ready')")
-        }
-        
-        // Test CoDrone EDU import
-        exec {
-            commandLine("$pythonVenvDir/bin/python", "-c", 
-                "import codrone_edu; print('CoDrone EDU import successful')")
-        }
-        
-        println("✅ Python environment validation complete")
-    }
-}
+        for header in version_headers[:5]

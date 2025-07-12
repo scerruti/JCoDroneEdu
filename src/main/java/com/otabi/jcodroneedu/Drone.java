@@ -16,9 +16,59 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * The main class for interacting with the CoDrone EDU.
- * This class acts as a facade, providing a simple public API that delegates
- * complex operations to specialized controller and manager classes.
+ * The main class for controlling your CoDrone EDU drone.
+ * 
+ * <p>This is the primary class you'll use in all your drone programming assignments.
+ * It provides simple methods to connect to your drone, make it fly, and safely land it.
+ * The Drone class handles all the complex communication with the physical drone,
+ * so you can focus on learning programming concepts.</p>
+ * 
+ * <h3>🚁 Basic Flight Pattern (L0101):</h3>
+ * <pre>{@code
+ * // Method 1: Simple pair() method
+ * Drone drone = new Drone();
+ * drone.pair();                    // Connect to your drone
+ * drone.takeoff();                 // Launch into the air
+ * drone.hover(5);                  // Hover for 5 seconds  
+ * drone.land();                    // Land safely
+ * drone.close();                   // Clean up resources
+ * 
+ * // Method 2: Try-with-resources (automatic cleanup)
+ * try (Drone drone = new Drone()) {
+ *     drone.pair();
+ *     drone.takeoff();
+ *     drone.hover(5);
+ *     drone.land();
+ * }
+ * }</pre>
+ * 
+ * <h3>🎯 Key Learning Concepts:</h3>
+ * <ul>
+ *   <li><strong>Connection Management:</strong> Always connect before flying</li>
+ *   <li><strong>Resource Cleanup:</strong> Use {@code close()} or try-with-resources</li>
+ *   <li><strong>Safety First:</strong> Use {@code emergencyStop()} if something goes wrong</li>
+ *   <li><strong>Exception Handling:</strong> Catch {@link DroneNotFoundException} for connection issues</li>
+ * </ul>
+ * 
+ * <h3>🔧 Movement Methods (L0102+):</h3>
+ * <ul>
+ *   <li>{@link #setPitch(int)}, {@link #setRoll(int)} - Advanced manual control</li>
+ *   <li>{@link #move()}, {@link #move(int)} - Execute movement commands</li>
+ * </ul>
+ * 
+ * <h3>📡 Sensors & Safety:</h3>
+ * <ul>
+ *   <li>{@link #emergencyStop()} - Immediately stop all motors</li>
+ *   <li>{@link #get_move_values()} - Debug your flight commands</li>
+ * </ul>
+ * 
+ * <p><strong>💡 Pro Tip:</strong> Always test your code with small movements first, 
+ * and keep your finger ready on the emergency stop!</p>
+ * 
+ * @author Stephen Cerruti (with AI assistance from GitHub Copilot)
+ * @version 2.3
+ * @since 1.0
+ * @see DroneNotFoundException
  */
 public class Drone implements AutoCloseable {
 
@@ -39,7 +89,21 @@ public class Drone implements AutoCloseable {
     private boolean isConnected = false;
 
     /**
-     * TODO
+     * Creates a new Drone instance ready for connection.
+     * 
+     * <p>This constructor initializes all internal components but does not automatically
+     * connect to the physical drone. You must call {@link #pair()} or {@link #connect()}
+     * before attempting any flight operations.</p>
+     * 
+     * <h3>🔌 Next Steps:</h3>
+     * <ul>
+     *   <li>Call {@code drone.pair()} for simple connection (crashes on error)</li>
+     *   <li>Call {@code drone.connect()} for exception-based error handling</li>
+     *   <li>Use try-with-resources for automatic cleanup</li>
+     * </ul>
+     * 
+     * @see #pair()
+     * @see #connect()
      */
     public Drone() {
         // Initialize state-holding managers
@@ -65,11 +129,29 @@ public class Drone implements AutoCloseable {
         log.info("Drone instance created and ready for connection.");
     }
 
+    /**
+     * Creates a new Drone instance with optional automatic connection.
+     * 
+     * @param autoConnect If true, automatically attempts to connect to the drone
+     * @throws DroneNotFoundException if autoConnect is true and connection fails
+     * @see #Drone(boolean, String)
+     */
     public Drone(boolean autoConnect) throws DroneNotFoundException
     {
         this(autoConnect, null);
     }
 
+    /**
+     * Creates a new Drone instance with optional automatic connection to a specific port.
+     * 
+     * <p>This constructor is useful when you know the specific serial port or want
+     * to ensure connection to a particular drone controller.</p>
+     * 
+     * @param autoConnect If true, automatically attempts to connect to the drone
+     * @param portName The specific serial port name (e.g., "COM3" on Windows, "/dev/ttyUSB0" on Linux)
+     * @throws DroneNotFoundException if autoConnect is true and connection fails
+     * @see #connect(String)
+     */
     public Drone(boolean autoConnect, String portName) throws DroneNotFoundException
     {
         this();
@@ -83,19 +165,21 @@ public class Drone implements AutoCloseable {
     // =================================================================================
 
     /**
-     * <pre>pair</pre> replicates Python behavior of crashing on connection error for compatibility
-     * use <pre>connect</pre> to implement with exception handling
-     *
-     * TODO Should I move this to javadoc?
+     * Connects to the CoDrone EDU controller using Python-style error handling.
+     * 
+     * <p><strong>⚠️ Educational Note:</strong> This method replicates Python behavior 
+     * by terminating the program if connection fails. For proper Java exception handling,
+     * use {@link #connect()} instead.</p>
+     * 
+     * <h3>🎯 Learning Progression:</h3>
+     * <ul>
+     *   <li><strong>L0101:</strong> Use this method for simple connection</li>
+     *   <li><strong>L0102+:</strong> Graduate to {@code connect()} with try-catch</li>
+     * </ul>
+     * 
+     * @return true if connection successful (never returns false - program exits on failure)
+     * @see #connect()
      */
-
-    /**
-     * Connects to the CoDrone EDU controller. This method will attempt to
-     * automatically find the correct serial port.
-     *
-     * @return true if the connection was successful, false otherwise.
-     */
-    // @Deprecated
     public boolean pair()
     {
         try
@@ -110,11 +194,15 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Connects to the CoDrone EDU controller. This method will attempt to
-     * automatically find the correct serial port.
-     * @return true if the connection was successful, false otherwise.
+     * Connects to the CoDrone EDU controller on a specific port using Python-style error handling.
+     * 
+     * <p>This overload allows you to specify a particular serial port when multiple
+     * devices might be connected.</p>
+     * 
+     * @param portName The serial port name (e.g., "COM3", "/dev/ttyUSB0")
+     * @return true if connection successful (never returns false - program exits on failure)
+     * @see #connect(String)
      */
-    // @Deprecated
     public boolean pair(String portName)
     {
         try
@@ -129,9 +217,28 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Connects to the CoDrone EDU controller. This method will attempt to
-     * automatically find the correct serial port.
-     * @return true if the connection was successful, false otherwise.
+     * Connects to the CoDrone EDU controller with proper exception handling.
+     * 
+     * <p>This is the recommended connection method for learning proper Java exception
+     * handling patterns. Unlike {@link #pair()}, this method throws an exception
+     * instead of terminating the program on failure.</p>
+     * 
+     * <h3>💡 Usage Example:</h3>
+     * <pre>{@code
+     * try {
+     *     if (drone.connect()) {
+     *         System.out.println("Connected successfully!");
+     *         // Your flight code here
+     *     }
+     * } catch (DroneNotFoundException e) {
+     *     System.err.println("Connection failed: " + e.getMessage());
+     *     // Handle error appropriately
+     * }
+     * }</pre>
+     * 
+     * @return true if connection successful, false if connection failed but no exception occurred
+     * @throws DroneNotFoundException if the drone controller cannot be found or connected to
+     * @see #pair()
      */
     public boolean connect() throws DroneNotFoundException
     {
@@ -616,25 +723,61 @@ public class Drone implements AutoCloseable {
     }
 
     // =================================================================================
-    // --- Getters for Components ---
+    // --- Component Access (Advanced Usage) ---
     // =================================================================================
 
+    /**
+     * Gets the internal flight controller for advanced flight operations.
+     * 
+     * <p><strong>⚠️ Advanced Usage:</strong> This exposes internal implementation details.
+     * Most educational assignments should use the direct methods on {@code Drone} instead.</p>
+     * 
+     * @return the flight controller instance
+     */
     public FlightController getFlightController() {
         return flightController;
     }
 
+    /**
+     * Gets the internal link controller for communication management.
+     * 
+     * <p><strong>⚠️ Advanced Usage:</strong> This exposes internal implementation details.</p>
+     * 
+     * @return the link controller instance
+     */
     public LinkController getLinkController() {
         return linkController;
     }
 
+    /**
+     * Gets the internal settings controller for drone configuration.
+     * 
+     * <p><strong>⚠️ Advanced Usage:</strong> This exposes internal implementation details.</p>
+     * 
+     * @return the settings controller instance
+     */
     public SettingsController getSettingsController() {
         return settingsController;
     }
 
+    /**
+     * Gets the current drone status information.
+     * 
+     * <p>This provides access to battery level, flight state, and other status data.</p>
+     * 
+     * @return the drone status instance
+     */
     public DroneStatus getDroneStatus() {
         return droneStatus;
     }
 
+    /**
+     * Gets the link manager for connection information.
+     * 
+     * <p>This provides access to controller model, firmware version, and connection details.</p>
+     * 
+     * @return the link manager instance
+     */
     public LinkManager getLinkManager() {
         return linkManager;
     }
@@ -651,6 +794,14 @@ public class Drone implements AutoCloseable {
         }
     }
 
+    /**
+     * Gets the internal receiver component for communication handling.
+     * 
+     * <p><strong>⚠️ Internal Use:</strong> This method exposes low-level communication
+     * details and should typically not be used in educational assignments.</p>
+     * 
+     * @return the receiver instance
+     */
     public Receiver getReceiver()
     {
         return receiver;
