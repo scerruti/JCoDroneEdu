@@ -1,24 +1,33 @@
-package com.otabi.jcodroneedu.example;
+package com.otabi.jcodroneedu.examples;
 
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;
 
-public class L0107ForLoops {
+public class L0110Functions {
     public static void main(String[] args) {
-        int power = 30;
-        int duration = 2;
-
         try (Drone drone = new Drone(true)) {
             drone.takeoff();
 
-            for (int i = 0; i < 4; i++) {
-                moveForward(drone, power, duration);
-                turnRight(drone, 90, 1); // 90-degree turn, 1 second
-            }
+            flySquare(drone, 30, 2);
+            flyTriangle(drone, 30, 2);
 
             drone.land();
         } catch (DroneNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void flySquare(Drone drone, int power, int duration) {
+        for (int i = 0; i < 4; i++) {
+            moveForward(drone, power, duration);
+            turnRight(drone, 90, 1);
+        }
+    }
+
+    private static void flyTriangle(Drone drone, int power, int duration) {
+        for (int i = 0; i < 3; i++) {
+            moveForward(drone, power, duration);
+            turnRight(drone, 120, 1);
         }
     }
 

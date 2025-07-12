@@ -24,6 +24,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
 
+    // Mockito for mocking in tests
+    testImplementation("org.mockito:mockito-core:5.5.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
 }
 
@@ -405,4 +409,47 @@ def check_recent_changelog():
         print("=" * 50)
         
         recent_found = False
-        for header in version_headers[:5]
+        for header in version_headers[:5]:
+            version_text = header.get_text().strip()
+            print(f"- {version_text}")
+            
+            # Look for date information near the header
+            next_sibling = header.next_sibling
+            while next_sibling and hasattr(next_sibling, 'get_text'):
+                text = next_sibling.get_text().strip()
+                if any(month in text for month in ['January', 'February', 'March', 'April', 'May', 'June', 
+                                                   'July', 'August', 'September', 'October', 'November', 'December']):
+                    print(f"  Date: {text}")
+                    recent_found = True
+                    break
+                next_sibling = next_sibling.next_sibling
+                
+        if not recent_found:
+            print("No recent dates found in changelog")
+            
+        print("=" * 50)
+        print("💡 Run './gradlew updateChangelog' for detailed changelog analysis")
+        
+    except Exception as e:
+        print(f"Error checking changelog: {e}")
+
+if __name__ == "__main__":
+    check_recent_changelog()
+        """.trimIndent()
+        
+        // Write and run the script
+        val scriptFile = File(pythonVenvDir, "check_changelog.py")
+        scriptFile.writeText(checkScript)
+        
+        try {
+            exec {
+                commandLine("$pythonVenvDir/bin/python", scriptFile.absolutePath)
+            }
+        } catch (exception: Exception) {
+            println("⚠️ Could not check changelog: ${exception.message}")
+            println("📝 Run './gradlew updateChangelog' for full changelog update")
+        } finally {
+            scriptFile.delete()
+        }
+    }
+}

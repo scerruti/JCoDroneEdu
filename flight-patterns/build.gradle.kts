@@ -40,9 +40,9 @@ tasks.javadoc {
             addBooleanOption("html5", true)
             encoding = "UTF-8"
             charSet = "UTF-8"
-            author = true
-            version = true
-            use = true
+            addBooleanOption("author", true)
+            addBooleanOption("version", true)
+            addBooleanOption("use", true)
             windowTitle = "JCoDroneEdu Flight Patterns ${project.version}"
             docTitle = "JCoDroneEdu Flight Patterns API"
             bottom = """

@@ -1,4 +1,4 @@
-package com.otabi.jcodroneedu.example;
+package com.otabi.jcodroneedu.examples;
 
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;

@@ -355,6 +355,26 @@ public abstract class DroneTest {
             return get_front_range("cm");
         }
 
+        /**
+         * MEDIUM PRIORITY: Battery level sensor
+         * Essential for power management in student assignments
+         * @return: simulated battery level (0-100)
+         */
+        public int getBattery() {
+            commandHistory.add("getBattery");
+            return 85; // Mock battery level
+        }
+
+        /**
+         * MEDIUM PRIORITY: Temperature sensor
+         * Used for environmental monitoring in advanced lessons
+         * @return: simulated temperature in Celsius
+         */
+        public double getTemperature() {
+            commandHistory.add("getTemperature");
+            return 22.5; // Mock temperature
+        }
+
         // =============================================================================
         // PHASE 2: Educational Pattern Methods
         // =============================================================================

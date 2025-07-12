@@ -1,5 +1,6 @@
-package com.otabi.jcodroneedu;
+package com.otabi.jcodroneedu.examples;
 
+import com.otabi.jcodroneedu.DroneFlightTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
