@@ -424,6 +424,85 @@ public abstract class DroneTest {
         }
 
         // =============================================================================
+        // PHASE 3: Distance-Based Movement Methods (Punch List Item #2)
+        // =============================================================================
+
+        /**
+         * NEW: Distance-based forward movement
+         * Educational API for precise distance control
+         */
+        public void moveForward(double distance) {
+            moveForward(distance, "cm", 1.0);
+        }
+
+        public void moveForward(double distance, String units) {
+            moveForward(distance, units, 1.0);
+        }
+
+        public void moveForward(double distance, String units, double speed) {
+            commandHistory.add("moveForward(" + distance + ", " + units + ", " + speed + ")");
+        }
+
+        /**
+         * NEW: Distance-based backward movement
+         */
+        public void moveBackward(double distance) {
+            moveBackward(distance, "cm", 1.0);
+        }
+
+        public void moveBackward(double distance, String units) {
+            moveBackward(distance, units, 1.0);
+        }
+
+        public void moveBackward(double distance, String units, double speed) {
+            commandHistory.add("moveBackward(" + distance + ", " + units + ", " + speed + ")");
+        }
+
+        /**
+         * NEW: Distance-based left movement
+         */
+        public void moveLeft(double distance) {
+            moveLeft(distance, "cm", 1.0);
+        }
+
+        public void moveLeft(double distance, String units) {
+            moveLeft(distance, units, 1.0);
+        }
+
+        public void moveLeft(double distance, String units, double speed) {
+            commandHistory.add("moveLeft(" + distance + ", " + units + ", " + speed + ")");
+        }
+
+        /**
+         * NEW: Distance-based right movement
+         */
+        public void moveRight(double distance) {
+            moveRight(distance, "cm", 1.0);
+        }
+
+        public void moveRight(double distance, String units) {
+            moveRight(distance, units, 1.0);
+        }
+
+        public void moveRight(double distance, String units, double speed) {
+            commandHistory.add("moveRight(" + distance + ", " + units + ", " + speed + ")");
+        }
+
+        /**
+         * NEW: 3D distance-based movement
+         */
+        public void moveDistance(double x, double y, double z, double speed) {
+            commandHistory.add("moveDistance(" + x + ", " + y + ", " + z + ", " + speed + ")");
+        }
+
+        /**
+         * NEW: Absolute position movement
+         */
+        public void sendAbsolutePosition(double x, double y, double z, double velocity, int heading, int rotationalVelocity) {
+            commandHistory.add("sendAbsolutePosition(" + x + ", " + y + ", " + z + ", " + velocity + ", " + heading + ", " + rotationalVelocity + ")");
+        }
+
+        // =============================================================================
         // Helper Methods for Testing Infrastructure
         // =============================================================================
 
@@ -499,6 +578,40 @@ public abstract class DroneTest {
          */
         public long getEmergencyStopCount() {
             return commandHistory.stream().filter(cmd -> cmd.equals("emergency_stop")).count();
+        }
+
+        /**
+         * Check if any distance-based movement method was used
+         */
+        public boolean wasDistanceMovementUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("moveForward(") || 
+                cmd.startsWith("moveBackward(") || 
+                cmd.startsWith("moveLeft(") || 
+                cmd.startsWith("moveRight(") ||
+                cmd.startsWith("moveDistance("));
+        }
+
+        /**
+         * Get all distance-based movement calls
+         */
+        public List<String> getDistanceMovementCalls() {
+            return commandHistory.stream()
+                    .filter(cmd -> cmd.startsWith("moveForward(") || 
+                                 cmd.startsWith("moveBackward(") || 
+                                 cmd.startsWith("moveLeft(") || 
+                                 cmd.startsWith("moveRight(") ||
+                                 cmd.startsWith("moveDistance("))
+                    .toList();
+        }
+
+        /**
+         * Check if 3D movement was used
+         */
+        public boolean was3DMovementUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("moveDistance(") || 
+                cmd.startsWith("sendAbsolutePosition("));
         }
 
         // Test helper methods (existing)

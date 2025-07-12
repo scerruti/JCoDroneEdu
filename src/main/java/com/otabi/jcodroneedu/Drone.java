@@ -56,6 +56,12 @@ import java.util.concurrent.TimeoutException;
  * <h3>🔧 Movement Methods (L0102+):</h3>
  * <ul>
  *   <li>{@link #go(String, int, int)} - Primary educational movement API (matches Python)</li>
+ *   <li>{@link #moveForward(double, String, double)} - Precise distance-based forward movement</li>
+ *   <li>{@link #moveBackward(double, String, double)} - Precise distance-based backward movement</li>
+ *   <li>{@link #moveLeft(double, String, double)} - Precise distance-based left movement</li>
+ *   <li>{@link #moveRight(double, String, double)} - Precise distance-based right movement</li>
+ *   <li>{@link #moveDistance(double, double, double, double)} - 3D movement control</li>
+ *   <li>{@link #sendAbsolutePosition(double, double, double, double, int, int)} - Absolute positioning</li>
  *   <li>{@link #setPitch(int)}, {@link #setRoll(int)} - Advanced manual control</li>
  *   <li>{@link #move()}, {@link #move(int)} - Execute movement commands</li>
  * </ul>
@@ -881,4 +887,179 @@ public class Drone implements AutoCloseable {
     public void go(String direction) {
         flightController.go(direction);
     }
+
+    // ========================================
+    // Distance-Based Movement Methods (Punch List Item #2)
+    // Python API Compatibility: move_forward(), move_backward(), move_left(), move_right()
+    // ========================================
+    
+    /**
+     * Move forward a specific distance with precision control.
+     * 
+     * <p>This method provides Python API compatibility, allowing students to move the drone
+     * a precise distance forward using familiar units.</p>
+     * 
+     * <p><strong>Examples:</strong></p>
+     * <pre>
+     * drone.moveForward(50);           // Move 50 cm forward at default speed
+     * drone.moveForward(100, "cm");    // Move 100 cm forward
+     * drone.moveForward(2, "ft", 1.5); // Move 2 feet forward at 1.5 m/s
+     * drone.moveForward(0.5, "m");     // Move 0.5 meters forward
+     * </pre>
+     * 
+     * @param distance The distance to move forward
+     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
+     * 
+     * @see #moveBackward(double, String, double)
+     * @see #moveLeft(double, String, double)
+     * @see #moveRight(double, String, double)
+     */
+    public void moveForward(double distance, String units, double speed) {
+        flightController.moveForward(distance, units, speed);
+    }
+    
+    /**
+     * Move forward with default units (cm) and speed (0.5 m/s).
+     */
+    public void moveForward(double distance) {
+        flightController.moveForward(distance);
+    }
+    
+    /**
+     * Move forward with specified units and default speed (0.5 m/s).
+     */
+    public void moveForward(double distance, String units) {
+        flightController.moveForward(distance, units);
+    }
+    
+    /**
+     * Move backward a specific distance with precision control.
+     * 
+     * <p>This method provides Python API compatibility for precise backward movement.</p>
+     * 
+     * @param distance The distance to move backward
+     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveBackward(double distance, String units, double speed) {
+        flightController.moveBackward(distance, units, speed);
+    }
+    
+    /**
+     * Move backward with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveBackward(double distance) {
+        flightController.moveBackward(distance);
+    }
+    
+    /**
+     * Move backward with specified units and default speed (1.0 m/s).
+     */
+    public void moveBackward(double distance, String units) {
+        flightController.moveBackward(distance, units);
+    }
+    
+    /**
+     * Move left a specific distance with precision control.
+     * 
+     * <p>This method provides Python API compatibility for precise leftward movement.</p>
+     * 
+     * @param distance The distance to move left
+     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveLeft(double distance, String units, double speed) {
+        flightController.moveLeft(distance, units, speed);
+    }
+    
+    /**
+     * Move left with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveLeft(double distance) {
+        flightController.moveLeft(distance);
+    }
+    
+    /**
+     * Move left with specified units and default speed (1.0 m/s).
+     */
+    public void moveLeft(double distance, String units) {
+        flightController.moveLeft(distance, units);
+    }
+    
+    /**
+     * Move right a specific distance with precision control.
+     * 
+     * <p>This method provides Python API compatibility for precise rightward movement.</p>
+     * 
+     * @param distance The distance to move right
+     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveRight(double distance, String units, double speed) {
+        flightController.moveRight(distance, units, speed);
+    }
+    
+    /**
+     * Move right with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveRight(double distance) {
+        flightController.moveRight(distance);
+    }
+    
+    /**
+     * Move right with specified units and default speed (1.0 m/s).
+     */
+    public void moveRight(double distance, String units) {
+        flightController.moveRight(distance, units);
+    }
+    
+    /**
+     * Move the drone in 3D space to a specific relative position.
+     * 
+     * <p>This method provides Python API compatibility for 3D movement, allowing simultaneous
+     * movement along multiple axes.</p>
+     * 
+     * <p><strong>Examples:</strong></p>
+     * <pre>
+     * drone.moveDistance(1.0, 0.5, 0.25, 1.0); // Move 1m forward, 0.5m left, 0.25m up
+     * drone.moveDistance(0, 0, -0.5, 0.8);     // Move 0.5m down at 0.8 m/s
+     * </pre>
+     * 
+     * @param positionX Distance in meters (+ forward, - backward)
+     * @param positionY Distance in meters (+ left, - right)
+     * @param positionZ Distance in meters (+ up, - down)
+     * @param velocity Speed from 0.5 to 2.0 m/s
+     */
+    public void moveDistance(double positionX, double positionY, double positionZ, double velocity) {
+        flightController.moveDistance(positionX, positionY, positionZ, velocity);
+    }
+    
+    /**
+     * Send absolute position command to the drone.
+     * 
+     * <p>This method provides Python API compatibility for absolute positioning relative
+     * to the takeoff point.</p>
+     * 
+     * <p><strong>Examples:</strong></p>
+     * <pre>
+     * drone.sendAbsolutePosition(1.0, 0, 0.8, 0.5, 0, 0);   // Fly to specific coordinates
+     * drone.sendAbsolutePosition(0, 0, 1.0, 1.0, 90, 30);   // Hover 1m up, turn 90°
+     * </pre>
+     * 
+     * @param positionX Absolute X position in meters from takeoff point
+     * @param positionY Absolute Y position in meters from takeoff point
+     * @param positionZ Absolute Z position in meters from takeoff point
+     * @param velocity Speed from 0.5 to 2.0 m/s
+     * @param heading Target heading in degrees (-360 to 360)
+     * @param rotationalVelocity Rotational speed in degrees/s (10 to 360)
+     */
+    public void sendAbsolutePosition(double positionX, double positionY, double positionZ, 
+                                   double velocity, int heading, int rotationalVelocity) {
+        flightController.sendAbsolutePosition(positionX, positionY, positionZ, velocity, heading, rotationalVelocity);
+    }
+
+    // ========================================
+    // End Distance-Based Movement Methods
+    // ========================================
 }

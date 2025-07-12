@@ -456,4 +456,236 @@ public class FlightController {
             Thread.currentThread().interrupt();
         }
     }
+    
+    // ========================================
+    // Distance-Based Movement Methods (Punch List Item #2)
+    // ========================================
+    
+    /**
+     * Move forward a specific distance with precision control.
+     * 
+     * This method implements the Python move_forward() functionality, allowing students to 
+     * move the drone a precise distance in centimeters, inches, meters, or feet.
+     * 
+     * @param distance The distance to move forward
+     * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
+     */
+    public void moveForward(double distance, String units, double speed) {
+        double distanceMeters = convertToMeters(distance, units);
+        if (distanceMeters < 0) return; // Invalid unit conversion
+        
+        // Cap the speed to valid range
+        speed = Math.max(0.5, Math.min(speed, 2.0));
+        
+        // Send position control command
+        sendControlPosition((float) distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
+        
+        // Calculate delay based on distance and speed, plus buffer time
+        double delay = (distanceMeters / speed) + 1.0;
+        sleep((long) (delay * 1000));
+    }
+    
+    /**
+     * Move forward with default units (cm) and speed (0.5 m/s).
+     */
+    public void moveForward(double distance) {
+        moveForward(distance, "cm", 0.5);
+    }
+    
+    /**
+     * Move forward with specified units and default speed (0.5 m/s).
+     */
+    public void moveForward(double distance, String units) {
+        moveForward(distance, units, 0.5);
+    }
+    
+    /**
+     * Move backward a specific distance with precision control.
+     * 
+     * This method implements the Python move_backward() functionality, allowing students to 
+     * move the drone a precise distance backward.
+     * 
+     * @param distance The distance to move backward
+     * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveBackward(double distance, String units, double speed) {
+        double distanceMeters = convertToMeters(distance, units);
+        if (distanceMeters < 0) return; // Invalid unit conversion
+        
+        // Cap the speed to valid range
+        speed = Math.max(0.5, Math.min(speed, 2.0));
+        
+        // Send position control command (negative X for backward)
+        sendControlPosition((float) -distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
+        
+        // Calculate delay based on distance and speed, plus buffer time
+        double delay = (distanceMeters / speed) + 1.0;
+        sleep((long) (delay * 1000));
+    }
+    
+    /**
+     * Move backward with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveBackward(double distance) {
+        moveBackward(distance, "cm", 1.0);
+    }
+    
+    /**
+     * Move backward with specified units and default speed (1.0 m/s).
+     */
+    public void moveBackward(double distance, String units) {
+        moveBackward(distance, units, 1.0);
+    }
+    
+    /**
+     * Move left a specific distance with precision control.
+     * 
+     * This method implements the Python move_left() functionality, allowing students to 
+     * move the drone a precise distance to the left.
+     * 
+     * @param distance The distance to move left
+     * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveLeft(double distance, String units, double speed) {
+        double distanceMeters = convertToMeters(distance, units);
+        if (distanceMeters < 0) return; // Invalid unit conversion
+        
+        // Cap the speed to valid range
+        speed = Math.max(0.5, Math.min(speed, 2.0));
+        
+        // Send position control command (positive Y for left)
+        sendControlPosition(0.0f, (float) distanceMeters, 0.0f, (float) speed, 0, 0);
+        
+        // Calculate delay based on distance and speed, plus buffer time
+        double delay = (distanceMeters / speed) + 1.0;
+        sleep((long) (delay * 1000));
+    }
+    
+    /**
+     * Move left with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveLeft(double distance) {
+        moveLeft(distance, "cm", 1.0);
+    }
+    
+    /**
+     * Move left with specified units and default speed (1.0 m/s).
+     */
+    public void moveLeft(double distance, String units) {
+        moveLeft(distance, units, 1.0);
+    }
+    
+    /**
+     * Move right a specific distance with precision control.
+     * 
+     * This method implements the Python move_right() functionality, allowing students to 
+     * move the drone a precise distance to the right.
+     * 
+     * @param distance The distance to move right
+     * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     */
+    public void moveRight(double distance, String units, double speed) {
+        double distanceMeters = convertToMeters(distance, units);
+        if (distanceMeters < 0) return; // Invalid unit conversion
+        
+        // Cap the speed to valid range
+        speed = Math.max(0.5, Math.min(speed, 2.0));
+        
+        // Send position control command (negative Y for right)
+        sendControlPosition(0.0f, (float) -distanceMeters, 0.0f, (float) speed, 0, 0);
+        
+        // Calculate delay based on distance and speed, plus buffer time
+        double delay = (distanceMeters / speed) + 1.0;
+        sleep((long) (delay * 1000));
+    }
+    
+    /**
+     * Move right with default units (cm) and speed (1.0 m/s).
+     */
+    public void moveRight(double distance) {
+        moveRight(distance, "cm", 1.0);
+    }
+    
+    /**
+     * Move right with specified units and default speed (1.0 m/s).
+     */
+    public void moveRight(double distance, String units) {
+        moveRight(distance, units, 1.0);
+    }
+    
+    /**
+     * Move the drone in 3D space to a specific relative position.
+     * 
+     * This method implements the Python move_distance() functionality, allowing students to
+     * move the drone simultaneously along X, Y, and Z axes.
+     * 
+     * @param positionX The distance to move forward/backward in meters (+ forward, - backward)
+     * @param positionY The distance to move left/right in meters (+ left, - right)
+     * @param positionZ The distance to move up/down in meters (+ up, - down)
+     * @param velocity The movement speed from 0.5 to 2.0 m/s
+     */
+    public void moveDistance(double positionX, double positionY, double positionZ, double velocity) {
+        // Cap the velocity to valid range
+        velocity = Math.max(0.5, Math.min(velocity, 2.0));
+        
+        // Calculate total distance for timing
+        double distance = Math.sqrt(positionX * positionX + positionY * positionY + positionZ * positionZ);
+        
+        // Send position control command
+        sendControlPosition((float) positionX, (float) positionY, (float) positionZ, (float) velocity, 0, 0);
+        
+        // Calculate delay based on distance and velocity, plus buffer time
+        double delay = (distance / velocity) + 2.5;
+        sleep((long) (delay * 1000));
+    }
+    
+    /**
+     * Send absolute position command to the drone.
+     * 
+     * This method implements the Python send_absolute_position() functionality, allowing
+     * precise positioning relative to the takeoff point.
+     * 
+     * @param positionX The absolute X position in meters from takeoff point
+     * @param positionY The absolute Y position in meters from takeoff point  
+     * @param positionZ The absolute Z position in meters from takeoff point
+     * @param velocity The movement speed from 0.5 to 2.0 m/s
+     * @param heading The target heading in degrees (-360 to 360)
+     * @param rotationalVelocity The rotational speed in degrees/s (10 to 360)
+     */
+    public void sendAbsolutePosition(double positionX, double positionY, double positionZ, 
+                                   double velocity, int heading, int rotationalVelocity) {
+        sendControlPosition((float) positionX, (float) positionY, (float) positionZ, 
+                          (float) velocity, heading, rotationalVelocity);
+    }
+    
+    /**
+     * Helper method to convert distance measurements to meters.
+     * 
+     * @param distance The distance value
+     * @param units The unit: "cm", "in", "ft", "m"
+     * @return The distance in meters, or -1 if invalid unit
+     */
+    private double convertToMeters(double distance, String units) {
+        switch (units.toLowerCase()) {
+            case "cm":
+                return distance / 100.0;
+            case "ft":
+                return distance / 3.28084;
+            case "in":
+                return distance / 39.37;
+            case "m":
+                return distance;
+            default:
+                System.out.println("Error: Invalid unit '" + units + "'. Valid units are: cm, ft, in, m");
+                return -1;
+        }
+    }
+
+    // ========================================
+    // End Distance-Based Movement Methods
+    // ========================================
 }
