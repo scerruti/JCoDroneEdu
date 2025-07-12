@@ -502,6 +502,95 @@ public abstract class DroneTest {
             commandHistory.add("sendAbsolutePosition(" + x + ", " + y + ", " + z + ", " + velocity + ", " + heading + ", " + rotationalVelocity + ")");
         }
 
+        /**
+         * NEW: Turning methods - Basic yaw control
+         */
+        public void turn(int power, Double seconds) {
+            if (seconds == null) {
+                commandHistory.add("turn(" + power + ")");
+            } else {
+                commandHistory.add("turn(" + power + ", " + seconds + ")");
+            }
+        }
+
+        public void turn(int power) {
+            turn(power, 1.0);
+        }
+
+        /**
+         * NEW: Turn to specific degree
+         */
+        public void turnDegree(int degree, double timeout, double pValue) {
+            commandHistory.add("turnDegree(" + degree + ", " + timeout + ", " + pValue + ")");
+        }
+
+        public void turnDegree(int degree, double timeout) {
+            turnDegree(degree, timeout, 10.0);
+        }
+
+        public void turnDegree(int degree) {
+            turnDegree(degree, 3.0, 10.0);
+        }
+
+        /**
+         * NEW: Turn left by degrees
+         */
+        public void turnLeft(int degrees, double timeout) {
+            commandHistory.add("turnLeft(" + degrees + ", " + timeout + ")");
+        }
+
+        public void turnLeft(int degrees) {
+            turnLeft(degrees, 3.0);
+        }
+
+        /**
+         * NEW: Turn right by degrees
+         */
+        public void turnRight(int degrees, double timeout) {
+            commandHistory.add("turnRight(" + degrees + ", " + timeout + ")");
+        }
+
+        public void turnRight(int degrees) {
+            turnRight(degrees, 3.0);
+        }
+
+        // =============================================================================
+        // Test Helper Methods for Turning
+        // =============================================================================
+
+        /**
+         * Check if any turning method was used
+         */
+        public boolean wasTurningUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("turn(") || 
+                cmd.startsWith("turnDegree(") || 
+                cmd.startsWith("turnLeft(") || 
+                cmd.startsWith("turnRight("));
+        }
+
+        /**
+         * Get all turning method calls
+         */
+        public List<String> getTurningCalls() {
+            return commandHistory.stream()
+                    .filter(cmd -> cmd.startsWith("turn(") || 
+                                 cmd.startsWith("turnDegree(") || 
+                                 cmd.startsWith("turnLeft(") || 
+                                 cmd.startsWith("turnRight("))
+                    .toList();
+        }
+
+        /**
+         * Check if precise degree turning was used
+         */
+        public boolean wasPreciseTurningUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("turnDegree(") || 
+                cmd.startsWith("turnLeft(") || 
+                cmd.startsWith("turnRight("));
+        }
+
         // =============================================================================
         // Helper Methods for Testing Infrastructure
         // =============================================================================

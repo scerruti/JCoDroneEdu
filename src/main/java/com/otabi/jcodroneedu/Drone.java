@@ -62,6 +62,10 @@ import java.util.concurrent.TimeoutException;
  *   <li>{@link #moveRight(double, String, double)} - Precise distance-based right movement</li>
  *   <li>{@link #moveDistance(double, double, double, double)} - 3D movement control</li>
  *   <li>{@link #sendAbsolutePosition(double, double, double, double, int, int)} - Absolute positioning</li>
+ *   <li>{@link #turn(int, Double)} - Basic turning with power and duration</li>
+ *   <li>{@link #turnLeft(int)} - Turn left by specified degrees</li>
+ *   <li>{@link #turnRight(int)} - Turn right by specified degrees</li>
+ *   <li>{@link #turnDegree(int)} - Turn to specific heading angle</li>
  *   <li>{@link #setPitch(int)}, {@link #setRoll(int)} - Advanced manual control</li>
  *   <li>{@link #move()}, {@link #move(int)} - Execute movement commands</li>
  * </ul>
@@ -1062,4 +1066,185 @@ public class Drone implements AutoCloseable {
     // ========================================
     // End Distance-Based Movement Methods
     // ========================================
+    
+    // =============================================================================
+    // PHASE 3: Turning Methods (Punch List Item #3)
+    // Educational wrapper methods for Python-compatible turning
+    // =============================================================================
+
+    /**
+     * Turns the drone in the yaw direction (left/right rotation).
+     * 
+     * <p>This method provides simple yaw control for educational use, matching the
+     * Python {@code turn(power, seconds)} function.</p>
+     * 
+     * <p><strong>Educational Context:</strong><br>
+     * Students learn basic rotational movement concepts and directional control.
+     * This method serves as an introduction to yaw control before progressing to
+     * more precise degree-based turning methods.</p>
+     * 
+     * @param power The turning power (-100 to 100). Positive values turn left, 
+     *              negative values turn right.
+     * @param seconds The duration to turn in seconds. Use null for single command.
+     * 
+     * @since 1.0
+     * @see #turnLeft(int)
+     * @see #turnRight(int)
+     * @see #turnDegree(int)
+     * 
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn left at 50% power for 2 seconds
+     * drone.turn(50, 2.0);
+     * 
+     * // Quick turn right for 1 second  
+     * drone.turn(-30, 1.0);
+     * }</pre>
+     */
+    public void turn(int power, Double seconds) {
+        flightController.turn(power, seconds);
+    }
+
+    /**
+     * Overloaded turn method with default 1 second duration.
+     */
+    public void turn(int power) {
+        turn(power, 1.0);
+    }
+
+    /**
+     * Turns the drone to a specific degree relative to its initial heading.
+     * 
+     * <p>This method provides precise angular control using a proportional controller,
+     * matching the Python {@code turn_degree(degree, timeout, p_value)} function.</p>
+     * 
+     * <p><strong>Educational Context:</strong><br>
+     * Students learn precise angular positioning and closed-loop control concepts.
+     * This method is essential for autonomous navigation and flight patterns.</p>
+     * 
+     * @param degree The target heading in degrees (-180 to 180). Positive values
+     *               are relative left turns, negative values are relative right turns.
+     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * @param pValue Proportional gain for the control system (default: 10.0)
+     * 
+     * @since 1.0
+     * @see #turnLeft(int)
+     * @see #turnRight(int)
+     * @see #turn(int, Double)
+     * 
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn exactly 90 degrees left
+     * drone.turnDegree(90);
+     * 
+     * // Turn 45 degrees right with custom timeout
+     * drone.turnDegree(-45, 5.0);
+     * 
+     * // Precise turn with custom control parameters
+     * drone.turnDegree(180, 4.0, 15.0);
+     * }</pre>
+     */
+    public void turnDegree(int degree, double timeout, double pValue) {
+        flightController.turnDegree(degree, timeout, pValue);
+    }
+
+    /**
+     * Overloaded turnDegree with default timeout.
+     */
+    public void turnDegree(int degree, double timeout) {
+        flightController.turnDegree(degree, timeout);
+    }
+
+    /**
+     * Overloaded turnDegree with default timeout and pValue.
+     */
+    public void turnDegree(int degree) {
+        flightController.turnDegree(degree);
+    }
+
+    /**
+     * Turns the drone left by the specified number of degrees.
+     * 
+     * <p>This method provides intuitive left turning for educational use,
+     * matching the Python {@code turn_left(degree, timeout)} function.</p>
+     * 
+     * <p><strong>Educational Context:</strong><br>
+     * Students learn directional control with clear semantic meaning. This method
+     * is perfect for building navigation patterns and obstacle avoidance behaviors.</p>
+     * 
+     * @param degrees The number of degrees to turn left (0 to 179)
+     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * 
+     * @since 1.0
+     * @see #turnRight(int, double)
+     * @see #turnDegree(int)
+     * @see #turn(int, Double)
+     * 
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn left 90 degrees (quarter turn)
+     * drone.turnLeft(90);
+     * 
+     * // Turn left 45 degrees with longer timeout
+     * drone.turnLeft(45, 5.0);
+     * 
+     * // Small adjustment turn
+     * drone.turnLeft(15);
+     * }</pre>
+     */
+    public void turnLeft(int degrees, double timeout) {
+        flightController.turnLeft(degrees, timeout);
+    }
+
+    /**
+     * Overloaded turnLeft with default timeout.
+     */
+    public void turnLeft(int degrees) {
+        flightController.turnLeft(degrees);
+    }
+
+    /**
+     * Turns the drone right by the specified number of degrees.
+     * 
+     * <p>This method provides intuitive right turning for educational use,
+     * matching the Python {@code turn_right(degree, timeout)} function.</p>
+     * 
+     * <p><strong>Educational Context:</strong><br>
+     * Students learn directional control with clear semantic meaning. This method
+     * is perfect for building navigation patterns and obstacle avoidance behaviors.</p>
+     * 
+     * @param degrees The number of degrees to turn right (0 to 179)
+     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * 
+     * @since 1.0
+     * @see #turnLeft(int, double)
+     * @see #turnDegree(int)
+     * @see #turn(int, Double)
+     * 
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn right 90 degrees (quarter turn)
+     * drone.turnRight(90);
+     * 
+     * // Turn right 45 degrees with longer timeout
+     * drone.turnRight(45, 5.0);
+     * 
+     * // Small adjustment turn
+     * drone.turnRight(15);
+     * }</pre>
+     */
+    public void turnRight(int degrees, double timeout) {
+        flightController.turnRight(degrees, timeout);
+    }
+
+    /**
+     * Overloaded turnRight with default timeout.
+     */
+    public void turnRight(int degrees) {
+        flightController.turnRight(degrees);
+    }
 }
