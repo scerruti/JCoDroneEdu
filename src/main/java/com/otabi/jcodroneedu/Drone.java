@@ -1608,4 +1608,288 @@ public class Drone implements AutoCloseable {
     public double getAngleZ() {
         return flightController.getAngleZ();
     }
+
+    // =============================================================================
+    // PHASE 4: Built-in Flight Patterns (Punch List Item #6)
+    // Educational pattern methods for Python-compatible flight patterns
+    // =============================================================================
+
+    /**
+     * Flies the drone in the shape of a square.
+     * 
+     * <p>This method provides Python API compatibility for engaging flight patterns
+     * that demonstrate coordinated movement sequences.</p>
+     * 
+     * <p><strong>Educational Context:</strong><br>
+     * Students learn about sequential programming, coordinate systems, and
+     * combining multiple movements into complex behaviors. The square pattern
+     * is an excellent introduction to flight patterns and algorithmic thinking.</p>
+     * 
+     * <p><strong>Implementation Note:</strong><br>
+     * Uses direct motor control (sendControlWhile) to precisely replicate
+     * the Python implementation's flight behavior.</p>
+     * 
+     * @param speed The flight speed (0-100). Higher values create larger squares.
+     * @param seconds Duration for each side of the square in seconds.
+     * @param direction Direction of flight (1 for right, -1 for left)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.square(speed, seconds, direction)}
+     * @since 1.0
+     * @educational
+     */
+    public void square(int speed, int seconds, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        long duration = seconds * 1000L;
+
+        // Square pattern: Forward -> Right -> Back -> Left
+        sendControlWhile(0, power, 0, 0, duration);                    // Forward (pitch)
+        sendControlWhile(0, -power, 0, 0, 50);                         // Brief stop
+
+        sendControlWhile(power * direction, 0, 0, 0, duration);        // Right/Left (roll)
+        sendControlWhile(-power * direction, 0, 0, 0, 50);             // Brief stop
+
+        sendControlWhile(0, -power, 0, 0, duration);                   // Backward (pitch)
+        sendControlWhile(0, power, 0, 0, 50);                          // Brief stop
+
+        sendControlWhile(-power * direction, 0, 0, 0, duration);       // Left/Right (roll)
+        sendControlWhile(power * direction, 0, 0, 0, 50);              // Brief stop
+    }
+
+    /**
+     * Flies the drone in the shape of a triangle.
+     * 
+     * <p>This method provides Python API compatibility for triangular flight patterns
+     * that demonstrate diagonal movement combinations.</p>
+     * 
+     * @param speed The flight speed (0-100)
+     * @param seconds Duration for each side of the triangle in seconds
+     * @param direction Direction of flight (1 for right, -1 for left)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.triangle(speed, seconds, direction)}
+     * @since 1.0
+     * @educational
+     */
+    public void triangle(int speed, int seconds, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        long duration = seconds * 1000L;
+
+        // Triangle pattern: Forward-Right -> Back-Right -> Left
+        sendControlWhile(power * direction, power, 0, 0, duration);     // Forward-Right diagonal
+        sendControlWhile(-power * direction, -power, 0, 0, 50);         // Brief stop
+
+        sendControlWhile(power * direction, -power, 0, 0, duration);    // Back-Right diagonal  
+        sendControlWhile(-power * direction, power, 0, 0, 50);          // Brief stop
+
+        sendControlWhile(-power * direction, 0, 0, 0, duration);        // Left edge
+        sendControlWhile(power * direction, 0, 0, 0, 50);               // Brief stop
+    }
+
+    /**
+     * Flies the drone in a circular pattern.
+     * 
+     * <p>This method provides Python API compatibility for circular flight patterns
+     * using coordinated pitch and roll movements.</p>
+     * 
+     * @param speed The flight speed (0-100)
+     * @param direction Direction of circle (1 for clockwise, -1 for counter-clockwise)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.circle(speed, direction)}
+     * @since 1.0
+     * @educational
+     */
+    public void circle(int speed, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        
+        // Create circular motion by combining pitch and roll
+        // This is a simplified circle - more complex implementations would use trigonometry
+        for (int i = 0; i < 8; i++) {
+            sendControlWhile(power * direction, power, 0, 0, 500);      // Forward-Right
+            sendControlWhile(power * direction, 0, 0, 0, 250);          // Right
+            sendControlWhile(power * direction, -power, 0, 0, 500);     // Back-Right
+            sendControlWhile(0, -power, 0, 0, 250);                     // Back
+            sendControlWhile(-power * direction, -power, 0, 0, 500);    // Back-Left
+            sendControlWhile(-power * direction, 0, 0, 0, 250);         // Left
+            sendControlWhile(-power * direction, power, 0, 0, 500);     // Forward-Left
+            sendControlWhile(0, power, 0, 0, 250);                      // Forward
+        }
+    }
+
+    /**
+     * Flies the drone in a spiral pattern.
+     * 
+     * <p>This method provides Python API compatibility for spiral flight patterns
+     * that combine circular motion with vertical movement.</p>
+     * 
+     * @param speed The flight speed (0-100)
+     * @param seconds Total duration of the spiral in seconds
+     * @param direction Direction of spiral (1 for clockwise, -1 for counter-clockwise)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.spiral(speed, seconds, direction)}
+     * @since 1.0
+     * @educational
+     */
+    public void spiral(int speed, int seconds, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        long totalDuration = seconds * 1000L;
+        long segmentDuration = totalDuration / 16; // 16 segments for smooth spiral
+        
+        // Gradually increasing circular motion with altitude change
+        for (int i = 0; i < 16; i++) {
+            int radius = (i + 1) * power / 16; // Gradually increase radius
+            sendControlWhile(radius * direction, radius, power / 4, 0, segmentDuration);
+        }
+    }
+
+    /**
+     * Flies the drone in a swaying motion.
+     * 
+     * <p>This method provides Python API compatibility for side-to-side swaying
+     * that demonstrates oscillating movement patterns.</p>
+     * 
+     * @param speed The flight speed (0-100)  
+     * @param seconds Total duration of the sway in seconds
+     * @param direction Direction of initial sway (1 for right first, -1 for left first)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.sway(speed, seconds, direction)}
+     * @since 1.0
+     * @educational
+     */
+    public void sway(int speed, int seconds, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        long totalDuration = seconds * 1000L;
+        long segmentDuration = totalDuration / 8; // 8 segments for smooth sway
+        
+        // Alternating left-right motion
+        for (int i = 0; i < 4; i++) {
+            sendControlWhile(power * direction, 0, 0, 0, segmentDuration);     // Right/Left
+            sendControlWhile(-power * direction, 0, 0, 0, segmentDuration);    // Left/Right
+        }
+    }
+
+    /**
+     * Performs a flip maneuver in the specified direction.
+     * Requires battery level above 50% for safety.
+     * Based on Python CoDrone EDU flip() method.
+     * 
+     * @param direction The flip direction: "front", "back", "left", "right"
+     */
+    public void flip(String direction) {
+        // Check battery level for safety
+        int battery = getBattery();
+        if (battery < 50) {
+            System.out.println("Warning: Unable to perform flip; battery level is below 50%.");
+            // TODO: Add buzzer warning when buzzer methods are implemented
+            return;
+        }
+        
+        FlightController.FlightEvent flipMode;
+        switch (direction.toLowerCase()) {
+            case "back":
+                flipMode = FlightController.FlightEvent.FLIP_REAR;
+                break;
+            case "front":
+                flipMode = FlightController.FlightEvent.FLIP_FRONT;
+                break;
+            case "right":
+                flipMode = FlightController.FlightEvent.FLIP_RIGHT;
+                break;
+            case "left":
+                flipMode = FlightController.FlightEvent.FLIP_LEFT;
+                break;
+            default:
+                System.out.println("Invalid flip direction. Use: front, back, left, or right");
+                return;
+        }
+        
+        triggerFlightEvent(flipMode);
+    }
+
+    /**
+     * Flies the drone in a triangle pattern using yaw rotation.
+     * Creates a triangle shape by combining forward movement with turning.
+     * Based on Python CoDrone EDU triangle_turn() method.
+     * 
+     * @param speed Speed value from 0 to 100 (default: 60)
+     * @param seconds Duration of each side in seconds (default: 2)
+     * @param direction Direction multiplier: 1 for right, -1 for left (default: 1)
+     */
+    public void triangleTurn(int speed, int seconds, int direction) {
+        int power = Math.max(0, Math.min(100, speed));
+        long duration = seconds * 1000L; // Convert to milliseconds
+        int dir = (direction >= 0) ? 1 : -1;
+        
+        // Triangle pattern using yaw and forward movement
+        // Side 1: Forward + Right turn
+        sendControlWhile(power * dir, power, 0, 0, duration);
+        
+        // Side 2: Forward + Left turn  
+        sendControlWhile(power * dir, -power, 0, 0, duration);
+        
+        // Side 3: Backward to close triangle
+        sendControlWhile(-power * dir, 0, 0, 0, duration);
+    }
+
+    /**
+     * Overloaded triangleTurn with default parameters.
+     */
+    public void triangleTurn() {
+        triangleTurn(60, 2, 1);
+    }
+
+    /**
+     * Creates a circular flight pattern using coordinated pitch and roll movements.
+     * Uses a 16-step approximation to create smooth circular motion.
+     * Based on Python CoDrone EDU circle_turn() method.
+     * 
+     * @param speed Speed value from 0 to 100 (default: 30)
+     * @param seconds Duration factor (default: 1)
+     * @param direction Direction multiplier: 1 for clockwise, -1 for counter-clockwise (default: 1)
+     */
+    public void circleTurn(int speed, int seconds, int direction) {
+        int baseSpeed = Math.max(0, Math.min(100, speed));
+        int dir = (direction >= 0) ? 1 : -1;
+        
+        int pitch = baseSpeed;
+        int roll = 0;
+        
+        // Create circular motion through 4 quadrants (16 steps total)
+        // Quadrant 1: Increase roll, decrease pitch
+        for (int i = 0; i < 4; i++) {
+            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
+            roll += 10;
+            pitch -= 10;
+        }
+        
+        // Quadrant 2: Decrease roll, decrease pitch  
+        for (int i = 0; i < 4; i++) {
+            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
+            roll -= 10;
+            pitch -= 10;
+        }
+        
+        // Quadrant 3: Decrease roll, increase pitch
+        for (int i = 0; i < 4; i++) {
+            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
+            roll -= 10;
+            pitch += 10;
+        }
+        
+        // Quadrant 4: Increase roll, increase pitch
+        for (int i = 0; i < 4; i++) {
+            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
+            roll += 10;
+            pitch += 10;
+        }
+    }
+
+    /**
+     * Overloaded circleTurn with default parameters.
+     */
+    public void circleTurn() {
+        circleTurn(30, 1, 1);
+    }
+
+    // ========================================
+    // End Built-in Flight Patterns
+    // ========================================
 }
