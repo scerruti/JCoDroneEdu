@@ -58,4 +58,12 @@ public class Range implements Serializable
         buffer.putShort(top);
         buffer.putShort(bottom);
     }
+
+    // Range sensor getters (in millimeters)
+    public short getLeft() { return left; }
+    public short getFront() { return front; }
+    public short getRight() { return right; }
+    public short getRear() { return rear; }
+    public short getTop() { return top; }
+    public short getBottom() { return bottom; }
 }

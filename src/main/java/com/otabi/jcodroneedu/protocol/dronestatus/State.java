@@ -72,6 +72,14 @@ public class State implements Serializable
         return battery;
     }
 
+    public DroneSystem.ModeFlight getModeFlight() {
+        return modeFlight;
+    }
+
+    public DroneSystem.ModeMovement getModeMovement() {
+        return modeMovement;
+    }
+
     public boolean isTakeOff() {
         return this.modeFlight == DroneSystem.ModeFlight.TAKE_OFF;
     }

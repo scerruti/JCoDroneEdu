@@ -1247,4 +1247,365 @@ public class Drone implements AutoCloseable {
     public void turnRight(int degrees) {
         flightController.turnRight(degrees);
     }
+
+    // =================================================================================
+    // SENSOR DATA ACCESS METHODS
+    // =================================================================================
+
+    /**
+     * Gets the current battery level as a percentage.
+     * 
+     * <p>Returns the drone's battery level from 0-100%. This is essential for
+     * monitoring flight safety and determining when the drone needs to land.</p>
+     * 
+     * <h3>🔋 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check battery before takeoff</li>
+     *   <li><strong>L0108 While Loops:</strong> Monitor battery during flight</li>
+     *   <li><strong>Safety Programming:</strong> Automatic landing when low</li>
+     * </ul>
+     * 
+     * @return battery level as percentage (0-100)
+     * @apiNote Equivalent to Python's {@code drone.get_battery()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Check battery before takeoff
+     * int battery = drone.getBattery();
+     * if (battery > 50) {
+     *     drone.takeOff();
+     *     System.out.println("Battery sufficient: " + battery + "%");
+     * } else {
+     *     System.out.println("Battery too low: " + battery + "%");
+     * }
+     * }</pre>
+     */
+    public int getBattery() {
+        return flightController.getBattery();
+    }
+
+    /**
+     * Gets the current flight state as a readable string.
+     * 
+     * <p>Returns the drone's current flight mode such as "READY", "FLIGHT", 
+     * "TAKE_OFF", "LANDING", etc. Useful for understanding drone status and
+     * creating conditional logic based on flight state.</p>
+     * 
+     * <h3>✈️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check if drone is ready to fly</li>
+     *   <li><strong>L0107 Loops:</strong> Wait for takeoff completion</li>
+     *   <li><strong>State Management:</strong> Track flight progression</li>
+     * </ul>
+     * 
+     * @return flight state string (e.g., "READY", "FLIGHT", "TAKE_OFF", "LANDING")
+     * @apiNote Equivalent to Python's {@code drone.get_flight_state()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Wait for takeoff to complete
+     * drone.takeOff();
+     * while (!drone.getFlightState().equals("FLIGHT")) {
+     *     System.out.println("Current state: " + drone.getFlightState());
+     *     drone.sleep(100);
+     * }
+     * System.out.println("Takeoff complete!");
+     * }</pre>
+     */
+    public String getFlightState() {
+        return flightController.getFlightState();
+    }
+
+    /**
+     * Gets the current movement state as a readable string.
+     * 
+     * <p>Returns the drone's movement status such as "READY", "HOVERING", 
+     * "MOVING", "RETURN_HOME". This helps understand what the drone is
+     * currently doing in terms of movement.</p>
+     * 
+     * @return movement state string (e.g., "READY", "HOVERING", "MOVING", "RETURN_HOME")
+     * @apiNote Equivalent to Python's {@code drone.get_movement_state()}
+     * @since 1.0
+     */
+    public String getMovementState() {
+        return flightController.getMovementState();
+    }
+
+    /**
+     * Gets the current height from the ground in centimeters.
+     * 
+     * <p>Measures the distance from the drone to the ground using the bottom
+     * range sensor. Essential for altitude control and safe landing procedures.</p>
+     * 
+     * <h3>📏 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Maintain safe flying height</li>
+     *   <li><strong>L0108 While Loops:</strong> Altitude-based navigation</li>
+     *   <li><strong>Safety Programming:</strong> Prevent ground collisions</li>
+     * </ul>
+     * 
+     * @return height in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_height()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Maintain safe flying height
+     * double height = drone.getHeight();
+     * if (height < 30) {
+     *     drone.go("up", 50, 1);
+     *     System.out.println("Climbing to safe height");
+     * } else if (height > 200) {
+     *     drone.go("down", 50, 1);
+     *     System.out.println("Descending to safe height");
+     * }
+     * }</pre>
+     */
+    public double getHeight() {
+        return flightController.getHeight();
+    }
+
+    /**
+     * Gets the current height from the ground in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return height in the specified unit
+     * @since 1.0
+     */
+    public double getHeight(String unit) {
+        return flightController.getHeight(unit);
+    }
+
+    /**
+     * Gets the distance measured by the front range sensor in centimeters.
+     * 
+     * <p>Measures the distance from the drone's front to the nearest obstacle.
+     * Critical for obstacle avoidance and navigation in confined spaces.</p>
+     * 
+     * <h3>🚧 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Detect obstacles ahead</li>
+     *   <li><strong>L0107 Loops:</strong> Navigate around obstacles</li>
+     *   <li><strong>Autonomous Flight:</strong> Wall following behavior</li>
+     * </ul>
+     * 
+     * @return distance in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_front_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Simple obstacle avoidance
+     * double frontDistance = drone.getFrontRange();
+     * if (frontDistance < 50) {
+     *     System.out.println("Obstacle detected! Distance: " + frontDistance + "cm");
+     *     drone.turnLeft(90);
+     * } else {
+     *     drone.go("forward", 50, 1);
+     * }
+     * }</pre>
+     */
+    public double getFrontRange() {
+        return flightController.getFrontRange();
+    }
+
+    /**
+     * Gets the distance measured by the front range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getFrontRange(String unit) {
+        return flightController.getFrontRange(unit);
+    }
+
+    /**
+     * Gets the X position relative to the takeoff point in centimeters.
+     * 
+     * <p>Returns the drone's current X coordinate relative to where it took off.
+     * Positive X is typically to the right, negative X is to the left.</p>
+     * 
+     * <h3>🗺️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0105 Variables:</strong> Track position for return journeys</li>
+     *   <li><strong>L0106 Conditionals:</strong> Create boundary limits</li>
+     *   <li><strong>L0110 Functions:</strong> Calculate distance from home</li>
+     * </ul>
+     * 
+     * @return X position in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_pos_x()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0105: Track position for safe return
+     * double startX = drone.getPosX();
+     * drone.go("right", 50, 3); // Move right for 3 seconds
+     * double currentX = drone.getPosX();
+     * System.out.println("Moved " + (currentX - startX) + "cm to the right");
+     * }</pre>
+     */
+    public double getPosX() {
+        return flightController.getPosX();
+    }
+
+    /**
+     * Gets the X position relative to the takeoff point in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return X position in the specified unit
+     * @since 1.0
+     */
+    public double getPosX(String unit) {
+        return flightController.getPosX(unit);
+    }
+
+    /**
+     * Gets the Y position relative to the takeoff point in centimeters.
+     * 
+     * <p>Returns the drone's current Y coordinate relative to where it took off.
+     * Positive Y is typically forward, negative Y is backward.</p>
+     * 
+     * @return Y position in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_pos_y()}
+     * @since 1.0
+     */
+    public double getPosY() {
+        return flightController.getPosY();
+    }
+
+    /**
+     * Gets the Y position relative to the takeoff point in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return Y position in the specified unit
+     * @since 1.0
+     */
+    public double getPosY(String unit) {
+        return flightController.getPosY(unit);
+    }
+
+    /**
+     * Gets the Z position relative to the takeoff point in centimeters.
+     * 
+     * <p>Returns the drone's current Z coordinate relative to where it took off.
+     * Positive Z is typically up, negative Z is down.</p>
+     * 
+     * @return Z position in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_pos_z()}
+     * @since 1.0
+     */
+    public double getPosZ() {
+        return flightController.getPosZ();
+    }
+
+    /**
+     * Gets the Z position relative to the takeoff point in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return Z position in the specified unit
+     * @since 1.0
+     */
+    public double getPosZ(String unit) {
+        return flightController.getPosZ(unit);
+    }
+
+    /**
+     * Gets the X-axis acceleration in G-force units.
+     * 
+     * <p>Measures the acceleration along the X-axis (left/right).
+     * Useful for understanding drone movement and creating responsive behaviors.</p>
+     * 
+     * <h3>🔬 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Detect sudden movements</li>
+     *   <li><strong>Physics Learning:</strong> Understand acceleration concepts</li>
+     *   <li><strong>Advanced Control:</strong> Create smooth flight patterns</li>
+     * </ul>
+     * 
+     * @return X acceleration in G-force
+     * @apiNote Equivalent to Python's {@code drone.get_accel_x()}
+     * @since 1.0
+     */
+    public double getAccelX() {
+        return flightController.getAccelX();
+    }
+
+    /**
+     * Gets the Y-axis acceleration in G-force units.
+     * 
+     * <p>Measures the acceleration along the Y-axis (forward/backward).</p>
+     * 
+     * @return Y acceleration in G-force
+     * @apiNote Equivalent to Python's {@code drone.get_accel_y()}
+     * @since 1.0
+     */
+    public double getAccelY() {
+        return flightController.getAccelY();
+    }
+
+    /**
+     * Gets the Z-axis acceleration in G-force units.
+     * 
+     * <p>Measures the acceleration along the Z-axis (up/down).</p>
+     * 
+     * @return Z acceleration in G-force
+     * @apiNote Equivalent to Python's {@code drone.get_accel_z()}
+     * @since 1.0
+     */
+    public double getAccelZ() {
+        return flightController.getAccelZ();
+    }
+
+    /**
+     * Gets the X-axis angle (roll) in degrees.
+     * 
+     * <p>Measures the drone's roll angle. Positive values indicate rolling right,
+     * negative values indicate rolling left.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Detect if drone is level</li>
+     *   <li><strong>Physics Learning:</strong> Understand orientation concepts</li>
+     *   <li><strong>Stabilization:</strong> Create auto-leveling behaviors</li>
+     * </ul>
+     * 
+     * @return X angle (roll) in degrees
+     * @apiNote Equivalent to Python's {@code drone.get_angle_x()}
+     * @since 1.0
+     */
+    public double getAngleX() {
+        return flightController.getAngleX();
+    }
+
+    /**
+     * Gets the Y-axis angle (pitch) in degrees.
+     * 
+     * <p>Measures the drone's pitch angle. Positive values indicate nose up,
+     * negative values indicate nose down.</p>
+     * 
+     * @return Y angle (pitch) in degrees
+     * @apiNote Equivalent to Python's {@code drone.get_angle_y()}
+     * @since 1.0
+     */
+    public double getAngleY() {
+        return flightController.getAngleY();
+    }
+
+    /**
+     * Gets the Z-axis angle (yaw) in degrees.
+     * 
+     * <p>Measures the drone's yaw angle (heading). This is the direction the
+     * drone is facing relative to its takeoff orientation.</p>
+     * 
+     * @return Z angle (yaw) in degrees
+     * @apiNote Equivalent to Python's {@code drone.get_angle_z()}
+     * @since 1.0
+     */
+    public double getAngleZ() {
+        return flightController.getAngleZ();
+    }
 }

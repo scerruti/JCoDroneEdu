@@ -3,9 +3,14 @@ package com.otabi.jcodroneedu;
 import com.google.common.util.concurrent.RateLimiter;
 import com.otabi.jcodroneedu.protocol.CommandType;
 import com.otabi.jcodroneedu.protocol.DeviceType;
+import com.otabi.jcodroneedu.protocol.DataType;
 import com.otabi.jcodroneedu.protocol.control.Position;
 import com.otabi.jcodroneedu.protocol.control.Quad8;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
+import com.otabi.jcodroneedu.protocol.dronestatus.Motion;
+import com.otabi.jcodroneedu.protocol.dronestatus.Range;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +19,8 @@ import java.util.concurrent.TimeUnit;
  * Manages the direct flight control and flight-related commands for the drone.
  */
 public class FlightController {
+    private static final Logger log = LogManager.getLogger(FlightController.class);
+    
     private final Drone drone;
     private final DroneStatus droneStatus;
     private final RateLimiter controlLoopRateLimiter = RateLimiter.create(50.0); // 50 commands per second
@@ -943,5 +950,465 @@ public class FlightController {
      */
     public void turnRight(int degrees) {
         turnRight(degrees, 3.0);
+    }
+
+    // =================================================================================
+    // SENSOR DATA ACCESS METHODS
+    // =================================================================================
+
+    /**
+     * Gets the current battery level.
+     * 
+     * @return Battery level as a percentage (0-100)
+     * @apiNote Provides access to the drone's current battery status for safety monitoring
+     * @since 1.0
+     */
+    public int getBattery() {
+        log.debug("Getting battery level");
+        
+        // Request fresh state data
+        drone.sendRequest(DataType.State);
+        sleep(10); // Brief delay for data update
+        
+        State state = drone.getDroneStatus().getState();
+        if (state != null) {
+            int battery = state.getBattery() & 0xFF; // Convert unsigned byte to int
+            log.debug("Battery level: {}%", battery);
+            return battery;
+        } else {
+            log.warn("State data not available for battery reading");
+            return 0;
+        }
+    }
+
+    /**
+     * Gets the current flight state as a readable string.
+     * 
+     * @return Flight state string (e.g., "READY", "FLIGHT", "TAKE_OFF", "LANDING")
+     * @apiNote Provides human-readable flight state for educational and debugging purposes
+     * @since 1.0
+     */
+    public String getFlightState() {
+        log.debug("Getting flight state");
+        
+        // Request fresh state data
+        drone.sendRequest(DataType.State);
+        sleep(10); // Brief delay for data update
+        
+        State state = drone.getDroneStatus().getState();
+        if (state != null && state.getModeFlight() != null) {
+            String flightState = state.getModeFlight().name();
+            log.debug("Flight state: {}", flightState);
+            return flightState;
+        } else {
+            log.warn("State data not available for flight state reading");
+            return "UNKNOWN";
+        }
+    }
+
+    /**
+     * Gets the current movement state as a readable string.
+     * 
+     * @return Movement state string (e.g., "READY", "HOVERING", "MOVING", "RETURN_HOME")
+     * @apiNote Provides human-readable movement state for educational and debugging purposes
+     * @since 1.0
+     */
+    public String getMovementState() {
+        log.debug("Getting movement state");
+        
+        // Request fresh state data
+        drone.sendRequest(DataType.State);
+        sleep(10); // Brief delay for data update
+        
+        State state = drone.getDroneStatus().getState();
+        if (state != null && state.getModeMovement() != null) {
+            String movementState = state.getModeMovement().name();
+            log.debug("Movement state: {}", movementState);
+            return movementState;
+        } else {
+            log.warn("State data not available for movement state reading");
+            return "UNKNOWN";
+        }
+    }
+
+    /**
+     * Gets the current height from the ground using the bottom range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Height in the specified unit
+     * @apiNote Equivalent to Python's get_height() method
+     * @since 1.0
+     */
+    public double getHeight(String unit) {
+        return getBottomRange(unit);
+    }
+
+    /**
+     * Gets the current height from the ground using the bottom range sensor.
+     * 
+     * @return Height in centimeters
+     * @since 1.0
+     */
+    public double getHeight() {
+        return getHeight("cm");
+    }
+
+    /**
+     * Gets the distance measured by the front range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_front_range() method
+     * @since 1.0
+     */
+    public double getFrontRange(String unit) {
+        log.debug("Getting front range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getFront(), unit);
+            log.debug("Front range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for front range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the front range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getFrontRange() {
+        return getFrontRange("cm");
+    }
+
+    /**
+     * Gets the distance measured by the bottom range sensor (height).
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_bottom_range() method
+     * @since 1.0
+     */
+    public double getBottomRange(String unit) {
+        log.debug("Getting bottom range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getBottom(), unit);
+            log.debug("Bottom range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for bottom range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the bottom range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getBottomRange() {
+        return getBottomRange("cm");
+    }
+
+    /**
+     * Gets the X position relative to takeoff point.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return X position in the specified unit
+     * @apiNote Equivalent to Python's get_pos_x() method
+     * @since 1.0
+     */
+    public double getPosX(String unit) {
+        log.debug("Getting X position in {}", unit);
+        
+        // Request fresh position data
+        drone.sendRequest(DataType.Position);
+        sleep(10); // Brief delay for data update
+        
+        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
+        if (positionData != null) {
+            double posValue = convertMillimeter(positionData.getX(), unit);
+            log.debug("X position: {} {}", posValue, unit);
+            return posValue;
+        } else {
+            log.warn("Position data not available for X position reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the X position relative to takeoff point in centimeters.
+     * 
+     * @return X position in centimeters
+     * @since 1.0
+     */
+    public double getPosX() {
+        return getPosX("cm");
+    }
+
+    /**
+     * Gets the Y position relative to takeoff point.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Y position in the specified unit
+     * @apiNote Equivalent to Python's get_pos_y() method
+     * @since 1.0
+     */
+    public double getPosY(String unit) {
+        log.debug("Getting Y position in {}", unit);
+        
+        // Request fresh position data
+        drone.sendRequest(DataType.Position);
+        sleep(10); // Brief delay for data update
+        
+        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
+        if (positionData != null) {
+            double posValue = convertMillimeter(positionData.getY(), unit);
+            log.debug("Y position: {} {}", posValue, unit);
+            return posValue;
+        } else {
+            log.warn("Position data not available for Y position reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Y position relative to takeoff point in centimeters.
+     * 
+     * @return Y position in centimeters
+     * @since 1.0
+     */
+    public double getPosY() {
+        return getPosY("cm");
+    }
+
+    /**
+     * Gets the Z position relative to takeoff point.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Z position in the specified unit
+     * @apiNote Equivalent to Python's get_pos_z() method
+     * @since 1.0
+     */
+    public double getPosZ(String unit) {
+        log.debug("Getting Z position in {}", unit);
+        
+        // Request fresh position data
+        drone.sendRequest(DataType.Position);
+        sleep(10); // Brief delay for data update
+        
+        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
+        if (positionData != null) {
+            double posValue = convertMillimeter(positionData.getZ(), unit);
+            log.debug("Z position: {} {}", posValue, unit);
+            return posValue;
+        } else {
+            log.warn("Position data not available for Z position reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Z position relative to takeoff point in centimeters.
+     * 
+     * @return Z position in centimeters
+     * @since 1.0
+     */
+    public double getPosZ() {
+        return getPosZ("cm");
+    }
+
+    /**
+     * Gets the X-axis acceleration in G-force units.
+     * 
+     * @return X acceleration in G-force
+     * @apiNote Equivalent to Python's get_accel_x() method
+     * @since 1.0
+     */
+    public double getAccelX() {
+        log.debug("Getting X acceleration");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw accelerometer data to G-force (typical scale factor)
+            double accelValue = motion.getAccelX() / 1000.0; // Scale factor
+            log.debug("X acceleration: {} G", accelValue);
+            return accelValue;
+        } else {
+            log.warn("Motion data not available for X acceleration reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Y-axis acceleration in G-force units.
+     * 
+     * @return Y acceleration in G-force
+     * @apiNote Equivalent to Python's get_accel_y() method
+     * @since 1.0
+     */
+    public double getAccelY() {
+        log.debug("Getting Y acceleration");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw accelerometer data to G-force (typical scale factor)
+            double accelValue = motion.getAccelY() / 1000.0; // Scale factor
+            log.debug("Y acceleration: {} G", accelValue);
+            return accelValue;
+        } else {
+            log.warn("Motion data not available for Y acceleration reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Z-axis acceleration in G-force units.
+     * 
+     * @return Z acceleration in G-force
+     * @apiNote Equivalent to Python's get_accel_z() method
+     * @since 1.0
+     */
+    public double getAccelZ() {
+        log.debug("Getting Z acceleration");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw accelerometer data to G-force (typical scale factor)
+            double accelValue = motion.getAccelZ() / 1000.0; // Scale factor
+            log.debug("Z acceleration: {} G", accelValue);
+            return accelValue;
+        } else {
+            log.warn("Motion data not available for Z acceleration reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the X-axis angle (roll) in degrees.
+     * 
+     * @return X angle in degrees
+     * @apiNote Equivalent to Python's get_angle_x() method
+     * @since 1.0
+     */
+    public double getAngleX() {
+        log.debug("Getting X angle (roll)");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw angle data to degrees (typical scale factor)
+            double angleValue = motion.getAngleRoll() / 100.0; // Scale factor
+            log.debug("X angle (roll): {} degrees", angleValue);
+            return angleValue;
+        } else {
+            log.warn("Motion data not available for X angle reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Y-axis angle (pitch) in degrees.
+     * 
+     * @return Y angle in degrees
+     * @apiNote Equivalent to Python's get_angle_y() method
+     * @since 1.0
+     */
+    public double getAngleY() {
+        log.debug("Getting Y angle (pitch)");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw angle data to degrees (typical scale factor)
+            double angleValue = motion.getAnglePitch() / 100.0; // Scale factor
+            log.debug("Y angle (pitch): {} degrees", angleValue);
+            return angleValue;
+        } else {
+            log.warn("Motion data not available for Y angle reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the Z-axis angle (yaw) in degrees.
+     * 
+     * @return Z angle in degrees
+     * @apiNote Equivalent to Python's get_angle_z() method
+     * @since 1.0
+     */
+    public double getAngleZ() {
+        log.debug("Getting Z angle (yaw)");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Convert raw angle data to degrees (typical scale factor)
+            double angleValue = motion.getAngleYaw() / 100.0; // Scale factor
+            log.debug("Z angle (yaw): {} degrees", angleValue);
+            return angleValue;
+        } else {
+            log.warn("Motion data not available for Z angle reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Helper method to convert millimeter measurements to other units.
+     * 
+     * @param millimeter The value in millimeters
+     * @param unit The target unit ("cm", "mm", "m", or "in")
+     * @return The converted value
+     */
+    private double convertMillimeter(double millimeter, String unit) {
+        switch (unit.toLowerCase()) {
+            case "mm":
+                return millimeter;
+            case "cm":
+                return millimeter / 10.0;
+            case "m":
+                return millimeter / 1000.0;
+            case "in":
+                return millimeter / 25.4;
+            default:
+                log.warn("Unknown unit '{}', defaulting to cm", unit);
+                return millimeter / 10.0;
+        }
     }
 }

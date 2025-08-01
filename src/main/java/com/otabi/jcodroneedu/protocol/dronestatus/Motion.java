@@ -70,4 +70,19 @@ public class Motion implements Serializable
         buffer.putShort(this.anglePitch);
         buffer.putShort(this.angleYaw);
     }
+
+    // Acceleration getters (in G-force units)
+    public short getAccelX() { return accelX; }
+    public short getAccelY() { return accelY; }
+    public short getAccelZ() { return accelZ; }
+
+    // Gyroscope getters (angular velocity in deg/s)
+    public short getGyroRoll() { return gyroRoll; }
+    public short getGyroPitch() { return gyroPitch; }
+    public short getGyroYaw() { return gyroYaw; }
+
+    // Angle getters (in degrees)
+    public short getAngleRoll() { return angleRoll; }
+    public short getAnglePitch() { return anglePitch; }
+    public short getAngleYaw() { return angleYaw; }
 }

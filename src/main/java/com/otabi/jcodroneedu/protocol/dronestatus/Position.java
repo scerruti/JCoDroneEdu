@@ -46,4 +46,9 @@ public class Position implements Serializable
         buffer.putInt(y);
         buffer.putInt(z);
     }
+
+    // Position getters (in millimeters from takeoff point)
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public int getZ() { return z; }
 }
