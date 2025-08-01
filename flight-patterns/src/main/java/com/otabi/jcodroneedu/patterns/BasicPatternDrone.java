@@ -220,9 +220,15 @@ public class BasicPatternDrone extends Drone {
      * Demonstrates up and down movement in a step pattern.
      * 
      * This pattern teaches:
-     * - Vertical movement control
-     * - Altitude management
-     * - 3D thinking
+     * - Vertical movement control using direct motor control
+     * - Altitude management with throttle control
+     * - 3D thinking with combined movements
+     * - Consistent sendControlWhile implementation
+     * 
+     * Uses sendControlWhile for consistency with Python-compatible patterns:
+     * - Throttle control for vertical movement
+     * - Pitch control for forward/backward steps
+     * - Precise timing control
      * 
      * @param stepHeight Height of each step in centimeters
      * @param numberOfSteps Number of steps to climb
@@ -239,21 +245,34 @@ public class BasicPatternDrone extends Drone {
             throw new IllegalArgumentException("Speed must be between 10 and 100 percent");
         }
         
-        // Go up the stairs
+        int power = speed;
+        // Convert step height to approximate duration (rough calibration)
+        long verticalDuration = stepHeight * 20L; // 20ms per cm approximation
+        long forwardDuration = 600L; // Fixed forward step duration
+        
+        // Go up the stairs using sendControlWhile for consistency
         for (int step = 0; step < numberOfSteps; step++) {
-            this.go("up", stepHeight, speed);
-            this.go("forward", 30, speed); // Move forward a bit on each step
-            this.hover(0.5);
+            // Move up using throttle control
+            sendControlWhile(0, 0, 0, power, verticalDuration);
+            sendControlWhile(0, 0, 0, 0, 200L); // Brief pause for stability
+            
+            // Move forward a bit on each step using pitch control
+            sendControlWhile(0, power, 0, 0, forwardDuration);
+            sendControlWhile(0, 0, 0, 0, 500L); // Pause between steps
         }
         
         // Pause at the top
-        this.hover(2.0);
+        sendControlWhile(0, 0, 0, 0, 2000L); // 2 second pause
         
-        // Come back down
+        // Come back down using sendControlWhile
         for (int step = 0; step < numberOfSteps; step++) {
-            this.go("backward", 30, speed);
-            this.go("down", stepHeight, speed);
-            this.hover(0.5);
+            // Move backward using pitch control
+            sendControlWhile(0, -power, 0, 0, forwardDuration);
+            sendControlWhile(0, 0, 0, 0, 200L); // Brief pause
+            
+            // Move down using throttle control
+            sendControlWhile(0, 0, 0, -power, verticalDuration);
+            sendControlWhile(0, 0, 0, 0, 500L); // Pause between steps
         }
     }
     

@@ -225,10 +225,10 @@ While the basic circle implementation is now available, we can expand with:
 1. Create a new Java project
 2. Add this library as a dependency using Gradle or Maven
 3. Notice how your IDE downloads the library automatically
-4. Import and use the `BasicPatterns` class
+4. Import and use the `BasicPatternDrone` class
 
 ### Exercise 2: Reading Source Code
-1. Navigate to the source code of `BasicPatterns.java`
+1. Navigate to the source code of `BasicPatternDrone.java`
 2. Study how the `square()` method works
 3. Understand why it uses a for loop
 4. See how parameter validation works
