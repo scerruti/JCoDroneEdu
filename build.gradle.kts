@@ -25,14 +25,16 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
 
     // Mockito for mocking in tests
-    testImplementation("org.mockito:mockito-core:5.5.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+    testImplementation("org.mockito:mockito-core:5.14.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testImplementation("net.bytebuddy:byte-buddy:1.15.10")
 
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
 }
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("-Dnet.bytebuddy.experimental=true")
 }
 
 // =============================================================================
