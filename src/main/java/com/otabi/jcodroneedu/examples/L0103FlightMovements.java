@@ -11,13 +11,12 @@ public class L0103FlightMovements
         {
             drone.takeoff();
 
-            drone.setPitch(20);     // Moves the drone forward at 20% power
+            drone.setThrottle(20);   // Moves the drone up at 20% power
             drone.move(1);  // Moves for 1 second
 
-            /* Uncomment this line */
-//            drone.setPitch(0);      // Resets the pitch back to 0
-            drone.setRoll(-20);     // Moves the drone to the left at 20% power
-            drone.move(2);  // Moves for 2 seconds
+            drone.setThrottle(0);    // Resets the throttle back to 0
+            drone.setYaw(30);        // Turns the drone clockwise at 30% power
+            drone.move(2);  // Turns for 2 seconds
 
             drone.land();
         } catch (DroneNotFoundException e)
