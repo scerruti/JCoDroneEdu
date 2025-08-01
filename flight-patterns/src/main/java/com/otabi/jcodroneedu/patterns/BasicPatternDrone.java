@@ -21,11 +21,11 @@ import com.otabi.jcodroneedu.DroneNotFoundException;
  * Usage:
  * ```java
  * BasicPatternDrone drone = new BasicPatternDrone();
- * drone.pair();
- * drone.takeoff();
- * drone.square(50, 50);  // New pattern method
- * drone.land();
- * drone.close();
+ * this.pair();
+ * this.takeoff();
+ * this.square(50, 50);  // New pattern method
+ * this.land();
+ * this.close();
  * ```
  * 
  * @author Stephen Cerruti
@@ -241,19 +241,19 @@ public class BasicPatternDrone extends Drone {
         
         // Go up the stairs
         for (int step = 0; step < numberOfSteps; step++) {
-            drone.go("up", stepHeight, speed);
-            drone.go("forward", 30, speed); // Move forward a bit on each step
-            drone.hover(0.5);
+            this.go("up", stepHeight, speed);
+            this.go("forward", 30, speed); // Move forward a bit on each step
+            this.hover(0.5);
         }
         
         // Pause at the top
-        drone.hover(2.0);
+        this.hover(2.0);
         
         // Come back down
         for (int step = 0; step < numberOfSteps; step++) {
-            drone.go("backward", 30, speed);
-            drone.go("down", stepHeight, speed);
-            drone.hover(0.5);
+            this.go("backward", 30, speed);
+            this.go("down", stepHeight, speed);
+            this.hover(0.5);
         }
     }
     

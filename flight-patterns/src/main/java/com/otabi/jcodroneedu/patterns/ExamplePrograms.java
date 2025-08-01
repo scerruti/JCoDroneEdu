@@ -1,7 +1,5 @@
 package com.otabi.jcodroneedu.patterns;
 
-import com.otabi.jcodroneedu.Drone;
-
 /**
  * Example programs demonstrating how to use the flight patterns.
  * 
@@ -31,143 +29,170 @@ public class ExamplePrograms {
      * - Simple program structure
      */
     public static void basicDemo() {
-        // Connect to drone
-        Drone drone = new Drone();
-        drone.pair(); // This would need to be implemented in the core library
-        
-        // Create pattern controllers
-        BasicPatterns basic = new BasicPatterns(drone);
-        
-        // Take off
-        drone.takeoff();
-        
-        // Fly a simple square
-        System.out.println("Flying a square pattern...");
-        basic.square(50, 50);
-        
-        // Brief pause
-        drone.hover(2.0);
-        
-        // Fly a triangle
-        System.out.println("Flying a triangle pattern...");
-        basic.triangle(60, 40);
-        
-        // Land
-        drone.land();
-        
-        // Disconnect
-        drone.close();
-        
-        System.out.println("Basic demo complete!");
+        try {
+            // Create and connect to drone with pattern capabilities
+            BasicPatternDrone drone = new BasicPatternDrone();
+            
+            // Take off
+            drone.takeoff();
+            
+            // Fly a simple square
+            System.out.println("Flying a square pattern...");
+            drone.square(50, 50);
+            
+            // Brief pause
+            drone.hover(2.0);
+            
+            // Fly a triangle
+            System.out.println("Flying a triangle pattern...");
+            drone.triangle(60, 40);
+            
+            // Land safely
+            drone.land();
+            
+            // Close connection
+            drone.close();
+            
+        } catch (Exception e) {
+            System.err.println("Error in basic demo: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     /**
-     * Demonstrates advanced pattern usage and combinations.
+     * Demonstrates intermediate pattern combinations.
      * 
      * This example teaches:
-     * - Using multiple pattern classes
-     * - Combining different patterns
-     * - More complex program flow
+     * - Combining basic and advanced patterns
+     * - Managing multiple flight phases
+     * - Error handling in complex sequences
+     */
+    public static void intermediateDemo() {
+        try {
+            // Create drone with basic pattern capabilities
+            BasicPatternDrone basic = new BasicPatternDrone();
+            
+            // Create drone with advanced pattern capabilities  
+            AdvancedPatternDrone advanced = new AdvancedPatternDrone();
+            
+            // Take off
+            basic.takeoff();
+            
+            // Start with basic patterns
+            System.out.println("Phase 1: Basic patterns...");
+            basic.square(40, 45);
+            basic.hover(1.0);
+            // Use advanced circle method from AdvancedPatternDrone
+            advanced.circle(30, 1, 3.0);  // speed, direction, duration
+            basic.hover(1.0);
+            
+            // Move to advanced patterns
+            System.out.println("Phase 2: Advanced patterns...");
+            advanced.figure8(60, 25);
+            advanced.hover(1.5);
+            advanced.spiral(40, 80, 30);
+            
+            // Finish with basic landing sequence
+            System.out.println("Phase 3: Landing sequence...");
+            basic.hover(2.0);
+            basic.land();
+            basic.close();
+            
+        } catch (Exception e) {
+            System.err.println("Error in intermediate demo: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Demonstrates advanced pattern usage and customization.
+     * 
+     * This example teaches:
+     * - Advanced pattern parameters
+     * - Custom flight sequences
+     * - Performance optimization
+     * - Safety considerations
      */
     public static void advancedDemo() {
-        // Connect to drone
-        Drone drone = new Drone();
-        drone.pair();
-        
-        // Create pattern controllers
-        BasicPatterns basic = new BasicPatterns(drone);
-        AdvancedPatterns advanced = new AdvancedPatterns(drone);
-        
-        // Take off
-        drone.takeoff();
-        
-        // Start with a basic square
-        System.out.println("Starting with a square...");
-        basic.square(40, 50);
-        drone.hover(2.0);
-        
-        // Move to a circle
-        System.out.println("Now flying a circle...");
-        advanced.circle(60, 12, 45);
-        drone.hover(2.0);
-        
-        // Finish with a figure-8
-        System.out.println("Finishing with a figure-8...");
-        advanced.figure8(50, 40);
-        
-        // Land
-        drone.land();
-        drone.close();
-        
-        System.out.println("Advanced demo complete!");
-    }
-    
-    /**
-     * Demonstrates creating custom patterns by combining existing ones.
-     * 
-     * This example teaches:
-     * - Pattern composition
-     * - Creating new behaviors from existing ones
-     * - Parameter passing between patterns
-     */
-    public static void customPatternDemo() {
-        // Connect to drone
-        Drone drone = new Drone();
-        drone.pair();
-        
-        // Create pattern controllers
-        BasicPatterns basic = new BasicPatterns(drone);
-        AdvancedPatterns advanced = new AdvancedPatterns(drone);
-        
-        // Take off
-        drone.takeoff();
-        
-        // Custom pattern: "Flower" - circle with triangles at cardinal points
-        System.out.println("Flying custom 'flower' pattern...");
-        
-        // Center circle
-        advanced.circle(40, 8, 30);
-        drone.hover(1.0);
-        
-        // Four "petals" - triangles at north, east, south, west
-        for (int petal = 0; petal < 4; petal++) {
-            // Move to edge of circle
-            drone.go("forward", 40, 30);
+        try {
+            // Create drone with full pattern capabilities
+            BasicPatternDrone basic = new BasicPatternDrone();
+            AdvancedPatternDrone advanced = new AdvancedPatternDrone();
             
-            // Fly a small triangle "petal"
-            basic.triangle(25, 35);
+            // Take off
+            basic.takeoff();
             
-            // Return to center
-            drone.go("backward", 40, 30);
+            // Complex flight routine
+            System.out.println("Starting advanced flight routine...");
             
-            // Rotate 90 degrees for next petal
-            drone.go("cw", 90, 30);
-            drone.hover(0.5);
+            // High-speed maneuvers
+            advanced.pentagon(80, 60);  // Large, fast pentagon
+            basic.hover(0.5);
+            
+            advanced.hexagon(70, 55);   // Large, fast hexagon  
+            basic.hover(0.5);
+            
+            // Precision maneuvers
+            advanced.circleApproximation(25, 12, 15);  // Small, precise circle approximation
+            basic.hover(1.0);
+            
+            // Performance showcase
+            advanced.figure8(100, 45);     // Large figure-8
+            basic.hover(1.0);
+            
+            advanced.spiral(40, 80, 3, 40);   // Complex spiral pattern
+            basic.hover(2.0);
+            
+            // Safe landing
+            System.out.println("Landing sequence...");
+            basic.land();
+            basic.close();
+            
+        } catch (Exception e) {
+            System.err.println("Error in advanced demo: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        // Land
-        drone.land();
-        drone.close();
-        
-        System.out.println("Custom pattern demo complete!");
     }
     
     /**
-     * Main method for testing the examples.
-     * Students can run this to see the patterns in action.
+     * Main method for running examples.
+     * 
+     * @param args Command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("JCoDroneEdu Flight Patterns - Example Programs");
-        System.out.println("==============================================");
-        System.out.println();
+        System.out.println("CoDrone EDU Flight Patterns - Example Programs");
+        System.out.println("=============================================");
         
-        // Uncomment the demo you want to run:
+        if (args.length == 0) {
+            System.out.println("Available demos:");
+            System.out.println("  basic      - Basic pattern demonstration");
+            System.out.println("  intermediate - Intermediate pattern combinations");
+            System.out.println("  advanced   - Advanced patterns and customization");
+            System.out.println();
+            System.out.println("Usage: java ExamplePrograms <demo_name>");
+            return;
+        }
         
-        // basicDemo();
-        // advancedDemo();
-        // customPatternDemo();
+        String demo = args[0].toLowerCase();
+        switch (demo) {
+            case "basic":
+                System.out.println("Running basic demo...");
+                basicDemo();
+                break;
+            case "intermediate":
+                System.out.println("Running intermediate demo...");
+                intermediateDemo();
+                break;
+            case "advanced":
+                System.out.println("Running advanced demo...");
+                advancedDemo();
+                break;
+            default:
+                System.err.println("Unknown demo: " + demo);
+                System.err.println("Available demos: basic, intermediate, advanced");
+                System.exit(1);
+        }
         
-        System.out.println("Uncomment one of the demo methods in main() to run examples.");
-        System.out.println("Make sure your drone is connected and in a safe flying area!");
+        System.out.println("Demo completed successfully!");
     }
 }

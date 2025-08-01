@@ -25,18 +25,18 @@ import com.otabi.jcodroneedu.DroneNotFoundException;
  * Usage:
  * ```java
  * AdvancedPatternDrone drone = new AdvancedPatternDrone();
- * drone.pair();
- * drone.takeoff();
+ * this.pair();
+ * this.takeoff();
  * 
  * // Can use basic patterns (inherited)
- * drone.square(50, 50);
+ * this.square(50, 50);
  * 
  * // Can use advanced patterns (new)
- * drone.circle(45, 1, 3.0);
- * drone.spiral(20, 100, 3, 40);
+ * this.circle(45, 1, 3.0);
+ * this.spiral(20, 100, 3, 40);
  * 
- * drone.land();
- * drone.close();
+ * this.land();
+ * this.close();
  * ```
  * 
  * @author Stephen Cerruti
@@ -138,7 +138,7 @@ public class AdvancedPatternDrone extends BasicPatternDrone {
         circle(radius, 12, speed);
         
         // Move to center and prepare for second loop
-        drone.hover(0.5);
+        this.hover(0.5);
         
         // Second loop (counter-clockwise) - reverse the turn direction
         int segments = 12;
@@ -147,9 +147,9 @@ public class AdvancedPatternDrone extends BasicPatternDrone {
         int turnAngle = 360 / segments;
         
         for (int segment = 0; segment < segments; segment++) {
-            drone.go("forward", segmentLength, speed);
-            drone.go("ccw", turnAngle, 20); // Counter-clockwise for second loop
-            drone.hover(0.2);
+            this.go("forward", segmentLength, speed);
+            this.go("ccw", turnAngle, 20); // Counter-clockwise for second loop
+            this.hover(0.2);
         }
     }
     
@@ -229,9 +229,9 @@ public class AdvancedPatternDrone extends BasicPatternDrone {
         
         // Pentagon has 5 sides, each exterior angle is 360° ÷ 5 = 72°
         for (int side = 0; side < 5; side++) {
-            drone.go("forward", sideLength, speed);
-            drone.go("cw", 72, 30);
-            drone.hover(0.3);
+            this.go("forward", sideLength, speed);
+            this.go("cw", 72, 30);
+            this.hover(0.3);
         }
     }
     
@@ -256,9 +256,9 @@ public class AdvancedPatternDrone extends BasicPatternDrone {
         
         // Hexagon has 6 sides, each exterior angle is 360° ÷ 6 = 60°
         for (int side = 0; side < 6; side++) {
-            drone.go("forward", sideLength, speed);
-            drone.go("cw", 60, 30);
-            drone.hover(0.3);
+            this.go("forward", sideLength, speed);
+            this.go("cw", 60, 30);
+            this.hover(0.3);
         }
     }
     
@@ -299,9 +299,9 @@ public class AdvancedPatternDrone extends BasicPatternDrone {
         
         // Fly the circular pattern
         for (int segment = 0; segment < segments; segment++) {
-            drone.go("forward", segmentLength, speed);
-            drone.go("cw", turnAngle, 20); // Slower turns for smoother circle
-            drone.hover(0.2); // Very brief pause
+            this.go("forward", segmentLength, speed);
+            this.go("cw", turnAngle, 20); // Slower turns for smoother circle
+            this.hover(0.2); // Very brief pause
         }
     }
     

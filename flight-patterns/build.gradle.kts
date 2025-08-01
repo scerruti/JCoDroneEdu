@@ -8,8 +8,8 @@ group = "com.otabi"
 version = project.findProperty("version") ?: "1.0.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
     withJavadocJar()
 }
@@ -19,9 +19,9 @@ repositories {
 }
 
 dependencies {
-    // Depend on the published core JCoDroneEdu library from Maven Central
-    // This teaches students about external dependencies
-    api("com.otabi:jcodroneedu-core:${version}")
+    // Depend on the local core JCoDroneEdu project for development
+    // In production, this would use the published library from Maven Central
+    api(project(":"))
     
     // Test dependencies
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
