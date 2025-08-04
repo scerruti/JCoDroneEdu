@@ -1,6 +1,7 @@
 package com.otabi.jcodroneedu;
 
 import com.otabi.jcodroneedu.protocol.dronestatus.*;
+import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
@@ -16,6 +17,7 @@ public class DroneStatus
     private RawFlow rawFlow;
     private RawMotion rawMotion;
     private State state;
+    private CardColor cardColor;
 
     public Attitude getAttitude()
     {
@@ -105,6 +107,16 @@ public class DroneStatus
     public void setState(State state)
     {
         this.state = state;
+    }
+
+    public CardColor getCardColor()
+    {
+        return cardColor;
+    }
+
+    public void setCardColor(CardColor cardColor)
+    {
+        this.cardColor = cardColor;
     }
 
 }

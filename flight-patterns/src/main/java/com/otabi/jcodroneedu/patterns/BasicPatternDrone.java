@@ -117,6 +117,22 @@ public class BasicPatternDrone extends Drone {
     }
     
     /**
+     * Overloaded square method with default seconds and direction.
+     * 
+     * @param speed The flight speed (10-100)
+     */
+    public void square(int speed) {
+        square(speed, 1, 1);
+    }
+
+    /**
+     * Overloaded square method with all default parameters.
+     */
+    public void square() {
+        square(60, 1, 1);
+    }
+    
+    /**
      * Flies the drone in a triangle pattern.
      * 
      * This pattern teaches:

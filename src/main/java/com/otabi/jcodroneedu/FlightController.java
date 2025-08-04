@@ -1126,6 +1126,150 @@ public class FlightController {
     }
 
     /**
+     * Gets the distance measured by the back/rear range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_back_range() method
+     * @since 1.0
+     */
+    public double getBackRange(String unit) {
+        log.debug("Getting back range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getRear(), unit);
+            log.debug("Back range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for back range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the back/rear range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getBackRange() {
+        return getBackRange("cm");
+    }
+
+    /**
+     * Gets the distance measured by the top range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_top_range() method
+     * @since 1.0
+     */
+    public double getTopRange(String unit) {
+        log.debug("Getting top range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getTop(), unit);
+            log.debug("Top range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for top range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the top range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getTopRange() {
+        return getTopRange("cm");
+    }
+
+    /**
+     * Gets the distance measured by the left range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_left_range() method
+     * @since 1.0
+     */
+    public double getLeftRange(String unit) {
+        log.debug("Getting left range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getLeft(), unit);
+            log.debug("Left range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for left range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the left range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getLeftRange() {
+        return getLeftRange("cm");
+    }
+
+    /**
+     * Gets the distance measured by the right range sensor.
+     * 
+     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
+     * @return Distance in the specified unit
+     * @apiNote Equivalent to Python's get_right_range() method
+     * @since 1.0
+     */
+    public double getRightRange(String unit) {
+        log.debug("Getting right range in {}", unit);
+        
+        // Request fresh range data
+        drone.sendRequest(DataType.Range);
+        sleep(10); // Brief delay for data update
+        
+        Range range = drone.getDroneStatus().getRange();
+        if (range != null) {
+            double rangeValue = convertMillimeter(range.getRight(), unit);
+            log.debug("Right range: {} {}", rangeValue, unit);
+            return rangeValue;
+        } else {
+            log.warn("Range data not available for right range reading");
+            return 0.0;
+        }
+    }
+
+    /**
+     * Gets the distance measured by the right range sensor in centimeters.
+     * 
+     * @return Distance in centimeters
+     * @since 1.0
+     */
+    public double getRightRange() {
+        return getRightRange("cm");
+    }
+
+    /**
      * Gets the X position relative to takeoff point.
      * 
      * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
@@ -1386,6 +1530,112 @@ public class FlightController {
         } else {
             log.warn("Motion data not available for Z angle reading");
             return 0.0;
+        }
+    }
+
+    // =============================================================================
+    // Array-based sensor methods for AP CSA compatibility
+    // =============================================================================
+
+    /**
+     * Gets accelerometer data as an array.
+     * 
+     * <p>Returns acceleration data for all three axes in a convenient array format.
+     * This is useful for AP CSA students learning about arrays and coordinate systems.</p>
+     * 
+     * @return int array containing [X, Y, Z] acceleration values (scaled from G-force * 1000)
+     * @apiNote Equivalent to Python's various accel methods, returns array for AP CSA compatibility
+     * @since 1.0
+     * @educational This demonstrates array usage and coordinate systems
+     */
+    public int[] get_accel() {
+        log.debug("Getting acceleration array data");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Return raw accelerometer values as integers for AP CSA compatibility
+            int[] accelArray = {
+                motion.getAccelX(), 
+                motion.getAccelY(), 
+                motion.getAccelZ()
+            };
+            log.debug("Acceleration array: [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2]);
+            return accelArray;
+        } else {
+            log.warn("Motion data not available for acceleration array reading");
+            return new int[]{0, 0, 0};
+        }
+    }
+
+    /**
+     * Gets gyroscope data as an array.
+     * 
+     * <p>Returns rotational velocity data for all three axes in a convenient array format.
+     * This is useful for AP CSA students learning about arrays and rotational motion.</p>
+     * 
+     * @return int array containing [roll, pitch, yaw] gyroscope values in degrees/second
+     * @apiNote Equivalent to Python's various gyro methods, returns array for AP CSA compatibility
+     * @since 1.0
+     * @educational This demonstrates array usage and rotational concepts
+     */
+    public int[] get_gyro() {
+        log.debug("Getting gyroscope array data");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Return gyroscope values as integers for AP CSA compatibility
+            int[] gyroArray = {
+                motion.getGyroRoll(), 
+                motion.getGyroPitch(), 
+                motion.getGyroYaw()
+            };
+            log.debug("Gyroscope array: [{}, {}, {}]", gyroArray[0], gyroArray[1], gyroArray[2]);
+            return gyroArray;
+        } else {
+            log.warn("Motion data not available for gyroscope array reading");
+            return new int[]{0, 0, 0};
+        }
+    }
+
+    /**
+     * Gets angle data as an array.
+     * 
+     * <p>Returns current orientation angles for all three axes in a convenient array format.
+     * This is useful for AP CSA students learning about arrays and spatial orientation.</p>
+     * 
+     * @return int array containing [roll, pitch, yaw] angle values in degrees
+     * @apiNote Equivalent to Python's various angle methods, returns array for AP CSA compatibility
+     * @since 1.0
+     * @educational This demonstrates array usage and spatial orientation concepts
+     */
+    public int[] get_angle() {
+        log.debug("Getting angle array data");
+        
+        // Request fresh motion data
+        drone.sendRequest(DataType.Motion);
+        sleep(10); // Brief delay for data update
+        
+        Motion motion = drone.getDroneStatus().getMotion();
+        if (motion != null) {
+            // Return angle values as integers for AP CSA compatibility
+            int[] angleArray = {
+                motion.getAngleRoll(), 
+                motion.getAnglePitch(), 
+                motion.getAngleYaw()
+            };
+            log.debug("Angle array: [{}, {}, {}]", angleArray[0], angleArray[1], angleArray[2]);
+            return angleArray;
+        } else {
+            log.warn("Motion data not available for angle array reading");
+            return new int[]{0, 0, 0};
         }
     }
 

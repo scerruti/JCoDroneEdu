@@ -48,7 +48,19 @@ public class CardColor implements Serializable
             buffer.get(hsvl[i]);
         color = new byte[2];
         buffer.get(color);
-        buffer.put(card);
+        card = buffer.get();
+    }
 
+    // Getter methods for accessing the color data
+    public byte[][] getHsvl() {
+        return hsvl;
+    }
+
+    public byte[] getColor() {
+        return color;
+    }
+
+    public byte getCard() {
+        return card;
     }
 }

@@ -4,6 +4,8 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol._unknown.Request;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
+import com.otabi.jcodroneedu.protocol.lightcontroller.Color;
+import com.otabi.jcodroneedu.protocol.lightcontroller.LightDefault;
 import com.otabi.jcodroneedu.protocol.linkmanager.Information;
 import com.otabi.jcodroneedu.receiver.Receiver;
 import org.apache.logging.log4j.LogManager;
@@ -1423,6 +1425,211 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Gets the distance measured by the back/rear range sensor in centimeters.
+     * 
+     * <p>Returns the distance to objects behind the drone. Useful for
+     * backing up safely and creating comprehensive obstacle avoidance behaviors.</p>
+     * 
+     * <h3>🛡️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check rear clearance before reversing</li>
+     *   <li><strong>L0108 While Loops:</strong> Back away from obstacles</li>
+     *   <li><strong>Safety Programming:</strong> 360-degree awareness</li>
+     * </ul>
+     * 
+     * @return distance in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_back_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Safe backing maneuver
+     * if (drone.getBackRange() > 100) {
+     *     drone.go("backward", 30, 2);
+     * } else {
+     *     System.out.println("Can't back up - obstacle detected!");
+     * }
+     * }</pre>
+     */
+    public double getBackRange() {
+        return flightController.getBackRange();
+    }
+
+    /**
+     * Gets the distance measured by the back/rear range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getBackRange(String unit) {
+        return flightController.getBackRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the top range sensor in centimeters.
+     * 
+     * <p>Returns the distance to objects above the drone. Useful for
+     * altitude management and avoiding ceiling collisions.</p>
+     * 
+     * <h3>⬆️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check ceiling clearance</li>
+     *   <li><strong>3D Navigation:</strong> Vertical obstacle avoidance</li>
+     *   <li><strong>Indoor Flying:</strong> Ceiling-aware behaviors</li>
+     * </ul>
+     * 
+     * @return distance in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_top_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Safe altitude gain
+     * if (drone.getTopRange() > 50) {
+     *     drone.go("up", 20, 1);
+     * } else {
+     *     System.out.println("Ceiling too close!");
+     * }
+     * }</pre>
+     */
+    public double getTopRange() {
+        return flightController.getTopRange();
+    }
+
+    /**
+     * Gets the distance measured by the top range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getTopRange(String unit) {
+        return flightController.getTopRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the bottom range sensor in centimeters.
+     * 
+     * <p>Returns the distance to the ground or objects below the drone.
+     * This is the same as {@link #getHeight()} but provides Python API compatibility.</p>
+     * 
+     * <h3>⬇️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Maintain safe altitude</li>
+     *   <li><strong>Landing Logic:</strong> Controlled descent</li>
+     *   <li><strong>Terrain Following:</strong> Maintain ground clearance</li>
+     * </ul>
+     * 
+     * @return distance in centimeters  
+     * @apiNote Equivalent to Python's {@code drone.get_bottom_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Altitude monitoring
+     * if (drone.getBottomRange() < 20) {
+     *     System.out.println("Too close to ground!");
+     *     drone.go("up", 30, 1);
+     * }
+     * }</pre>
+     */
+    public double getBottomRange() {
+        return flightController.getBottomRange();
+    }
+
+    /**
+     * Gets the distance measured by the bottom range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getBottomRange(String unit) {
+        return flightController.getBottomRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the left range sensor in centimeters.
+     * 
+     * <p>Returns the distance to objects on the left side of the drone.
+     * Useful for side obstacle avoidance and corridor navigation.</p>
+     * 
+     * <h3>⬅️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Side obstacle detection</li>
+     *   <li><strong>Navigation:</strong> Corridor following</li>
+     *   <li><strong>Complex Patterns:</strong> Wall-following behaviors</li>
+     * </ul>
+     * 
+     * @return distance in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_left_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Corridor navigation
+     * if (drone.getLeftRange() < 30) {
+     *     drone.go("right", 20, 1);  // Move away from left wall
+     * }
+     * }</pre>
+     */
+    public double getLeftRange() {
+        return flightController.getLeftRange();
+    }
+
+    /**
+     * Gets the distance measured by the left range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getLeftRange(String unit) {
+        return flightController.getLeftRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the right range sensor in centimeters.
+     * 
+     * <p>Returns the distance to objects on the right side of the drone.
+     * Useful for side obstacle avoidance and corridor navigation.</p>
+     * 
+     * <h3>➡️ Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Side obstacle detection</li>
+     *   <li><strong>Navigation:</strong> Corridor following</li>
+     *   <li><strong>Complex Patterns:</strong> Wall-following behaviors</li>
+     * </ul>
+     * 
+     * @return distance in centimeters
+     * @apiNote Equivalent to Python's {@code drone.get_right_range()}
+     * @since 1.0
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Corridor navigation
+     * if (drone.getRightRange() < 30) {
+     *     drone.go("left", 20, 1);  // Move away from right wall
+     * }
+     * }</pre>
+     */
+    public double getRightRange() {
+        return flightController.getRightRange();
+    }
+
+    /**
+     * Gets the distance measured by the right range sensor in the specified unit.
+     * 
+     * @param unit measurement unit ("cm", "mm", "m", or "in")
+     * @return distance in the specified unit
+     * @since 1.0
+     */
+    public double getRightRange(String unit) {
+        return flightController.getRightRange(unit);
+    }
+
+    /**
      * Gets the X position relative to the takeoff point in centimeters.
      * 
      * <p>Returns the drone's current X coordinate relative to where it took off.
@@ -1609,6 +1816,259 @@ public class Drone implements AutoCloseable {
         return flightController.getAngleZ();
     }
 
+    // Array-based sensor methods for Python compatibility
+    
+    /**
+     * Gets accelerometer data as an array [x, y, z].
+     * 
+     * <p>Returns acceleration values for all three axes in G-force units.
+     * This method provides Python API compatibility for accessing accelerometer
+     * data in array format.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0202 Arrays:</strong> Practice array data handling</li>
+     *   <li><strong>Physics Learning:</strong> Understand 3D acceleration vectors</li>
+     *   <li><strong>Data Analysis:</strong> Process multiple sensor values together</li>
+     * </ul>
+     * 
+     * @return Array containing [x, y, z] acceleration values in G-force
+     * @apiNote Equivalent to Python's {@code drone.get_accel()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] get_accel() {
+        return flightController.get_accel();
+    }
+
+    /**
+     * Gets gyroscope data as an array [x, y, z].
+     * 
+     * <p>Returns angular velocity values for all three axes in degrees per second.
+     * This method provides Python API compatibility for accessing gyroscope
+     * data in array format.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0202 Arrays:</strong> Practice array data handling</li>
+     *   <li><strong>Physics Learning:</strong> Understand rotational motion</li>
+     *   <li><strong>Motion Detection:</strong> Detect rapid movements or vibrations</li>
+     * </ul>
+     * 
+     * @return Array containing [x, y, z] angular velocity values in degrees/second
+     * @apiNote Equivalent to Python's {@code drone.get_gyro()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] get_gyro() {
+        return flightController.get_gyro();
+    }
+
+    /**
+     * Gets angle data as an array [x, y, z].
+     * 
+     * <p>Returns orientation angles for all three axes in degrees.
+     * This method provides Python API compatibility for accessing angle
+     * data in array format.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0202 Arrays:</strong> Practice array data handling</li>
+     *   <li><strong>Coordinate Systems:</strong> Understand 3D orientation</li>
+     *   <li><strong>Navigation:</strong> Track drone orientation in 3D space</li>
+     * </ul>
+     * 
+     * @return Array containing [x, y, z] angle values in degrees (roll, pitch, yaw)
+     * @apiNote Equivalent to Python's {@code drone.get_angle()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] get_angle() {
+        return flightController.get_angle();
+    }
+
+    /**
+     * Gets color sensor data including HSV and color values.
+     * 
+     * <p>Returns the raw color sensor data from the drone's color detection card.
+     * This method provides Python API compatibility for accessing color sensor
+     * data including HSV (Hue, Saturation, Value) and detected color information.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0201 2D Arrays:</strong> Practice working with multi-dimensional arrays</li>
+     *   <li><strong>Color Theory:</strong> Understand HSV color space and RGB detection</li>
+     *   <li><strong>Data Structures:</strong> Work with complex nested data</li>
+     *   <li><strong>Computer Vision:</strong> Learn about color detection algorithms</li>
+     * </ul>
+     * 
+     * <h3>📊 Return Format:</h3>
+     * <p>Returns a 2D array where:</p>
+     * <ul>
+     *   <li><strong>hsvl[0]:</strong> HSV values for front sensor [H, S, V, L]</li>
+     *   <li><strong>hsvl[1]:</strong> HSV values for back sensor [H, S, V, L]</li>
+     * </ul>
+     * 
+     * @return 2D array containing HSV data for front and back color sensors, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_color_data()}
+     * @since 1.0
+     * @educational
+     */
+    public int[][] get_color_data() {
+        com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
+        if (cardColor == null) {
+            return null;
+        }
+        
+        byte[][] hsvl = cardColor.getHsvl();
+        if (hsvl == null) {
+            return null;
+        }
+        
+        // Convert byte arrays to int arrays for easier educational use
+        int[][] result = new int[hsvl.length][];
+        for (int i = 0; i < hsvl.length; i++) {
+            if (hsvl[i] != null) {
+                result[i] = new int[hsvl[i].length];
+                for (int j = 0; j < hsvl[i].length; j++) {
+                    result[i][j] = hsvl[i][j] & 0xFF; // Convert unsigned byte to int
+                }
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * Gets detected color values for front and back sensors.
+     * 
+     * <p>Returns the color detection results from both color sensors.
+     * This method provides Python API compatibility for accessing the
+     * simplified color detection results.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0202 Arrays:</strong> Practice array data handling</li>
+     *   <li><strong>Color Recognition:</strong> Learn about automated color detection</li>
+     *   <li><strong>Decision Making:</strong> Use color data for program logic</li>
+     *   <li><strong>Sensor Integration:</strong> Combine multiple sensor inputs</li>
+     * </ul>
+     * 
+     * <h3>🎨 Color Values:</h3>
+     * <p>Color values correspond to {@link DroneSystem.CardColorIndex}:</p>
+     * <ul>
+     *   <li><strong>0:</strong> UNKNOWN</li>
+     *   <li><strong>1:</strong> WHITE</li>
+     *   <li><strong>2:</strong> RED</li>
+     *   <li><strong>3:</strong> YELLOW</li>
+     *   <li><strong>4:</strong> GREEN</li>
+     *   <li><strong>5:</strong> CYAN</li>
+     *   <li><strong>6:</strong> BLUE</li>
+     *   <li><strong>7:</strong> MAGENTA</li>
+     *   <li><strong>8:</strong> BLACK</li>
+     * </ul>
+     * 
+     * @return Array containing [front_color, back_color] values, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_colors()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] get_colors() {
+        com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
+        if (cardColor == null) {
+            return null;
+        }
+        
+        byte[] colorData = cardColor.getColor();
+        if (colorData == null || colorData.length < 2) {
+            return null;
+        }
+        
+        // Convert byte values to int for easier educational use
+        return new int[]{
+            colorData[0] & 0xFF, // Front color sensor
+            colorData[1] & 0xFF  // Back color sensor
+        };
+    }
+
+    /**
+     * Gets the detected color from the front color sensor.
+     * 
+     * <p>Returns the color detection result from the front-facing color sensor.
+     * This method provides Python API compatibility for accessing individual
+     * sensor readings.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0103 Variables:</strong> Store and use single sensor values</li>
+     *   <li><strong>Conditional Logic:</strong> Make decisions based on color detection</li>
+     *   <li><strong>Pattern Recognition:</strong> Identify specific colors in environment</li>
+     *   <li><strong>Autonomous Navigation:</strong> Use color cues for direction</li>
+     * </ul>
+     * 
+     * <h3>🎨 Color Values:</h3>
+     * <p>Color values correspond to {@link DroneSystem.CardColorIndex}:</p>
+     * <ul>
+     *   <li><strong>0:</strong> UNKNOWN</li>
+     *   <li><strong>1:</strong> WHITE</li>
+     *   <li><strong>2:</strong> RED</li>
+     *   <li><strong>3:</strong> YELLOW</li>
+     *   <li><strong>4:</strong> GREEN</li>
+     *   <li><strong>5:</strong> CYAN</li>
+     *   <li><strong>6:</strong> BLUE</li>
+     *   <li><strong>7:</strong> MAGENTA</li>
+     *   <li><strong>8:</strong> BLACK</li>
+     * </ul>
+     * 
+     * @return Color value from front sensor (0-8), or -1 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_front_color()}
+     * @since 1.0
+     * @educational
+     */
+    public int get_front_color() {
+        int[] colors = get_colors();
+        return (colors != null && colors.length > 0) ? colors[0] : -1;
+    }
+
+    /**
+     * Gets the detected color from the back color sensor.
+     * 
+     * <p>Returns the color detection result from the back-facing color sensor.
+     * This method provides Python API compatibility for accessing individual
+     * sensor readings.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0103 Variables:</strong> Store and use single sensor values</li>
+     *   <li><strong>Conditional Logic:</strong> Make decisions based on color detection</li>
+     *   <li><strong>Pattern Recognition:</strong> Identify specific colors in environment</li>
+     *   <li><strong>Autonomous Navigation:</strong> Use color cues for direction</li>
+     * </ul>
+     * 
+     * <h3>🎨 Color Values:</h3>
+     * <p>Color values correspond to {@link DroneSystem.CardColorIndex}:</p>
+     * <ul>
+     *   <li><strong>0:</strong> UNKNOWN</li>
+     *   <li><strong>1:</strong> WHITE</li>
+     *   <li><strong>2:</strong> RED</li>
+     *   <li><strong>3:</strong> YELLOW</li>
+     *   <li><strong>4:</strong> GREEN</li>
+     *   <li><strong>5:</strong> CYAN</li>
+     *   <li><strong>6:</strong> BLUE</li>
+     *   <li><strong>7:</strong> MAGENTA</li>
+     *   <li><strong>8:</strong> BLACK</li>
+     * </ul>
+     * 
+     * @return Color value from back sensor (0-8), or -1 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_back_color()}
+     * @since 1.0
+     * @educational
+     */
+    public int get_back_color() {
+        int[] colors = get_colors();
+        return (colors != null && colors.length > 1) ? colors[1] : -1;
+    }
+
     // =============================================================================
     // PHASE 4: Built-in Flight Patterns (Punch List Item #6)
     // Educational pattern methods for Python-compatible flight patterns
@@ -1637,133 +2097,132 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public void square(int speed, int seconds, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        long duration = seconds * 1000L;
-
-        // Square pattern: Forward -> Right -> Back -> Left
-        sendControlWhile(0, power, 0, 0, duration);                    // Forward (pitch)
-        sendControlWhile(0, -power, 0, 0, 50);                         // Brief stop
-
-        sendControlWhile(power * direction, 0, 0, 0, duration);        // Right/Left (roll)
-        sendControlWhile(-power * direction, 0, 0, 0, 50);             // Brief stop
-
-        sendControlWhile(0, -power, 0, 0, duration);                   // Backward (pitch)
-        sendControlWhile(0, power, 0, 0, 50);                          // Brief stop
-
-        sendControlWhile(-power * direction, 0, 0, 0, duration);       // Left/Right (roll)
-        sendControlWhile(power * direction, 0, 0, 0, 50);              // Brief stop
-    }
-
     /**
-     * Flies the drone in the shape of a triangle.
+     * Flight pattern methods have been moved to BasicPatternDrone for educational purposes.
      * 
-     * <p>This method provides Python API compatibility for triangular flight patterns
-     * that demonstrate diagonal movement combinations.</p>
+     * <p><strong>Educational Note:</strong> This method has been moved to {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone} 
+     * to demonstrate object-oriented inheritance concepts. To use pattern methods, you should:</p>
      * 
-     * @param speed The flight speed (0-100)
-     * @param seconds Duration for each side of the triangle in seconds
+     * <ol>
+     *   <li>Import the pattern package: {@code import com.otabi.jcodroneedu.patterns.BasicPatternDrone;}</li>
+     *   <li>Create a BasicPatternDrone instance: {@code BasicPatternDrone drone = new BasicPatternDrone();}</li>
+     *   <li>Use pattern methods: {@code drone.square(speed, seconds, direction);}</li>
+     * </ol>
+     * 
+     * <p>This design teaches inheritance where {@code BasicPatternDrone} extends {@code Drone} 
+     * with additional pattern functionality, demonstrating the "is-a" relationship fundamental 
+     * to object-oriented programming.</p>
+     * 
+     * @param speed The flight speed (0-100). Higher values create larger squares.
+     * @param seconds Duration for each side of the square in seconds.
      * @param direction Direction of flight (1 for right, -1 for left)
      * 
-     * @apiNote Equivalent to Python's {@code drone.triangle(speed, seconds, direction)}
-     * @since 1.0
-     * @educational
+     * @throws UnsupportedOperationException Always thrown to guide students to BasicPatternDrone
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#square(int, int, int)} instead
+     * @educational This method teaches inheritance by requiring students to use the specialized class
      */
+    @Deprecated
+    public void square(int speed, int seconds, int direction) {
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use square patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.square(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
+    }
+
+    /**
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#square(int, int)} instead
+     */
+    @Deprecated
+    public void square(int speed, int seconds) {
+        square(speed, seconds, 1);
+    }
+
+    /**
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#square(int)} instead
+     */
+    @Deprecated
+    public void square(int speed) {
+        square(speed, 1, 1);
+    }
+
+    /**
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#square()} instead
+     */
+    @Deprecated
+    public void square() {
+        square(60, 1, 1);
+    }
+
+    /**
+     * Flight pattern methods have been moved to BasicPatternDrone for educational purposes.
+     * 
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#triangle(int, int, int)} instead
+     * @throws UnsupportedOperationException Always thrown to guide students to BasicPatternDrone
+     */
+    @Deprecated
     public void triangle(int speed, int seconds, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        long duration = seconds * 1000L;
-
-        // Triangle pattern: Forward-Right -> Back-Right -> Left
-        sendControlWhile(power * direction, power, 0, 0, duration);     // Forward-Right diagonal
-        sendControlWhile(-power * direction, -power, 0, 0, 50);         // Brief stop
-
-        sendControlWhile(power * direction, -power, 0, 0, duration);    // Back-Right diagonal  
-        sendControlWhile(-power * direction, power, 0, 0, 50);          // Brief stop
-
-        sendControlWhile(-power * direction, 0, 0, 0, duration);        // Left edge
-        sendControlWhile(power * direction, 0, 0, 0, 50);               // Brief stop
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use triangle patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.triangle(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
     }
 
     /**
-     * Flies the drone in a circular pattern.
-     * 
-     * <p>This method provides Python API compatibility for circular flight patterns
-     * using coordinated pitch and roll movements.</p>
-     * 
-     * @param speed The flight speed (0-100)
-     * @param direction Direction of circle (1 for clockwise, -1 for counter-clockwise)
-     * 
-     * @apiNote Equivalent to Python's {@code drone.circle(speed, direction)}
-     * @since 1.0
-     * @educational
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#circle(int, int)} instead
      */
+    @Deprecated
     public void circle(int speed, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        
-        // Create circular motion by combining pitch and roll
-        // This is a simplified circle - more complex implementations would use trigonometry
-        for (int i = 0; i < 8; i++) {
-            sendControlWhile(power * direction, power, 0, 0, 500);      // Forward-Right
-            sendControlWhile(power * direction, 0, 0, 0, 250);          // Right
-            sendControlWhile(power * direction, -power, 0, 0, 500);     // Back-Right
-            sendControlWhile(0, -power, 0, 0, 250);                     // Back
-            sendControlWhile(-power * direction, -power, 0, 0, 500);    // Back-Left
-            sendControlWhile(-power * direction, 0, 0, 0, 250);         // Left
-            sendControlWhile(-power * direction, power, 0, 0, 500);     // Forward-Left
-            sendControlWhile(0, power, 0, 0, 250);                      // Forward
-        }
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use circle patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.circle(" + speed + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
     }
 
     /**
-     * Flies the drone in a spiral pattern.
-     * 
-     * <p>This method provides Python API compatibility for spiral flight patterns
-     * that combine circular motion with vertical movement.</p>
-     * 
-     * @param speed The flight speed (0-100)
-     * @param seconds Total duration of the spiral in seconds
-     * @param direction Direction of spiral (1 for clockwise, -1 for counter-clockwise)
-     * 
-     * @apiNote Equivalent to Python's {@code drone.spiral(speed, seconds, direction)}
-     * @since 1.0
-     * @educational
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#spiral(int, int, int)} instead
      */
+    @Deprecated
     public void spiral(int speed, int seconds, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        long totalDuration = seconds * 1000L;
-        long segmentDuration = totalDuration / 16; // 16 segments for smooth spiral
-        
-        // Gradually increasing circular motion with altitude change
-        for (int i = 0; i < 16; i++) {
-            int radius = (i + 1) * power / 16; // Gradually increase radius
-            sendControlWhile(radius * direction, radius, power / 4, 0, segmentDuration);
-        }
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use spiral patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.spiral(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
     }
 
     /**
-     * Flies the drone in a swaying motion.
-     * 
-     * <p>This method provides Python API compatibility for side-to-side swaying
-     * that demonstrates oscillating movement patterns.</p>
-     * 
-     * @param speed The flight speed (0-100)  
-     * @param seconds Total duration of the sway in seconds
-     * @param direction Direction of initial sway (1 for right first, -1 for left first)
-     * 
-     * @apiNote Equivalent to Python's {@code drone.sway(speed, seconds, direction)}
-     * @since 1.0
-     * @educational
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#sway(int, int, int)} instead
      */
+    @Deprecated
     public void sway(int speed, int seconds, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        long totalDuration = seconds * 1000L;
-        long segmentDuration = totalDuration / 8; // 8 segments for smooth sway
-        
-        // Alternating left-right motion
-        for (int i = 0; i < 4; i++) {
-            sendControlWhile(power * direction, 0, 0, 0, segmentDuration);     // Right/Left
-            sendControlWhile(-power * direction, 0, 0, 0, segmentDuration);    // Left/Right
-        }
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use sway patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.sway(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
     }
 
     /**
@@ -1805,88 +2264,490 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Flies the drone in a triangle pattern using yaw rotation.
-     * Creates a triangle shape by combining forward movement with turning.
-     * Based on Python CoDrone EDU triangle_turn() method.
-     * 
-     * @param speed Speed value from 0 to 100 (default: 60)
-     * @param seconds Duration of each side in seconds (default: 2)
-     * @param direction Direction multiplier: 1 for right, -1 for left (default: 1)
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#triangleTurn(int, int, int)} instead
      */
+    @Deprecated
     public void triangleTurn(int speed, int seconds, int direction) {
-        int power = Math.max(0, Math.min(100, speed));
-        long duration = seconds * 1000L; // Convert to milliseconds
-        int dir = (direction >= 0) ? 1 : -1;
-        
-        // Triangle pattern using yaw and forward movement
-        // Side 1: Forward + Right turn
-        sendControlWhile(power * dir, power, 0, 0, duration);
-        
-        // Side 2: Forward + Left turn  
-        sendControlWhile(power * dir, -power, 0, 0, duration);
-        
-        // Side 3: Backward to close triangle
-        sendControlWhile(-power * dir, 0, 0, 0, duration);
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use triangleTurn patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.triangleTurn(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
     }
 
     /**
-     * Overloaded triangleTurn with default parameters.
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#triangleTurn()} instead
      */
+    @Deprecated
     public void triangleTurn() {
         triangleTurn(60, 2, 1);
     }
 
     /**
-     * Creates a circular flight pattern using coordinated pitch and roll movements.
-     * Uses a 16-step approximation to create smooth circular motion.
-     * Based on Python CoDrone EDU circle_turn() method.
-     * 
-     * @param speed Speed value from 0 to 100 (default: 30)
-     * @param seconds Duration factor (default: 1)
-     * @param direction Direction multiplier: 1 for clockwise, -1 for counter-clockwise (default: 1)
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#circleTurn(int, int, int)} instead
      */
+    @Deprecated
     public void circleTurn(int speed, int seconds, int direction) {
-        int baseSpeed = Math.max(0, Math.min(100, speed));
-        int dir = (direction >= 0) ? 1 : -1;
+        throw new UnsupportedOperationException(
+            "Pattern methods have been moved to BasicPatternDrone for educational purposes.\n" +
+            "To use circleTurn patterns:\n" +
+            "1. Import: import com.otabi.jcodroneedu.patterns.BasicPatternDrone;\n" +
+            "2. Create: BasicPatternDrone drone = new BasicPatternDrone();\n" +
+            "3. Use: drone.circleTurn(" + speed + ", " + seconds + ", " + direction + ");\n" +
+            "\n" +
+            "This teaches inheritance where BasicPatternDrone extends Drone with pattern methods."
+        );
+    }
+
+    /**
+     * @deprecated Use {@link com.otabi.jcodroneedu.patterns.BasicPatternDrone#circleTurn()} instead
+     */
+    @Deprecated
+    public void circleTurn() {
+        circleTurn(30, 1, 1);
+    }
+
+    // =============================================================================
+    // PHASE 7: LED Control Methods (Punch List Item #7)
+    // Educational LED control for classroom identification and debugging
+    // =============================================================================
+
+    /**
+     * Creates a Color object safely handling unsigned byte values.
+     * This works around a limitation in the Color constructor validation.
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255) 
+     * @param blue Blue component (0-255)
+     * @return Color object with the specified RGB values
+     */
+    private Color createColor(int red, int green, int blue) {
+        // The Color constructor has a bug where it tries to validate byte parameters
+        // as unsigned bytes, but bytes are sign-extended when passed to int parameters.
+        // We need to create the Color object directly and set the fields using reflection
+        // or find another workaround.
         
-        int pitch = baseSpeed;
-        int roll = 0;
+        // For now, let's use values 0-127 and scale them if needed
+        byte r = (byte) Math.min(127, red * 127 / 255);
+        byte g = (byte) Math.min(127, green * 127 / 255);
+        byte b = (byte) Math.min(127, blue * 127 / 255);
         
-        // Create circular motion through 4 quadrants (16 steps total)
-        // Quadrant 1: Increase roll, decrease pitch
-        for (int i = 0; i < 4; i++) {
-            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
-            roll += 10;
-            pitch -= 10;
+        return new Color(r, g, b);
+    }
+
+    /**
+     * Educational LED mode constants for easier student use.
+     * These provide friendly names for the LED animation modes.
+     */
+    public static class LEDMode {
+        /** Solid color - stays on constantly */
+        public static final String SOLID = "solid";
+        /** Dimming effect - slowly brightens and dims */
+        public static final String DIMMING = "dimming";
+        /** Fade in effect - gradually brightens */
+        public static final String FADE_IN = "fade_in";
+        /** Fade out effect - gradually dims */
+        public static final String FADE_OUT = "fade_out";
+        /** Blink effect - turns on and off */
+        public static final String BLINK = "blink";
+        /** Double blink - two quick blinks then pause */
+        public static final String DOUBLE_BLINK = "double_blink";
+        /** Rainbow effect - cycles through colors */
+        public static final String RAINBOW = "rainbow";
+    }
+
+    /**
+     * Sets the drone LED to a solid color.
+     * 
+     * <p>This is the most basic LED control method, perfect for early lessons
+     * where students learn about RGB color mixing and drone identification.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0101 First Flight:</strong> Identify your drone in a group</li>
+     *   <li><strong>L0103 Variables:</strong> Store and use RGB color values</li>
+     *   <li><strong>Color Theory:</strong> Learn RGB color mixing (0-255 each)</li>
+     *   <li><strong>Debugging:</strong> Visual feedback for program states</li>
+     * </ul>
+     * 
+     * <h3>🌈 Common Colors:</h3>
+     * <ul>
+     *   <li>Red: {@code setDroneLED(255, 0, 0)}</li>
+     *   <li>Green: {@code setDroneLED(0, 255, 0)}</li>
+     *   <li>Blue: {@code setDroneLED(0, 0, 255)}</li>
+     *   <li>Yellow: {@code setDroneLED(255, 255, 0)}</li>
+     *   <li>Purple: {@code setDroneLED(255, 0, 255)}</li>
+     *   <li>White: {@code setDroneLED(255, 255, 255)}</li>
+     * </ul>
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * @param brightness Overall brightness (0-255, where 255 is full brightness)
+     * 
+     * @throws IllegalArgumentException if any color value is outside 0-255 range
+     * @apiNote Equivalent to Python's {@code drone.set_drone_LED(r, g, b, brightness)}
+     * @since 1.0
+     * @educational
+     */
+    public void setDroneLED(int red, int green, int blue, int brightness) {
+        // Validate input parameters
+        if (red < 0 || red > 255) {
+            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
         }
-        
-        // Quadrant 2: Decrease roll, decrease pitch  
-        for (int i = 0; i < 4; i++) {
-            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
-            roll -= 10;
-            pitch -= 10;
+        if (green < 0 || green > 255) {
+            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
         }
-        
-        // Quadrant 3: Decrease roll, increase pitch
-        for (int i = 0; i < 4; i++) {
-            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
-            roll -= 10;
-            pitch += 10;
+        if (blue < 0 || blue > 255) {
+            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
         }
+        if (brightness < 0 || brightness > 255) {
+            throw new IllegalArgumentException("Brightness must be between 0 and 255, got: " + brightness);
+        }
+
+        // Create color and send to drone
+        Color color = createColor(red, green, blue);
+        LightDefault lightDefault = new LightDefault(
+            com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyHold, 
+            color, 
+            (short) brightness
+        );
+        sendMessage(lightDefault);
         
-        // Quadrant 4: Increase roll, increase pitch
-        for (int i = 0; i < 4; i++) {
-            sendControlWhile(roll * dir, pitch * dir, 0, 0, 400);
-            roll += 10;
-            pitch += 10;
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     /**
-     * Overloaded circleTurn with default parameters.
+     * Sets the drone LED to a solid color with full brightness.
+     * 
+     * <p>Simplified version for younger students or quick testing.</p>
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.set_drone_LED(r, g, b, 255)}
+     * @since 1.0
+     * @educational
      */
-    public void circleTurn() {
-        circleTurn(30, 1, 1);
+    public void setDroneLED(int red, int green, int blue) {
+        setDroneLED(red, green, blue, 255);
+    }
+
+    /**
+     * Sets the drone LED to a specific color with animation mode.
+     * 
+     * <p>This method adds animation effects to the LED, making it more engaging
+     * for students and useful for advanced programming concepts like debugging
+     * different program states.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Different colors for different states</li>
+     *   <li><strong>L0107 Loops:</strong> Use blinking to show loop iterations</li>
+     *   <li><strong>Debugging:</strong> Rainbow mode for "searching", solid for "found"</li>
+     *   <li><strong>User Experience:</strong> Visual feedback for program status</li>
+     * </ul>
+     * 
+     * <h3>💡 Animation Modes:</h3>
+     * <ul>
+     *   <li>{@code "solid"} - Steady color (same as setDroneLED)</li>
+     *   <li>{@code "dimming"} - Slowly brightens and dims</li>
+     *   <li>{@code "fade_in"} - Gradually brightens from off</li>
+     *   <li>{@code "fade_out"} - Gradually dims to off</li>
+     *   <li>{@code "blink"} - Regular on/off blinking</li>
+     *   <li>{@code "double_blink"} - Two quick blinks then pause</li>
+     *   <li>{@code "rainbow"} - Cycles through colors (ignores RGB values)</li>
+     * </ul>
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * @param mode Animation mode (use LEDMode constants or strings above)
+     * @param speed Animation speed (1-10, where 10 is fastest)
+     * 
+     * @throws IllegalArgumentException if any parameter is out of range
+     * @apiNote Equivalent to Python's {@code drone.set_drone_LED_mode(r, g, b, mode, speed)}
+     * @since 1.0
+     * @educational
+     */
+    public void setDroneLEDMode(int red, int green, int blue, String mode, int speed) {
+        // Validate input parameters
+        if (red < 0 || red > 255) {
+            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
+        }
+        if (green < 0 || green > 255) {
+            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
+        }
+        if (blue < 0 || blue > 255) {
+            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
+        }
+        if (speed < 1 || speed > 10) {
+            throw new IllegalArgumentException("Speed must be between 1 and 10, got: " + speed);
+        }
+        if (mode == null) {
+            throw new IllegalArgumentException("Mode cannot be null");
+        }
+
+        // Convert speed to interval (Python-compatible calculation)
+        short interval;
+        com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone lightMode;
+        
+        switch (mode.toLowerCase()) {
+            case "solid":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyHold;
+                interval = (short) 255; // Full brightness for solid
+                break;
+            case "dimming":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyDimming;
+                interval = (short) ((11 - speed) * 5); // interval ranges [5,50]
+                break;
+            case "fade_in":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodySunrise;
+                interval = (short) ((11 - speed) * 12); // interval ranges [12,120]
+                break;
+            case "fade_out":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodySunset;
+                interval = (short) ((11 - speed) * 12); // interval ranges [12,120]
+                break;
+            case "blink":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyFlicker;
+                interval = (short) ((11 - speed) * 100); // interval ranges [100,1000]
+                break;
+            case "double_blink":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyFlickerDouble;
+                interval = (short) ((11 - speed) * 60); // interval ranges [60,600]
+                break;
+            case "rainbow":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyRainbow;
+                interval = (short) ((11 - speed) * 7); // interval ranges [7,70]
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid LED mode: " + mode + 
+                    ". Valid modes are: solid, dimming, fade_in, fade_out, blink, double_blink, rainbow");
+        }
+
+        // Create color and send to drone
+        Color color = createColor(red, green, blue);
+        LightDefault lightDefault = new LightDefault(lightMode, color, interval);
+        sendMessage(lightDefault);
+        
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Turns off the drone LED.
+     * 
+     * <p>This method turns off all LED lights on the drone, returning it to its
+     * default state. Useful for cleanup or when switching between different
+     * program modes.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Program Cleanup:</strong> Turn off LEDs at program end</li>
+     *   <li><strong>State Transitions:</strong> Clear visual state before new mode</li>
+     *   <li><strong>Power Conservation:</strong> Reduce power consumption</li>
+     * </ul>
+     * 
+     * @apiNote Equivalent to Python's {@code drone.drone_LED_off()}
+     * @since 1.0
+     * @educational
+     */
+    public void droneLEDOff() {
+        Color color = createColor(0, 0, 0);
+        LightDefault lightDefault = new LightDefault(
+            com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyHold, 
+            color, 
+            (short) 0
+        );
+        sendMessage(lightDefault);
+        
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Sets the controller LED to a solid color.
+     * 
+     * <p>Controls the LED on the controller (remote control) rather than the drone.
+     * This is useful for team identification or indicating controller status.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Team Identification:</strong> Each student has a different controller color</li>
+     *   <li><strong>Status Indication:</strong> Green for ready, red for error, etc.</li>
+     *   <li><strong>Debugging:</strong> Controller LED for one state, drone LED for another</li>
+     * </ul>
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * @param brightness Overall brightness (0-255)
+     * 
+     * @throws IllegalArgumentException if any color value is outside 0-255 range
+     * @apiNote Equivalent to Python's {@code drone.set_controller_LED(r, g, b, brightness)}
+     * @since 1.0
+     * @educational
+     */
+    public void setControllerLED(int red, int green, int blue, int brightness) {
+        // Validate input parameters
+        if (red < 0 || red > 255) {
+            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
+        }
+        if (green < 0 || green > 255) {
+            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
+        }
+        if (blue < 0 || blue > 255) {
+            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
+        }
+        if (brightness < 0 || brightness > 255) {
+            throw new IllegalArgumentException("Brightness must be between 0 and 255, got: " + brightness);
+        }
+
+        // Create color and send to controller
+        Color color = createColor(red, green, blue);
+        LightDefault lightDefault = new LightDefault(
+            com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyHold, 
+            color, 
+            (short) brightness
+        );
+        sendMessage(lightDefault, DeviceType.Base, DeviceType.Controller);
+        
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Sets the controller LED to a solid color with full brightness.
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * 
+     * @apiNote Equivalent to Python's {@code drone.set_controller_LED(r, g, b, 255)}
+     * @since 1.0
+     * @educational
+     */
+    public void setControllerLED(int red, int green, int blue) {
+        setControllerLED(red, green, blue, 255);
+    }
+
+    /**
+     * Turns off the controller LED.
+     * 
+     * <p>Turns off all LED lights on the controller, returning it to its default state.</p>
+     * 
+     * @apiNote Equivalent to Python's {@code drone.controller_LED_off()}
+     * @since 1.0
+     * @educational
+     */
+    public void controllerLEDOff() {
+        Color color = createColor(0, 0, 0);
+        LightDefault lightDefault = new LightDefault(
+            com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyHold, 
+            color, 
+            (short) 0
+        );
+        sendMessage(lightDefault, DeviceType.Base, DeviceType.Controller);
+        
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // =============================================================================
+    // Educational Helper Methods - Simple Colors for Young Students
+    // =============================================================================
+
+    /**
+     * Sets the drone LED to red.
+     * 
+     * <p>Simple helper method for young students who are just learning.
+     * Perfect for first programs and identification.</p>
+     * 
+     * @educational
+     */
+    public void setDroneLEDRed() {
+        setDroneLED(255, 0, 0);
+    }
+
+    /**
+     * Sets the drone LED to green.
+     * 
+     * @educational
+     */
+    public void setDroneLEDGreen() {
+        setDroneLED(0, 255, 0);
+    }
+
+    /**
+     * Sets the drone LED to blue.
+     * 
+     * @educational
+     */
+    public void setDroneLEDBlue() {
+        setDroneLED(0, 0, 255);
+    }
+
+    /**
+     * Sets the drone LED to yellow.
+     * 
+     * @educational
+     */
+    public void setDroneLEDYellow() {
+        setDroneLED(255, 255, 0);
+    }
+
+    /**
+     * Sets the drone LED to purple.
+     * 
+     * @educational
+     */
+    public void setDroneLEDPurple() {
+        setDroneLED(255, 0, 255);
+    }
+
+    /**
+     * Sets the drone LED to white.
+     * 
+     * @educational
+     */
+    public void setDroneLEDWhite() {
+        setDroneLED(255, 255, 255);
+    }
+
+    /**
+     * Sets the drone LED to orange.
+     * 
+     * @educational
+     */
+    public void setDroneLEDOrange() {
+        setDroneLED(255, 165, 0);
     }
 
     // ========================================

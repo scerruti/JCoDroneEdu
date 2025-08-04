@@ -65,6 +65,7 @@ public class Receiver {
         handlers.put(DataType.Information, msg -> linkManager.setInformation((Information) msg));
         handlers.put(DataType.Attitude, msg -> droneStatus.setAttitude((Attitude) msg));
         handlers.put(DataType.Position, msg -> droneStatus.setPosition((Position) msg));
+        handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((com.otabi.jcodroneedu.protocol.cardreader.CardColor) msg));
         // ... add handlers for all other message types here ...
     }
 
