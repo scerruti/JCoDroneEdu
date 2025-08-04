@@ -168,9 +168,11 @@ drone.square(50, 2);                 // Medium complexity
 **Python Methods**: `drone_buzzer()`, `controller_buzzer()`, `start_drone_buzzer()`, `stop_drone_buzzer()`
 **Impact**: No audio feedback capabilities for alerts or engagement
 **Educational Need**: Useful for alerts, engagement, and debugging (NOTE: This is audio output, different from item #13 which is controller input)
-**Status**: ✅ COMPLETED (November 2024) - All LED control methods implemented
-**Python Methods**: `set_drone_LED()`, `set_drone_LED_mode()`, `drone_LED_off()`, `set_controller_LED()`, `controller_LED_off()`
-**Implementation**: Full LED control with both solid colors and animation modes for drone and controller
+
+### 8. **LED Control Methods** 
+**Status**: ✅ COMPLETED (January 2025) - All LED control methods implemented including controller LED modes
+**Python Methods**: `set_drone_LED()`, `set_drone_LED_mode()`, `drone_LED_off()`, `set_controller_LED()`, `set_controller_LED_mode()`, `controller_LED_off()`
+**Implementation**: Complete LED control with both solid colors and animation modes for drone and controller
 **Educational Impact**: Students now have complete visual feedback capabilities for debugging, identification, and engagement
 
 **✅ Implemented LED Methods:**

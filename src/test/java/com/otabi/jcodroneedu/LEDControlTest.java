@@ -175,6 +175,51 @@ class LEDControlTest {
             assertDoesNotThrow(() -> drone.controllerLEDOff(),
                 "Turning off controller LED should not throw exception");
         }
+
+        @Test
+        @DisplayName("Should set controller LED mode with animations")
+        void shouldSetControllerLEDMode() {
+            // Test various animation modes
+            assertDoesNotThrow(() -> drone.setControllerLEDMode(255, 255, 0, "blink", 5),
+                "Setting controller LED blink mode should not throw exception");
+            
+            assertDoesNotThrow(() -> drone.setControllerLEDMode(0, 255, 255, "rainbow", 8),
+                "Setting controller LED rainbow mode should not throw exception");
+            
+            assertDoesNotThrow(() -> drone.setControllerLEDMode(255, 0, 128, "dimming", 3),
+                "Setting controller LED dimming mode should not throw exception");
+        }
+
+        @Test
+        @DisplayName("Should validate controller LED mode parameters")
+        void shouldValidateControllerLEDModeParameters() {
+            // Test color validation
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(256, 0, 0, "blink", 5),
+                "Should throw exception for red > 255");
+            
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(0, -1, 0, "blink", 5),
+                "Should throw exception for negative green");
+            
+            // Test speed validation
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(255, 0, 0, "blink", 0),
+                "Should throw exception for speed < 1");
+            
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(255, 0, 0, "blink", 11),
+                "Should throw exception for speed > 10");
+            
+            // Test mode validation
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(255, 0, 0, "invalid_mode", 5),
+                "Should throw exception for invalid mode");
+            
+            assertThrows(IllegalArgumentException.class, 
+                () -> drone.setControllerLEDMode(255, 0, 0, null, 5),
+                "Should throw exception for null mode");
+        }
     }
 
     @Nested

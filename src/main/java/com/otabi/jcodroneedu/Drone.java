@@ -2972,6 +2972,112 @@ public class Drone implements AutoCloseable {
         }
     }
 
+    /**
+     * Sets the controller LED to a specific color with animation mode.
+     * 
+     * <p>This method adds animation effects to the controller LED, enabling 
+     * differentiated visual feedback between drone and controller states.
+     * Perfect for team identification and multi-device programs.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Team Coordination:</strong> Different controller animations for different teams</li>
+     *   <li><strong>Status Indication:</strong> Controller shows ready/busy/error states</li>
+     *   <li><strong>Debugging:</strong> Controller LED for program state, drone LED for flight state</li>
+     *   <li><strong>User Interface:</strong> Visual feedback for user interactions</li>
+     * </ul>
+     * 
+     * <h3>💡 Animation Modes:</h3>
+     * <ul>
+     *   <li>{@code "solid"} - Steady color (same as setControllerLED)</li>
+     *   <li>{@code "dimming"} - Slowly brightens and dims</li>
+     *   <li>{@code "fade_in"} - Gradually brightens from off</li>
+     *   <li>{@code "fade_out"} - Gradually dims to off</li>
+     *   <li>{@code "blink"} - Regular on/off blinking</li>
+     *   <li>{@code "double_blink"} - Two quick blinks then pause</li>
+     *   <li>{@code "rainbow"} - Cycles through colors (ignores RGB values)</li>
+     * </ul>
+     * 
+     * @param red Red component (0-255)
+     * @param green Green component (0-255)
+     * @param blue Blue component (0-255)
+     * @param mode Animation mode (use LEDMode constants or strings above)
+     * @param speed Animation speed (1-10, where 10 is fastest)
+     * 
+     * @throws IllegalArgumentException if any parameter is out of range
+     * @apiNote Equivalent to Python's {@code drone.set_controller_LED_mode(r, g, b, mode, speed)}
+     * @since 1.0
+     * @educational
+     */
+    public void setControllerLEDMode(int red, int green, int blue, String mode, int speed) {
+        // Validate input parameters
+        if (red < 0 || red > 255) {
+            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
+        }
+        if (green < 0 || green > 255) {
+            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
+        }
+        if (blue < 0 || blue > 255) {
+            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
+        }
+        if (speed < 1 || speed > 10) {
+            throw new IllegalArgumentException("Speed must be between 1 and 10, got: " + speed);
+        }
+        if (mode == null) {
+            throw new IllegalArgumentException("Mode cannot be null");
+        }
+
+        // Convert speed to interval (Python-compatible calculation)
+        short interval;
+        com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController lightMode;
+        
+        switch (mode.toLowerCase()) {
+            case "solid":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyHold;
+                interval = (short) 255; // Full brightness for solid
+                break;
+            case "dimming":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyDimming;
+                interval = (short) ((11 - speed) * 5); // interval ranges [5,50]
+                break;
+            case "fade_in":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodySunrise;
+                interval = (short) ((11 - speed) * 12); // interval ranges [12,120]
+                break;
+            case "fade_out":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodySunset;
+                interval = (short) ((11 - speed) * 12); // interval ranges [12,120]
+                break;
+            case "blink":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyFlicker;
+                interval = (short) ((11 - speed) * 100); // interval ranges [100,1000]
+                break;
+            case "double_blink":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyFlickerDouble;
+                interval = (short) ((11 - speed) * 60); // interval ranges [60,600]
+                break;
+            case "rainbow":
+                lightMode = com.otabi.jcodroneedu.protocol.lightcontroller.LightModesController.BodyRainbow;
+                interval = (short) ((11 - speed) * 7); // interval ranges [7,70]
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid LED mode: " + mode + 
+                    ". Valid modes are: solid, dimming, fade_in, fade_out, blink, double_blink, rainbow");
+        }
+
+        // Create color and send to controller
+        Color color = createColor(red, green, blue);
+        LightDefault lightDefault = new LightDefault(lightMode, color, interval);
+        sendMessage(lightDefault, DeviceType.Base, DeviceType.Controller);
+        
+        // Small delay for command processing
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     // =============================================================================
     // Educational Helper Methods - Simple Colors for Young Students
     // =============================================================================
