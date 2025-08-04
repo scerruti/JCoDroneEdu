@@ -3,8 +3,10 @@ package com.otabi.jcodroneedu.receiver;
 import com.otabi.jcodroneedu.*;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.Attitude;
+import com.otabi.jcodroneedu.protocol.dronestatus.Altitude;
 import com.otabi.jcodroneedu.protocol.dronestatus.Position;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
+import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 import com.otabi.jcodroneedu.protocol.linkmanager.Information;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +67,8 @@ public class Receiver {
         handlers.put(DataType.Information, msg -> linkManager.setInformation((Information) msg));
         handlers.put(DataType.Attitude, msg -> droneStatus.setAttitude((Attitude) msg));
         handlers.put(DataType.Position, msg -> droneStatus.setPosition((Position) msg));
-        handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((com.otabi.jcodroneedu.protocol.cardreader.CardColor) msg));
+        handlers.put(DataType.Altitude, msg -> droneStatus.setAltitude((Altitude) msg));
+        handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((CardColor) msg));
         // ... add handlers for all other message types here ...
     }
 

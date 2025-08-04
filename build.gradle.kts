@@ -18,6 +18,9 @@ dependencies {
     implementation("com.fazecast:jSerialComm:2.11.0")
     implementation("org.apache.logging.log4j:log4j-api:2.23.1")
     implementation("com.google.guava:guava:33.2.1-jre")
+    
+    // JSR 385 - Units of Measurement API for unit conversion
+    implementation("tech.units:indriya:2.2")
 
     // JUnit 5 (Jupiter) for testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")

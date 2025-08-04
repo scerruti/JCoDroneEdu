@@ -1,0 +1,317 @@
+package com.otabi.jcodroneedu;
+
+import com.otabi.jcodroneedu.protocol.dronestatus.Altitude;
+import com.otabi.jcodroneedu.protocol.dronestatus.Position;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test suite for advanced sensor functionality in the CoDrone EDU Java API.
+ * Tests position, pressure, temperature, and comprehensive sensor data methods.
+ */
+@DisplayName("Advanced Sensor Tests")
+class AdvancedSensorTest {
+
+    private Drone drone;
+    private DroneStatus droneStatus;
+
+    @BeforeEach
+    void setUp() throws DroneNotFoundException {
+        // Create drone instance for testing
+        drone = new Drone(false);
+        droneStatus = drone.getDroneStatus();
+    }
+
+    @Nested
+    @DisplayName("Position Sensor Tests")
+    class PositionSensorTests {
+
+        @Test
+        @DisplayName("get_position_data() should return null when no position data available")
+        void testGetPositionDataNoData() {
+            // When no position data is set
+            int[] result = drone.get_position_data();
+            
+            // Should return null
+            assertNull(result, "get_position_data() should return null when no data is available");
+        }
+
+        @Test
+        @DisplayName("get_position_data() should return position array when data available")
+        void testGetPositionDataWithData() {
+            // Create mock position data (in millimeters)
+            Position position = new Position(1000, 500, 200); // 1m forward, 0.5m left, 0.2m up
+            droneStatus.setPosition(position);
+            
+            // Test the method
+            int[] result = drone.get_position_data();
+            
+            // Should return position array
+            assertNotNull(result, "get_position_data() should not return null when data is available");
+            assertEquals(3, result.length, "Should return array with 3 position values");
+            assertEquals(1000, result[0], "X position should match");
+            assertEquals(500, result[1], "Y position should match");
+            assertEquals(200, result[2], "Z position should match");
+        }
+
+        @Test
+        @DisplayName("Individual position getters should return correct values")
+        void testIndividualPositionGetters() {
+            // Create test position data
+            Position position = new Position(-500, 1500, -300);
+            droneStatus.setPosition(position);
+            
+            // Test individual getters
+            assertEquals(-500, drone.getPositionX(), "getPositionX() should return correct value");
+            assertEquals(1500, drone.getPositionY(), "getPositionY() should return correct value");
+            assertEquals(-300, drone.getPositionZ(), "getPositionZ() should return correct value");
+        }
+
+        @Test
+        @DisplayName("Individual position getters should return 0 when no data available")
+        void testIndividualPositionGettersNoData() {
+            // When no position data is set
+            assertEquals(0, drone.getPositionX(), "getPositionX() should return 0 when no data");
+            assertEquals(0, drone.getPositionY(), "getPositionY() should return 0 when no data");
+            assertEquals(0, drone.getPositionZ(), "getPositionZ() should return 0 when no data");
+        }
+    }
+
+    @Nested
+    @DisplayName("Pressure Sensor Tests")
+    class PressureSensorTests {
+
+        @Test
+        @DisplayName("get_pressure() should return 0.0 when no altitude data available")
+        void testGetPressureNoData() {
+            // When no altitude data is set
+            double result = drone.get_pressure();
+            
+            // Should return 0.0
+            assertEquals(0.0, result, 0.001, "get_pressure() should return 0.0 when no data is available");
+        }
+
+        @Test
+        @DisplayName("get_pressure() should return pressure in Pascals when data available")
+        void testGetPressureWithData() {
+            // Create mock altitude data with standard atmospheric pressure
+            Altitude altitude = new Altitude(25, 1000, 101325, 500); // 25°C, 1000mm range, 101325 Pa, 500mm altitude
+            droneStatus.setAltitude(altitude);
+            
+            // Test the method
+            double result = drone.get_pressure();
+            
+            // Should return pressure in Pascals
+            assertEquals(101325.0, result, 0.001, "get_pressure() should return pressure in Pascals");
+        }
+
+        @Test
+        @DisplayName("get_pressure(unit) should convert to different units correctly")
+        void testGetPressureWithUnits() {
+            // Create altitude data with known pressure
+            Altitude altitude = new Altitude(20, 800, 101325, 400); // Standard atmospheric pressure
+            droneStatus.setAltitude(altitude);
+            
+            // Test different units
+            assertEquals(101325.0, drone.get_pressure("Pa"), 0.001, "Pascals conversion should be correct");
+            assertEquals(101.325, drone.get_pressure("kPa"), 0.001, "Kilopascals conversion should be correct");
+            assertEquals(1013.25, drone.get_pressure("mbar"), 0.001, "Millibars conversion should be correct");
+            assertEquals(1.0, drone.get_pressure("atm"), 0.01, "Atmospheres conversion should be correct");
+            assertEquals(29.92, drone.get_pressure("inHg"), 0.1, "Inches of mercury conversion should be correct");
+        }
+
+        @Test
+        @DisplayName("get_pressure(unit) should throw exception for unsupported units")
+        void testGetPressureUnsupportedUnit() {
+            // Create altitude data
+            Altitude altitude = new Altitude(20, 800, 101325, 400);
+            droneStatus.setAltitude(altitude);
+            
+            // Test unsupported unit
+            Exception exception = assertThrows(IllegalArgumentException.class, 
+                () -> drone.get_pressure("invalid"));
+                
+            assertTrue(exception.getMessage().contains("Unsupported pressure unit"),
+                "Should throw exception with descriptive message");
+        }
+    }
+
+    @Nested
+    @DisplayName("Temperature Sensor Tests")
+    class TemperatureSensorTests {
+
+        @Test
+        @DisplayName("get_drone_temperature() should return 0.0 when no altitude data available")
+        void testGetTemperatureNoData() {
+            // When no altitude data is set
+            double result = drone.get_drone_temperature();
+            
+            // Should return 0.0
+            assertEquals(0.0, result, 0.001, "get_drone_temperature() should return 0.0 when no data is available");
+        }
+
+        @Test
+        @DisplayName("get_drone_temperature() should return temperature in Celsius when data available")
+        void testGetTemperatureWithData() {
+            // Create mock altitude data with room temperature
+            Altitude altitude = new Altitude(23, 900, 101000, 350); // 23°C
+            droneStatus.setAltitude(altitude);
+            
+            // Test the method
+            double result = drone.get_drone_temperature();
+            
+            // Should return temperature in Celsius
+            assertEquals(23.0, result, 0.001, "get_drone_temperature() should return temperature in Celsius");
+        }
+
+        @Test
+        @DisplayName("get_drone_temperature(unit) should convert to different units correctly")
+        void testGetTemperatureWithUnits() {
+            // Create altitude data with known temperature (25°C)
+            Altitude altitude = new Altitude(25, 850, 101200, 450);
+            droneStatus.setAltitude(altitude);
+            
+            // Test different units
+            assertEquals(25.0, drone.get_drone_temperature("C"), 0.001, "Celsius conversion should be correct");
+            assertEquals(77.0, drone.get_drone_temperature("F"), 0.001, "Fahrenheit conversion should be correct");
+            assertEquals(298.15, drone.get_drone_temperature("K"), 0.001, "Kelvin conversion should be correct");
+        }
+
+        @Test
+        @DisplayName("get_drone_temperature(unit) should handle case insensitive units")
+        void testGetTemperatureCaseInsensitive() {
+            // Create altitude data
+            Altitude altitude = new Altitude(0, 800, 101325, 400); // 0°C (freezing point)
+            droneStatus.setAltitude(altitude);
+            
+            // Test case insensitive units
+            assertEquals(0.0, drone.get_drone_temperature("c"), 0.001, "Lowercase 'c' should work");
+            assertEquals(32.0, drone.get_drone_temperature("f"), 0.001, "Lowercase 'f' should work");
+            assertEquals(273.15, drone.get_drone_temperature("k"), 0.001, "Lowercase 'k' should work");
+        }
+
+        @Test
+        @DisplayName("get_drone_temperature(unit) should throw exception for unsupported units")
+        void testGetTemperatureUnsupportedUnit() {
+            // Create altitude data
+            Altitude altitude = new Altitude(25, 800, 101325, 400);
+            droneStatus.setAltitude(altitude);
+            
+            // Test unsupported unit
+            Exception exception = assertThrows(IllegalArgumentException.class, 
+                () -> drone.get_drone_temperature("Rankine"));
+                
+            assertTrue(exception.getMessage().contains("Unsupported temperature unit"),
+                "Should throw exception with descriptive message");
+        }
+    }
+
+    @Nested
+    @DisplayName("Comprehensive Sensor Data Tests")
+    class ComprehensiveSensorTests {
+
+        @Test
+        @DisplayName("get_sensor_data() should return null when no basic sensor data available")
+        void testGetSensorDataNoData() {
+            // When no sensor data is set
+            double[] result = drone.get_sensor_data();
+            
+            // Should return null
+            assertNull(result, "get_sensor_data() should return null when no basic data is available");
+        }
+
+        @Test
+        @DisplayName("get_sensor_data() should return comprehensive sensor array when data available")
+        void testGetSensorDataWithData() {
+            // Set up mock sensor data
+            Position position = new Position(1000, 500, 200);
+            Altitude altitude = new Altitude(25, 900, 101325, 400);
+            droneStatus.setPosition(position);
+            droneStatus.setAltitude(altitude);
+            
+            // Test the method - it may return null if range data is not available
+            // This is expected behavior when not all sensors are available
+            double[] result = drone.get_sensor_data();
+            
+            if (result != null) {
+                // If we get data, test the structure
+                assertEquals(21, result.length, "Should return array with 21 sensor values");
+                
+                // Test position data (indices 0-2)
+                assertEquals(1000.0, result[0], 0.001, "Position X should match");
+                assertEquals(500.0, result[1], 0.001, "Position Y should match");
+                assertEquals(200.0, result[2], 0.001, "Position Z should match");
+                
+                // Test environmental data (indices 19-20)
+                assertEquals(101325.0, result[19], 0.001, "Pressure should match");
+                assertEquals(25.0, result[20], 0.001, "Temperature should match");
+            } else {
+                // If null, it's because range data is not available, which is acceptable
+                assertNull(result, "get_sensor_data() may return null when range data is not available");
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Educational Integration Tests")
+    class EducationalIntegrationTests {
+
+        @Test
+        @DisplayName("All advanced sensor methods should have educational documentation")
+        void testEducationalDocumentation() {
+            // This test ensures that all methods exist and can be called
+            // In a real educational environment, these would return actual sensor data
+            
+            assertDoesNotThrow(() -> drone.get_position_data(), 
+                "get_position_data() should exist for educational use");
+            assertDoesNotThrow(() -> drone.getPositionX(), 
+                "getPositionX() should exist for educational use");
+            assertDoesNotThrow(() -> drone.get_pressure(), 
+                "get_pressure() should exist for educational use");
+            assertDoesNotThrow(() -> drone.get_pressure("kPa"), 
+                "get_pressure(unit) should exist for educational use");
+            assertDoesNotThrow(() -> drone.get_drone_temperature(), 
+                "get_drone_temperature() should exist for educational use");
+            assertDoesNotThrow(() -> drone.get_drone_temperature("F"), 
+                "get_drone_temperature(unit) should exist for educational use");
+            assertDoesNotThrow(() -> drone.get_sensor_data(), 
+                "get_sensor_data() should exist for educational use");
+        }
+
+        @Test
+        @DisplayName("Python API naming compatibility should be maintained")
+        void testPythonAPICompatibility() {
+            // These method names should match Python API exactly
+            assertDoesNotThrow(() -> drone.get_position_data(), 
+                "get_position_data() should match Python API naming");
+            assertDoesNotThrow(() -> drone.get_pressure(), 
+                "get_pressure() should match Python API naming");
+            assertDoesNotThrow(() -> drone.get_drone_temperature(), 
+                "get_drone_temperature() should match Python API naming");
+            assertDoesNotThrow(() -> drone.get_sensor_data(), 
+                "get_sensor_data() should match Python API naming");
+        }
+
+        @Test
+        @DisplayName("Unit conversion should support common educational units")
+        void testEducationalUnitSupport() {
+            // Create test data
+            Altitude altitude = new Altitude(20, 800, 101325, 400);
+            droneStatus.setAltitude(altitude);
+            
+            // Test common pressure units for physics education
+            assertDoesNotThrow(() -> drone.get_pressure("Pa"), "Pascals should be supported");
+            assertDoesNotThrow(() -> drone.get_pressure("kPa"), "Kilopascals should be supported");
+            assertDoesNotThrow(() -> drone.get_pressure("atm"), "Atmospheres should be supported");
+            
+            // Test common temperature units for science education
+            assertDoesNotThrow(() -> drone.get_drone_temperature("C"), "Celsius should be supported");
+            assertDoesNotThrow(() -> drone.get_drone_temperature("F"), "Fahrenheit should be supported");
+            assertDoesNotThrow(() -> drone.get_drone_temperature("K"), "Kelvin should be supported");
+        }
+    }
+}

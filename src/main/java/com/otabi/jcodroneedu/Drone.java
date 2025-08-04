@@ -2070,6 +2070,298 @@ public class Drone implements AutoCloseable {
     }
 
     // =============================================================================
+    // PHASE 3.5: Advanced Sensor Data Access (Punch List Items #10, #17)
+    // Position, pressure, temperature, and comprehensive sensor methods
+    // =============================================================================
+
+    /**
+     * Gets position data as an array [x, y, z] in millimeters.
+     * 
+     * <p>Returns the drone's position relative to the takeoff point.
+     * This method provides Python API compatibility for accessing position
+     * data in array format for educational navigation projects.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0202 Arrays:</strong> Practice array data handling</li>
+     *   <li><strong>3D Coordinates:</strong> Understand 3D navigation and positioning</li>
+     *   <li><strong>Data Analysis:</strong> Track movement patterns and distances</li>
+     *   <li><strong>Navigation Projects:</strong> Implement autonomous navigation</li>
+     * </ul>
+     * 
+     * <h3>📊 Coordinate System:</h3>
+     * <ul>
+     *   <li><strong>X-axis:</strong> Forward/backward (positive = forward)</li>
+     *   <li><strong>Y-axis:</strong> Left/right (positive = left)</li>
+     *   <li><strong>Z-axis:</strong> Up/down (positive = up)</li>
+     * </ul>
+     * 
+     * @return Array containing [x, y, z] position values in millimeters, or null if no data
+     * @apiNote Equivalent to Python's {@code drone.get_position_data()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] get_position_data() {
+        var position = droneStatus.getPosition();
+        if (position == null) {
+            return null;
+        }
+        return new int[]{position.getX(), position.getY(), position.getZ()};
+    }
+
+    /**
+     * Gets the X position (forward/backward) in millimeters.
+     * 
+     * <p>Returns the drone's forward/backward position relative to takeoff point.
+     * Positive values indicate forward movement, negative values indicate backward.</p>
+     * 
+     * @return X position in millimeters, or 0 if no data available
+     * @educational
+     */
+    public int getPositionX() {
+        var position = droneStatus.getPosition();
+        return (position != null) ? position.getX() : 0;
+    }
+
+    /**
+     * Gets the Y position (left/right) in millimeters.
+     * 
+     * <p>Returns the drone's left/right position relative to takeoff point.
+     * Positive values indicate leftward movement, negative values indicate rightward.</p>
+     * 
+     * @return Y position in millimeters, or 0 if no data available
+     * @educational
+     */
+    public int getPositionY() {
+        var position = droneStatus.getPosition();
+        return (position != null) ? position.getY() : 0;
+    }
+
+    /**
+     * Gets the Z position (up/down) in millimeters.
+     * 
+     * <p>Returns the drone's up/down position relative to takeoff point.
+     * Positive values indicate upward movement, negative values indicate downward.</p>
+     * 
+     * @return Z position in millimeters, or 0 if no data available
+     * @educational
+     */
+    public int getPositionZ() {
+        var position = droneStatus.getPosition();
+        return (position != null) ? position.getZ() : 0;
+    }
+
+    /**
+     * Gets atmospheric pressure in Pascals.
+     * 
+     * <p>Returns the current atmospheric pressure reading from the drone's
+     * barometric sensor. This data is useful for altitude calculations and
+     * environmental monitoring projects.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Physics Learning:</strong> Understand atmospheric pressure</li>
+     *   <li><strong>Data Science:</strong> Environmental data collection</li>
+     *   <li><strong>Weather Monitoring:</strong> Pressure trend analysis</li>
+     *   <li><strong>Altitude Calculation:</strong> Barometric altitude estimation</li>
+     * </ul>
+     * 
+     * @return Pressure in Pascals, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_pressure("Pa")}
+     * @since 1.0
+     * @educational
+     */
+    public double get_pressure() {
+        var altitude = droneStatus.getAltitude();
+        return (altitude != null) ? altitude.getPressure() : 0.0;
+    }
+
+    /**
+     * Gets atmospheric pressure in the specified unit.
+     * 
+     * <p>Returns atmospheric pressure converted to the requested unit.
+     * Supports common pressure units for educational and scientific use.</p>
+     * 
+     * @param unit The unit for pressure measurement. Supported values:
+     *             "Pa" (Pascals), "kPa" (kilopascals), "mbar" (millibars),
+     *             "inHg" (inches of mercury), "atm" (atmospheres)
+     * @return Pressure in the specified unit, or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
+     * @apiNote Equivalent to Python's {@code drone.get_pressure(unit)}
+     * @since 1.0
+     * @educational
+     */
+    public double get_pressure(String unit) {
+        double pascals = get_pressure();
+        if (pascals == 0.0) {
+            return 0.0;
+        }
+        
+        switch (unit.toLowerCase()) {
+            case "pa":
+                return pascals;
+            case "kpa":
+                return pascals / 1000.0;
+            case "mbar":
+                return pascals / 100.0;
+            case "inhg":
+                return pascals / 3386.389;
+            case "atm":
+                return pascals / 101325.0;
+            default:
+                throw new IllegalArgumentException("Unsupported pressure unit: " + unit + 
+                    ". Supported units: Pa, kPa, mbar, inHg, atm");
+        }
+    }
+
+    /**
+     * Gets the drone's internal temperature in Celsius.
+     * 
+     * <p>Returns the temperature reading from the drone's internal sensor.
+     * This data is useful for environmental monitoring and thermal analysis projects.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Environmental Science:</strong> Temperature monitoring</li>
+     *   <li><strong>Data Collection:</strong> Multi-sensor environmental data</li>
+     *   <li><strong>Physics Learning:</strong> Heat transfer and thermal properties</li>
+     *   <li><strong>Weather Projects:</strong> Temperature trend analysis</li>
+     * </ul>
+     * 
+     * @return Temperature in Celsius, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature("C")}
+     * @since 1.0
+     * @educational
+     */
+    public double get_drone_temperature() {
+        var altitude = droneStatus.getAltitude();
+        return (altitude != null) ? altitude.getTemperature() : 0.0;
+    }
+
+    /**
+     * Gets the drone's internal temperature in the specified unit.
+     * 
+     * <p>Returns temperature converted to the requested unit.
+     * Supports common temperature scales for educational use.</p>
+     * 
+     * @param unit The unit for temperature measurement. Supported values:
+     *             "C" (Celsius), "F" (Fahrenheit), "K" (Kelvin)
+     * @return Temperature in the specified unit, or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @since 1.0
+     * @educational
+     */
+    public double get_drone_temperature(String unit) {
+        double celsius = get_drone_temperature();
+        var altitude = droneStatus.getAltitude();
+        if (altitude == null) {
+            return 0.0; // No data available
+        }
+        
+        switch (unit.toUpperCase()) {
+            case "C":
+                return celsius;
+            case "F":
+                return (celsius * 9.0 / 5.0) + 32.0;
+            case "K":
+                return celsius + 273.15;
+            default:
+                throw new IllegalArgumentException("Unsupported temperature unit: " + unit + 
+                    ". Supported units: C, F, K");
+        }
+    }
+
+    /**
+     * Gets comprehensive sensor data in a single call.
+     * 
+     * <p>Returns an array containing all major sensor readings for advanced
+     * data analysis and logging. This method provides efficient access to
+     * multiple sensor values simultaneously.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Data Science:</strong> Multi-sensor data analysis</li>
+     *   <li><strong>L0202 Arrays:</strong> Complex array data handling</li>
+     *   <li><strong>Sensor Fusion:</strong> Combining multiple sensor inputs</li>
+     *   <li><strong>Research Projects:</strong> Comprehensive data logging</li>
+     * </ul>
+     * 
+     * <h3>📊 Array Structure:</h3>
+     * <p>Returns array with indices:</p>
+     * <ul>
+     *   <li>[0-2]: Position (x, y, z) in mm</li>
+     *   <li>[3-5]: Acceleration (x, y, z) in G-force</li>
+     *   <li>[6-8]: Gyroscope (x, y, z) in degrees/second</li>
+     *   <li>[9-11]: Angle (roll, pitch, yaw) in degrees</li>
+     *   <li>[12-17]: Range sensors (front, back, top, bottom, left, right) in mm</li>
+     *   <li>[18]: Battery percentage (0-100)</li>
+     *   <li>[19]: Pressure in Pascals</li>
+     *   <li>[20]: Temperature in Celsius</li>
+     * </ul>
+     * 
+     * @return Array containing all sensor values, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_sensor_data()}
+     * @since 1.0
+     * @educational
+     */
+    public double[] get_sensor_data() {
+        // Check if we have basic sensor data
+        if (droneStatus.getPosition() == null || droneStatus.getRange() == null) {
+            return null;
+        }
+        
+        double[] sensorData = new double[21];
+        
+        // Position data (0-2)
+        int[] position = get_position_data();
+        if (position != null) {
+            sensorData[0] = position[0]; // x
+            sensorData[1] = position[1]; // y  
+            sensorData[2] = position[2]; // z
+        }
+        
+        // Motion data (3-11)
+        int[] accel = get_accel();
+        if (accel != null) {
+            sensorData[3] = accel[0]; // accel x
+            sensorData[4] = accel[1]; // accel y
+            sensorData[5] = accel[2]; // accel z
+        }
+        
+        int[] gyro = get_gyro();
+        if (gyro != null) {
+            sensorData[6] = gyro[0]; // gyro x
+            sensorData[7] = gyro[1]; // gyro y
+            sensorData[8] = gyro[2]; // gyro z
+        }
+        
+        int[] angle = get_angle();
+        if (angle != null) {
+            sensorData[9] = angle[0];  // roll
+            sensorData[10] = angle[1]; // pitch
+            sensorData[11] = angle[2]; // yaw
+        }
+        
+        // Range data (12-17)
+        sensorData[12] = getFrontRange();
+        sensorData[13] = getBackRange();
+        sensorData[14] = getTopRange();
+        sensorData[15] = getBottomRange();
+        sensorData[16] = getLeftRange();
+        sensorData[17] = getRightRange();
+        
+        // State data (18)
+        sensorData[18] = getBattery();
+        
+        // Environmental data (19-20)
+        sensorData[19] = get_pressure();
+        sensorData[20] = get_drone_temperature();
+        
+        return sensorData;
+    }
+
+    // =============================================================================
     // PHASE 4: Built-in Flight Patterns (Punch List Item #6)
     // Educational pattern methods for Python-compatible flight patterns
     // =============================================================================

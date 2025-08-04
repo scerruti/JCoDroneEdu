@@ -50,4 +50,10 @@ public class Altitude implements Serializable
         this.altitude = buffer.getFloat();
         this.rangeHeight = buffer.getFloat();
     }
+    
+    // Getters for sensor data access
+    public float getTemperature() { return temperature; }
+    public float getPressure() { return pressure; }
+    public float getAltitude() { return altitude; }
+    public float getRangeHeight() { return rangeHeight; }
 }
