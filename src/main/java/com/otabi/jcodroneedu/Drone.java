@@ -3,6 +3,7 @@ package com.otabi.jcodroneedu;
 import com.google.common.util.concurrent.RateLimiter;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol._unknown.Request;
+import com.otabi.jcodroneedu.protocol.buzzer.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
 import com.otabi.jcodroneedu.protocol.lightcontroller.Color;
 import com.otabi.jcodroneedu.protocol.lightcontroller.LightDefault;
@@ -3146,6 +3147,244 @@ public class Drone implements AutoCloseable {
      */
     public void setDroneLEDOrange() {
         setDroneLED(255, 165, 0);
+    }
+
+    // ========================================
+    // Buzzer Control Methods
+    // ========================================
+
+    /**
+     * Plays a note using the drone's buzzer for a specified duration.
+     * The drone buzzer provides audio feedback for educational programming.
+     * 
+     * @param note The musical note to play (Note enum) or frequency (Integer)
+     * @param duration The duration to play the note in milliseconds
+     * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
+     * @educational
+     */
+    public void drone_buzzer(Object note, int duration) {
+        if (duration < 0) {
+            throw new IllegalArgumentException("Duration must be non-negative");
+        }
+
+        BuzzerMode mode;
+        int value;
+        
+        if (note instanceof Note) {
+            mode = BuzzerMode.SCALE;
+            value = ((Note) note).getValue();
+        } else if (note instanceof Integer) {
+            mode = BuzzerMode.HZ;
+            value = (Integer) note;
+        } else {
+            throw new IllegalArgumentException("Note must be a Note enum or Integer frequency");
+        }
+
+        // Create buzzer command
+        Buzzer buzzer = new Buzzer(mode, value, duration);
+
+        Header header = new Header();
+        header.setDataType(DataType.Buzzer);
+        header.setLength(buzzer.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Drone);
+
+        transfer(header, buzzer);
+        
+        // Sleep for the duration to match Python behavior
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Send mute command to stop the buzzer
+        sendBuzzerMute(DeviceType.Drone, 10);
+    }
+
+    /**
+     * Plays a note using the controller's buzzer for a specified duration.
+     * The controller buzzer provides local audio feedback for students.
+     * 
+     * @param note The musical note to play (Note enum) or frequency (Integer)
+     * @param duration The duration to play the note in milliseconds
+     * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
+     * @educational
+     */
+    public void controller_buzzer(Object note, int duration) {
+        if (duration < 0) {
+            throw new IllegalArgumentException("Duration must be non-negative");
+        }
+
+        BuzzerMode mode;
+        int value;
+        
+        if (note instanceof Note) {
+            mode = BuzzerMode.SCALE;
+            value = ((Note) note).getValue();
+        } else if (note instanceof Integer) {
+            mode = BuzzerMode.HZ;
+            value = (Integer) note;
+        } else {
+            throw new IllegalArgumentException("Note must be a Note enum or Integer frequency");
+        }
+
+        sendBuzzer(mode, value, duration);
+        
+        // Sleep for the duration to match Python behavior
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Send mute command to stop the buzzer
+        sendBuzzerMute(DeviceType.Controller, 10);
+    }
+
+    /**
+     * Starts the drone buzzer playing a note indefinitely.
+     * Call stop_drone_buzzer() to stop the sound.
+     * 
+     * @param note The musical note to play (Note enum) or frequency (Integer)
+     * @throws IllegalArgumentException if note is neither Note nor Integer
+     * @educational
+     */
+    public void start_drone_buzzer(Object note) {
+        BuzzerMode mode;
+        int value;
+        
+        if (note instanceof Note) {
+            mode = BuzzerMode.SCALE;
+            value = ((Note) note).getValue();
+        } else if (note instanceof Integer) {
+            mode = BuzzerMode.HZ;
+            value = (Integer) note;
+        } else {
+            throw new IllegalArgumentException("Note must be a Note enum or Integer frequency");
+        }
+
+        Buzzer buzzer = new Buzzer(mode, value, 65535); // Maximum duration
+
+        Header header = new Header();
+        header.setDataType(DataType.Buzzer);
+        header.setLength(buzzer.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Drone);
+
+        transfer(header, buzzer);
+        
+        // Small delay to ensure command is processed
+        try {
+            Thread.sleep(70);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Stops the drone buzzer.
+     * 
+     * @educational
+     */
+    public void stop_drone_buzzer() {
+        sendBuzzerMute(DeviceType.Drone, 1);
+        
+        // Small delay to ensure command is processed
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Starts the controller buzzer playing a note indefinitely.
+     * Call stop_controller_buzzer() to stop the sound.
+     * 
+     * @param note The musical note to play (Note enum) or frequency (Integer)
+     * @throws IllegalArgumentException if note is neither Note nor Integer
+     * @educational
+     */
+    public void start_controller_buzzer(Object note) {
+        BuzzerMode mode;
+        int value;
+        
+        if (note instanceof Note) {
+            mode = BuzzerMode.SCALE;
+            value = ((Note) note).getValue();
+        } else if (note instanceof Integer) {
+            mode = BuzzerMode.HZ;
+            value = (Integer) note;
+        } else {
+            throw new IllegalArgumentException("Note must be a Note enum or Integer frequency");
+        }
+
+        sendBuzzer(mode, value, 65535); // Maximum duration
+        
+        // Small delay to ensure command is processed
+        try {
+            Thread.sleep(70);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Stops the controller buzzer.
+     * 
+     * @educational
+     */
+    public void stop_controller_buzzer() {
+        sendBuzzerMute(DeviceType.Controller, 1);
+        
+        // Small delay to ensure command is processed
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // ========================================
+    // Private Buzzer Helper Methods
+    // ========================================
+
+    /**
+     * Sends a buzzer command to the controller.
+     * 
+     * @param mode The buzzer mode (SCALE for notes, HZ for frequencies)
+     * @param value The note value or frequency
+     * @param duration The duration in milliseconds
+     */
+    private void sendBuzzer(BuzzerMode mode, int value, int duration) {
+        Buzzer buzzer = new Buzzer(mode, value, duration);
+        
+        Header header = new Header();
+        header.setDataType(DataType.Buzzer);
+        header.setLength(buzzer.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, buzzer);
+    }
+
+    /**
+     * Sends a mute command to the specified device.
+     * 
+     * @param target The target device (Drone or Controller)
+     * @param duration The mute duration in milliseconds
+     */
+    private void sendBuzzerMute(DeviceType target, int duration) {
+        Buzzer buzzer = new Buzzer(BuzzerMode.MUTE, Note.MUTE.getValue(), duration);
+        
+        Header header = new Header();
+        header.setDataType(DataType.Buzzer);
+        header.setLength(buzzer.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(target);
+
+        transfer(header, buzzer);
     }
 
     // ========================================

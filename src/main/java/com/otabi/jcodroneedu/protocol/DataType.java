@@ -74,6 +74,9 @@ public enum DataType {
     Button((byte) 0x70, Button.class, Button::new),
     Joystick((byte) 0x71, Joystick.class, Joystick::new),
 
+    // --- Buzzer Control (Sent) ---
+    Buzzer((byte) 0x62, null, null),
+
     // --- Card Reader (Received) ---
     CardClassify((byte) 0x90, CardClassify.class, CardClassify::new),
     CardRange((byte) 0x91, CardRange.class, CardRange::new),
