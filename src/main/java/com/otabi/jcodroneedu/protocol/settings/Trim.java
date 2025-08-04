@@ -22,6 +22,10 @@ public class Trim implements Serializable
         this.throttle = throttle;
     }
 
+    public Trim() {
+        this((short) 0, (short) 0, (short) 0, (short) 0);
+    }
+
     @Override
     public byte getSize()
     {
@@ -44,5 +48,39 @@ public class Trim implements Serializable
         buffer.putShort(this.pitch);
         buffer.putShort(this.yaw);
         buffer.putShort(this.throttle);
+    }
+
+    // Getter methods
+    public short getRoll() {
+        return roll;
+    }
+
+    public short getPitch() {
+        return pitch;
+    }
+
+    public short getYaw() {
+        return yaw;
+    }
+
+    public short getThrottle() {
+        return throttle;
+    }
+
+    // Setter methods
+    public void setRoll(short roll) {
+        this.roll = roll;
+    }
+
+    public void setPitch(short pitch) {
+        this.pitch = pitch;
+    }
+
+    public void setYaw(short yaw) {
+        this.yaw = yaw;
+    }
+
+    public void setThrottle(short throttle) {
+        this.throttle = throttle;
     }
 }

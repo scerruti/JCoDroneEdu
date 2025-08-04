@@ -18,7 +18,8 @@ public class Joystick implements Serializable
 
     public Joystick()
     {
-
+        this.left = new JoystickBlock();
+        this.right = new JoystickBlock();
     }
 
     @Override
@@ -39,5 +40,14 @@ public class Joystick implements Serializable
     {
         left.pack(buffer);
         right.pack(buffer);
+    }
+
+    // Getter methods
+    public JoystickBlock getLeft() {
+        return left;
+    }
+
+    public JoystickBlock getRight() {
+        return right;
     }
 }

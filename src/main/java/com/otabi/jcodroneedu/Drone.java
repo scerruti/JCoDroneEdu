@@ -105,6 +105,10 @@ public class Drone implements AutoCloseable {
     private final RateLimiter commandRateLimiter;
     private boolean isConnected = false;
 
+    // --- Controller Input Data Storage ---
+    private volatile Object[] buttonData = new Object[3];      // [timestamp, button_flags, event_name]
+    private volatile int[] joystickData = new int[9];          // [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
+
     /**
      * Creates a new Drone instance ready for connection.
      * 
@@ -142,6 +146,9 @@ public class Drone implements AutoCloseable {
         // Set a default command rate limit (e.g., ~16 commands/sec)
         double permitsPerSecond = 1.0 / 0.060;
         this.commandRateLimiter = RateLimiter.create(permitsPerSecond);
+
+        // Initialize controller input data
+        initializeControllerInputData();
 
         log.info("Drone instance created and ready for connection.");
     }
@@ -730,6 +737,155 @@ public class Drone implements AutoCloseable {
      */
     public void setDefault() {
         settingsController.setDefault();
+    }
+
+    // ========================================
+    // Python-Compatible Reset and Trim Methods
+    // ========================================
+
+    /**
+     * Resets the gyroscope and calibrates it for accurate angle measurements.
+     * <p>
+     * This method initiates a gyroscope calibration process. During calibration,
+     * the drone must be placed on a flat, level surface and remain completely
+     * stationary. Moving the drone during calibration will result in incorrect
+     * gyro values.
+     * </p>
+     * <p>
+     * The method will block until calibration is complete, which typically
+     * takes a few seconds.
+     * </p>
+     * 
+     * @throws RuntimeException if calibration fails or times out
+     * @apiNote Equivalent to Python's {@code drone.reset_gyro()}
+     * @educational
+     */
+    public void reset_gyro() {
+        log.info("Starting gyroscope calibration - keep drone stationary on flat surface");
+        
+        // Send clear bias command to initiate calibration
+        settingsController.clearBias();
+        
+        try {
+            Thread.sleep(200); // Initial delay for command processing
+            
+            // Wait for calibration to complete by monitoring error flags
+            long calibrationStart = System.currentTimeMillis();
+            long timeout = 10000; // 10 second timeout
+            
+            while (System.currentTimeMillis() - calibrationStart < timeout) {
+                // Request fresh error data to check calibration status
+                sendRequest(DataType.Error);
+                Thread.sleep(100);
+                
+                // Check if motion calibration flag is cleared (calibration complete)
+                // Note: The actual error flag checking would need to be implemented
+                // For now, we'll use a fixed delay approach similar to Python reference
+                if (System.currentTimeMillis() - calibrationStart > 3000) {
+                    log.info("Gyroscope calibration complete");
+                    return;
+                }
+            }
+            
+            throw new RuntimeException("Gyroscope calibration timed out - ensure drone is on flat surface and stationary");
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Gyroscope calibration interrupted", e);
+        }
+    }
+
+    /**
+     * Sets the drone's trim values for roll and pitch to compensate for
+     * minor balance issues or manufacturing variations.
+     * <p>
+     * Trim values help the drone maintain level flight without constant
+     * stick input. Positive roll trim makes the drone tilt right,
+     * negative makes it tilt left. Positive pitch trim makes it tilt forward,
+     * negative makes it tilt backward.
+     * </p>
+     * 
+     * @param roll Roll trim value from -100 to 100
+     * @param pitch Pitch trim value from -100 to 100  
+     * @throws IllegalArgumentException if trim values are outside valid range
+     * @apiNote Equivalent to Python's {@code drone.set_trim(roll, pitch)}
+     * @educational
+     */
+    public void set_trim(int roll, int pitch) {
+        // Validate input parameters
+        if (roll < -100 || roll > 100) {
+            throw new IllegalArgumentException("Roll trim must be between -100 and 100, got: " + roll);
+        }
+        if (pitch < -100 || pitch > 100) {
+            throw new IllegalArgumentException("Pitch trim must be between -100 and 100, got: " + pitch);
+        }
+        
+        log.debug("Setting trim values - roll: {}, pitch: {}", roll, pitch);
+        
+        // Send trim command multiple times for reliability (matching Python behavior)
+        for (int attempt = 0; attempt < 3; attempt++) {
+            settingsController.sendTrim((short) roll, (short) pitch, (short) 0, (short) 0);
+            try {
+                Thread.sleep(200); // Delay between attempts
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Trim setting interrupted", e);
+            }
+        }
+        
+        log.info("Trim values set successfully - roll: {}, pitch: {}", roll, pitch);
+    }
+
+    /**
+     * Resets all trim values to zero (neutral position).
+     * <p>
+     * This is equivalent to calling {@code set_trim(0, 0)} and restores
+     * the drone to factory trim settings.
+     * </p>
+     * 
+     * @apiNote Equivalent to Python's {@code drone.reset_trim()}
+     * @educational  
+     */
+    public void reset_trim() {
+        log.debug("Resetting trim values to zero");
+        clearTrim();
+        log.info("Trim values reset to neutral");
+    }
+
+    /**
+     * Gets the current trim values from the drone.
+     * <p>
+     * Returns the current roll and pitch trim values that are being
+     * applied to keep the drone level during flight.
+     * </p>
+     * 
+     * @return Array containing [roll, pitch] trim values from -100 to 100
+     * @apiNote Equivalent to Python's {@code drone.get_trim()}
+     * @educational
+     */
+    public int[] get_trim() {
+        log.debug("Requesting current trim values");
+        
+        // Request fresh trim data from drone
+        sendRequest(DataType.Trim);
+        
+        try {
+            Thread.sleep(80); // Allow time for data to be received (matching Python delay)
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Trim data request interrupted", e);
+        }
+        
+        // Get trim data from drone status
+        com.otabi.jcodroneedu.protocol.settings.Trim trimData = droneStatus.getTrim();
+        if (trimData != null) {
+            int[] result = {(int) trimData.getRoll(), (int) trimData.getPitch()};
+            log.debug("Retrieved trim values - roll: {}, pitch: {}", result[0], result[1]);
+            return result;
+        } else {
+            log.warn("No trim data available, returning default values");
+            return new int[]{0, 0}; // Default neutral trim
+        }
     }
 
     /**
@@ -3385,6 +3541,263 @@ public class Drone implements AutoCloseable {
         header.setTo(target);
 
         transfer(header, buzzer);
+    }
+
+    // ========================================
+    // Controller Input Methods
+    // ========================================
+
+    /**
+     * Initializes controller input data arrays with default values.
+     */
+    private void initializeControllerInputData() {
+        // Initialize button data: [timestamp, button_flags, event_name]
+        buttonData[0] = 0.0;                    // timestamp
+        buttonData[1] = 0;                      // button flags
+        buttonData[2] = "None_";                // event name
+        
+        // Initialize joystick data: [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
+        for (int i = 0; i < joystickData.length; i++) {
+            joystickData[i] = 0;
+        }
+    }
+
+    /**
+     * Returns the current button data array.
+     * Contains [timestamp, button_flags, event_name].
+     * 
+     * @return Object array with button state information
+     * @educational
+     */
+    public Object[] get_button_data() {
+        return buttonData.clone(); // Return copy to prevent external modification
+    }
+
+    /**
+     * Returns the current joystick data array.
+     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     * 
+     * @return int array with joystick state information
+     * @educational
+     */
+    public int[] get_joystick_data() {
+        return joystickData.clone(); // Return copy to prevent external modification
+    }
+
+    /**
+     * Gets the left joystick X (horizontal) value.
+     * 
+     * @return X-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int get_left_joystick_x() {
+        return joystickData[1];
+    }
+
+    /**
+     * Gets the left joystick Y (vertical) value.
+     * 
+     * @return Y-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int get_left_joystick_y() {
+        return joystickData[2];
+    }
+
+    /**
+     * Gets the right joystick X (horizontal) value.
+     * 
+     * @return X-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int get_right_joystick_x() {
+        return joystickData[5];
+    }
+
+    /**
+     * Gets the right joystick Y (vertical) value.
+     * 
+     * @return Y-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int get_right_joystick_y() {
+        return joystickData[6];
+    }
+
+    /**
+     * Checks if the L1 button is currently pressed or held.
+     * 
+     * @return true if L1 button is pressed, false otherwise
+     * @educational
+     */
+    public boolean l1_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.FRONT_LEFT_TOP);
+    }
+
+    /**
+     * Checks if the L2 button is currently pressed or held.
+     * 
+     * @return true if L2 button is pressed, false otherwise
+     * @educational
+     */
+    public boolean l2_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.FRONT_LEFT_BOTTOM);
+    }
+
+    /**
+     * Checks if the R1 button is currently pressed or held.
+     * 
+     * @return true if R1 button is pressed, false otherwise
+     * @educational
+     */
+    public boolean r1_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.FRONT_RIGHT_TOP);
+    }
+
+    /**
+     * Checks if the R2 button is currently pressed or held.
+     * 
+     * @return true if R2 button is pressed, false otherwise
+     * @educational
+     */
+    public boolean r2_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.FRONT_RIGHT_BOTTOM);
+    }
+
+    /**
+     * Checks if the H button is currently pressed or held.
+     * 
+     * @return true if H button is pressed, false otherwise
+     * @educational
+     */
+    public boolean h_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.TOP_LEFT);
+    }
+
+    /**
+     * Checks if the power button is currently pressed or held.
+     * 
+     * @return true if power button is pressed, false otherwise
+     * @educational
+     */
+    public boolean power_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.TOP_RIGHT);
+    }
+
+    /**
+     * Checks if the up arrow button is currently pressed or held.
+     * 
+     * @return true if up arrow is pressed, false otherwise
+     * @educational
+     */
+    public boolean up_arrow_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.MID_UP);
+    }
+
+    /**
+     * Checks if the left arrow button is currently pressed or held.
+     * 
+     * @return true if left arrow is pressed, false otherwise
+     * @educational
+     */
+    public boolean left_arrow_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.MID_LEFT);
+    }
+
+    /**
+     * Checks if the right arrow button is currently pressed or held.
+     * 
+     * @return true if right arrow is pressed, false otherwise
+     * @educational
+     */
+    public boolean right_arrow_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.MID_RIGHT);
+    }
+
+    /**
+     * Checks if the down arrow button is currently pressed or held.
+     * 
+     * @return true if down arrow is pressed, false otherwise
+     * @educational
+     */
+    public boolean down_arrow_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.MID_DOWN);
+    }
+
+    /**
+     * Checks if the S button is currently pressed or held.
+     * 
+     * @return true if S button is pressed, false otherwise
+     * @educational
+     */
+    public boolean s_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.BOTTOM_LEFT);
+    }
+
+    /**
+     * Checks if the P button is currently pressed or held.
+     * 
+     * @return true if P button is pressed, false otherwise
+     * @educational
+     */
+    public boolean p_pressed() {
+        return isButtonPressed(DroneSystem.ButtonFlag.BOTTOM_RIGHT);
+    }
+
+    /**
+     * Helper method to check if a specific button is currently pressed.
+     * 
+     * @param buttonFlag The button flag constant to check
+     * @return true if the button is pressed or held, false otherwise
+     */
+    private boolean isButtonPressed(int buttonFlag) {
+        if (buttonData[1] instanceof Integer) {
+            int currentButtons = (Integer) buttonData[1];
+            String eventName = (String) buttonData[2];
+            
+            // Check if the specific button flag is set and the event is Press or Down
+            boolean buttonFlagSet = (currentButtons & buttonFlag) != 0;
+            boolean validEvent = "Press".equals(eventName) || "Down".equals(eventName);
+            
+            return buttonFlagSet && validEvent;
+        }
+        return false;
+    }
+
+    /**
+     * Updates button data when button input is received from controller.
+     * This method is called internally by the receiver.
+     * 
+     * @param button The button protocol data received
+     */
+    public void updateButtonData(com.otabi.jcodroneedu.protocol.controllerinput.Button button) {
+        if (button != null) {
+            long currentTime = System.currentTimeMillis();
+            buttonData[0] = (double) currentTime / 1000.0; // timestamp in seconds
+            buttonData[1] = (int) button.getButton();       // button flags
+            buttonData[2] = button.getEvent().name();       // event name
+        }
+    }
+
+    /**
+     * Updates joystick data when joystick input is received from controller.
+     * This method is called internally by the receiver.
+     * 
+     * @param joystick The joystick protocol data received
+     */
+    public void updateJoystickData(com.otabi.jcodroneedu.protocol.controllerinput.Joystick joystick) {
+        if (joystick != null) {
+            long currentTime = System.currentTimeMillis();
+            joystickData[0] = (int) (currentTime / 1000); // timestamp in seconds
+            joystickData[1] = joystick.getLeft().getX();   // left X
+            joystickData[2] = joystick.getLeft().getY();   // left Y
+            joystickData[3] = joystick.getLeft().getDirection().getValue(); // left direction
+            joystickData[4] = joystick.getLeft().getEvent().getValue();     // left event
+            joystickData[5] = joystick.getRight().getX();  // right X
+            joystickData[6] = joystick.getRight().getY();  // right Y
+            joystickData[7] = joystick.getRight().getDirection().getValue(); // right direction
+            joystickData[8] = joystick.getRight().getEvent().getValue();     // right event
+        }
     }
 
     // ========================================

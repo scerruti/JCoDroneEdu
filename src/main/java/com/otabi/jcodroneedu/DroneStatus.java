@@ -2,9 +2,7 @@ package com.otabi.jcodroneedu;
 
 import com.otabi.jcodroneedu.protocol.dronestatus.*;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
-
-import java.io.ByteArrayInputStream;
-import java.nio.ByteBuffer;
+import com.otabi.jcodroneedu.protocol.settings.Trim;
 
 public class DroneStatus
 {
@@ -18,6 +16,7 @@ public class DroneStatus
     private RawMotion rawMotion;
     private State state;
     private CardColor cardColor;
+    private Trim trim;
 
     public Attitude getAttitude()
     {
@@ -117,6 +116,16 @@ public class DroneStatus
     public void setCardColor(CardColor cardColor)
     {
         this.cardColor = cardColor;
+    }
+
+    public Trim getTrim()
+    {
+        return trim;
+    }
+
+    public void setTrim(Trim trim)
+    {
+        this.trim = trim;
     }
 
 }

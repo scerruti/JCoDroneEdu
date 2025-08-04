@@ -23,6 +23,14 @@ public class JoystickBlock implements Serializable
         this.event = event;
     }
 
+    public JoystickBlock()
+    {
+        this.x = 0;
+        this.y = 0;
+        this.direction = DroneSystem.JoystickDirection.None_;
+        this.event = DroneSystem.JoystickEvent.None_;
+    }
+
     @Override
     public byte getSize()
     {
@@ -45,5 +53,22 @@ public class JoystickBlock implements Serializable
         buffer.put(this.y);
         buffer.put(this.direction.getValue());
         buffer.put(this.event.getValue());
+    }
+
+    // Getter methods
+    public byte getX() {
+        return x;
+    }
+
+    public byte getY() {
+        return y;
+    }
+
+    public DroneSystem.JoystickDirection getDirection() {
+        return direction;
+    }
+
+    public DroneSystem.JoystickEvent getEvent() {
+        return event;
     }
 }

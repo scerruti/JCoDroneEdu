@@ -69,6 +69,7 @@ public class Receiver {
         handlers.put(DataType.Position, msg -> droneStatus.setPosition((Position) msg));
         handlers.put(DataType.Altitude, msg -> droneStatus.setAltitude((Altitude) msg));
         handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((CardColor) msg));
+        handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
         // ... add handlers for all other message types here ...
     }
 

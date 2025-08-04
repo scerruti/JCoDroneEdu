@@ -800,6 +800,33 @@ public class DroneSystem
         }
     }
 
+    /**
+     * Controller button flag constants matching Python ButtonFlagController enum.
+     * Used for identifying which buttons are pressed on the controller.
+     */
+    public static class ButtonFlag {
+        public static final int NONE = 0x0000;
+        
+        // Front buttons (L1, L2, R1, R2)
+        public static final int FRONT_LEFT_TOP = 0x0001;      // L1
+        public static final int FRONT_LEFT_BOTTOM = 0x0002;   // L2  
+        public static final int FRONT_RIGHT_TOP = 0x0004;     // R1
+        public static final int FRONT_RIGHT_BOTTOM = 0x0008;  // R2
+        
+        // Top buttons (H button and Power)
+        public static final int TOP_LEFT = 0x0010;            // H button
+        public static final int TOP_RIGHT = 0x0020;           // Power button
+        
+        // Directional pad (Mid buttons)
+        public static final int MID_UP = 0x0040;              // Up arrow
+        public static final int MID_LEFT = 0x0080;            // Left arrow
+        public static final int MID_RIGHT = 0x0100;           // Right arrow
+        public static final int MID_DOWN = 0x0200;            // Down arrow
+        
+        // Bottom buttons (S and P)
+        public static final int BOTTOM_LEFT = 0x0400;         // S button
+        public static final int BOTTOM_RIGHT = 0x0800;        // P button
+    }
 
     /**
      * Represents button event types.

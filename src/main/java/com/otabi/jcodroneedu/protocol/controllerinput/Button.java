@@ -43,4 +43,13 @@ public class Button implements Serializable
         buffer.putShort(button);
         buffer.put(event.getValue());
     }
+
+    // Getter methods
+    public short getButton() {
+        return button;
+    }
+
+    public DroneSystem.ButtonEvent getEvent() {
+        return event;
+    }
 }
