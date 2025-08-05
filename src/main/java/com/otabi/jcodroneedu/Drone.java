@@ -959,26 +959,31 @@ public class Drone implements AutoCloseable {
     public int[] get_trim() {
         log.debug("Requesting current trim values");
         
-        // Request fresh trim data from drone
-        sendRequest(DataType.Trim);
-        
-        try {
-            Thread.sleep(80); // Allow time for data to be received (matching Python delay)
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Trim data request interrupted", e);
+        // Only request data if connected, otherwise return defaults
+        if (isConnected()) {
+            try {
+                // Request fresh trim data from drone
+                sendRequest(DataType.Trim);
+                
+                Thread.sleep(80); // Allow time for data to be received (matching Python delay)
+                
+                // Get trim data from drone status
+                com.otabi.jcodroneedu.protocol.settings.Trim trimData = droneStatus.getTrim();
+                if (trimData != null) {
+                    int[] result = {(int) trimData.getRoll(), (int) trimData.getPitch()};
+                    log.debug("Retrieved trim values - roll: {}, pitch: {}", result[0], result[1]);
+                    return result;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Trim data request interrupted", e);
+            } catch (Exception e) {
+                log.warn("Failed to retrieve trim data: {}", e.getMessage());
+            }
         }
         
-        // Get trim data from drone status
-        com.otabi.jcodroneedu.protocol.settings.Trim trimData = droneStatus.getTrim();
-        if (trimData != null) {
-            int[] result = {(int) trimData.getRoll(), (int) trimData.getPitch()};
-            log.debug("Retrieved trim values - roll: {}, pitch: {}", result[0], result[1]);
-            return result;
-        } else {
-            log.warn("No trim data available, returning default values");
-            return new int[]{0, 0}; // Default neutral trim
-        }
+        log.warn("No trim data available (disconnected or no data), returning default values");
+        return new int[]{0, 0}; // Default neutral trim
     }
 
     /**
