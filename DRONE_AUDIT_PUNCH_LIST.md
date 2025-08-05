@@ -126,37 +126,27 @@ public double getHeight()           // Height above ground
 
 #### ✅ Optical Flow Sensors (COMPLETED):
 ```java
-// ✅ Now implemented in Java
-public double get_flow_velocity_x()        // get_flow_velocity_x()
-public double get_flow_velocity_y()        // get_flow_velocity_y()
-public double get_flow_velocity_x(String unit)  // get_flow_velocity_x(unit)
-public double get_flow_velocity_y(String unit)  // get_flow_velocity_y(unit)
-public double[] get_flow_data()             // get_flow_data()
-// Legacy deprecated methods also supported for backward compatibility
-public double get_flow_x()                  // get_flow_x() (deprecated)
-public double get_flow_y()                  // get_flow_y() (deprecated)
-```
 
-public double get_pressure()                   // get_pressure()
-public double getPositionX()                   // getPosX()
-```java
-// ✅ Now implemented in Java (camelCase API)
-public double getFlowVelocityX()        // get_flow_velocity_x() (preferred)
-public double getFlowVelocityY()        // get_flow_velocity_y() (preferred)
-public double getFlowVelocityX(String unit)  // get_flow_velocity_x(unit) (preferred)
-public double getFlowVelocityY(String unit)  // get_flow_velocity_y(unit) (preferred)
-public double[] getFlowData()             // get_flow_data() (preferred)
-public double getPositionY()                   // getPosY()
-@Deprecated public double get_flow_velocity_x() // deprecated
-@Deprecated public double get_flow_velocity_y() // deprecated
-@Deprecated public double get_flow_velocity_x(String unit) // deprecated
-@Deprecated public double get_flow_velocity_y(String unit) // deprecated
-@Deprecated public double[] get_flow_data() // deprecated
+// ✅ Now implemented in Java (camelCase API, with deprecated wrappers)
+public double getFlowVelocityX()                  // get_flow_velocity_x() (preferred)
+public double getFlowVelocityY()                  // get_flow_velocity_y() (preferred)
+public double getFlowVelocityX(String unit)       // get_flow_velocity_x(unit) (preferred)
+public double getFlowVelocityY(String unit)       // get_flow_velocity_y(unit) (preferred)
+public double[] getFlowData()                     // get_flow_data() (preferred)
+public double getPositionX()                      // getPosX()
+public double getPositionY()                      // getPosY()
+public double getPositionZ()                      // getPosZ()
+public double getPressure()                       // get_pressure() (preferred)
+public double[] getSensorData()                   // get_sensor_data() (preferred)
+@Deprecated public double get_flow_velocity_x()                   // deprecated
+@Deprecated public double get_flow_velocity_y()                   // deprecated
+@Deprecated public double get_flow_velocity_x(String unit)        // deprecated
+@Deprecated public double get_flow_velocity_y(String unit)        // deprecated
+@Deprecated public double[] get_flow_data()                       // deprecated
+@Deprecated public double get_pressure()                          // deprecated
+@Deprecated public double[] get_sensor_data()                     // deprecated
 public double getFlowX()                  // get_flow_x() (deprecated, use getFlowVelocityX())
 public double getFlowY()                  // get_flow_y() (deprecated, use getFlowVelocityY())
-```
-public double getPositionZ()                   // getPosZ()
-public double[] get_sensor_data()              // get_sensor_data()
 ```
 
 BasicPatternDrone drone = new BasicPatternDrone();
