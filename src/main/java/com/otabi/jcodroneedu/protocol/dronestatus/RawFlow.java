@@ -23,6 +23,38 @@ public class RawFlow implements Serializable
 
     }
 
+    /**
+     * Gets the X-axis flow velocity.
+     * @return X-axis velocity in meters
+     */
+    public float getX() {
+        return x;
+    }
+
+    /**
+     * Gets the Y-axis flow velocity.
+     * @return Y-axis velocity in meters
+     */
+    public float getY() {
+        return y;
+    }
+
+    /**
+     * Sets the X-axis flow velocity.
+     * @param x X-axis velocity in meters
+     */
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    /**
+     * Sets the Y-axis flow velocity.
+     * @param y Y-axis velocity in meters
+     */
+    public void setY(float y) {
+        this.y = y;
+    }
+
     @Override
     public byte getSize()
     {

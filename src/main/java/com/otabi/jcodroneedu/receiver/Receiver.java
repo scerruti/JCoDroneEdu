@@ -6,6 +6,8 @@ import com.otabi.jcodroneedu.protocol.dronestatus.Attitude;
 import com.otabi.jcodroneedu.protocol.dronestatus.Altitude;
 import com.otabi.jcodroneedu.protocol.dronestatus.Position;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
+import com.otabi.jcodroneedu.protocol.dronestatus.Flow;
+import com.otabi.jcodroneedu.protocol.dronestatus.RawFlow;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 import com.otabi.jcodroneedu.protocol.linkmanager.Information;
 import org.apache.logging.log4j.LogManager;
@@ -70,6 +72,8 @@ public class Receiver {
         handlers.put(DataType.Altitude, msg -> droneStatus.setAltitude((Altitude) msg));
         handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((CardColor) msg));
         handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
+        handlers.put(DataType.RawFlow, msg -> droneStatus.setRawFlow((RawFlow) msg));
+        handlers.put(DataType.Flow, msg -> droneStatus.setFlow((Flow) msg));
         // ... add handlers for all other message types here ...
     }
 

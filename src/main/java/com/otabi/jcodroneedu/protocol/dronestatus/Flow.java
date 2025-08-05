@@ -13,16 +13,71 @@ public class Flow implements Serializable
     private float y;
     private float z;
 
+    public Flow(float x, float y, float z)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public Flow(float x, float y)
     {
         this.x = x;
         this.y = y;
-        this.y = z;
+        this.z = 0.0f;
     }
 
     public Flow()
     {
 
+    }
+
+    /**
+     * Gets the X-axis flow velocity.
+     * @return X-axis velocity in meters
+     */
+    public float getX() {
+        return x;
+    }
+
+    /**
+     * Gets the Y-axis flow velocity.
+     * @return Y-axis velocity in meters
+     */
+    public float getY() {
+        return y;
+    }
+
+    /**
+     * Gets the Z-axis flow velocity.
+     * @return Z-axis velocity in meters
+     */
+    public float getZ() {
+        return z;
+    }
+
+    /**
+     * Sets the X-axis flow velocity.
+     * @param x X-axis velocity in meters
+     */
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    /**
+     * Sets the Y-axis flow velocity.
+     * @param y Y-axis velocity in meters
+     */
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    /**
+     * Sets the Z-axis flow velocity.
+     * @param z Z-axis velocity in meters
+     */
+    public void setZ(float z) {
+        this.z = z;
     }
 
     @Override
