@@ -1,7 +1,5 @@
 package com.otabi.jcodroneedu.examples;
 
-import com.otabi.jcodroneedu.Drone;
-
 /**
  * Educational example showing how to use the CoDrone EDU reset and trim API
  * for gyroscope calibration and flight balance adjustments.

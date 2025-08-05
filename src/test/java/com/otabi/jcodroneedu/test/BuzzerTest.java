@@ -1,7 +1,6 @@
 package com.otabi.jcodroneedu.test;
 
 import com.otabi.jcodroneedu.Drone;
-import com.otabi.jcodroneedu.protocol.buzzer.Note;
 
 /**
  * Simple test to verify buzzer functionality
@@ -12,8 +11,7 @@ public class BuzzerTest {
         
         // This test doesn't actually connect to a drone, but verifies
         // that the buzzer methods compile and can be called
-        try {
-            Drone drone = new Drone();
+        try (Drone drone = new Drone()) {
             
             System.out.println("Testing drone_buzzer method...");
             // This would normally play a note, but without connection it just tests the API

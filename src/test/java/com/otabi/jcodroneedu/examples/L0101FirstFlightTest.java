@@ -318,7 +318,7 @@ class L0101FirstFlightTest extends DroneTest {
             executeStudentFlightPattern();
             
             // Verify basic flight sequence for L0101
-            List<String> commands = mockDrone.getAllCommands();
+            //List<String> commands = mockDrone.getAllCommands();
             
             int takeoffIndex = mockDrone.getCommandIndex("takeoff");
             int landIndex = mockDrone.getCommandIndex("land");

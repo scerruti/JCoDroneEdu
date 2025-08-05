@@ -25,9 +25,8 @@ public class OpticalFlowExample {
     
     public static void main(String[] args) {
         // Initialize the drone
-        Drone drone = new Drone();
-        
-        try {
+
+        try (Drone drone = new Drone()) {
             System.out.println("=== Optical Flow Sensor Example ===");
             System.out.println("This example demonstrates advanced navigation sensors.");
             System.out.println();
@@ -41,13 +40,13 @@ public class OpticalFlowExample {
             // Main monitoring loop
             for (int i = 0; i < 10; i++) {
                 // Get flow velocity in different units
-                double velocityX_cm = drone.get_flow_velocity_x("cm");
-                double velocityY_cm = drone.get_flow_velocity_y("cm");
-                double velocityX_m = drone.get_flow_velocity_x("m");
-                double velocityY_m = drone.get_flow_velocity_y("m");
+                double velocityX_cm = drone.getFlowVelocityX("cm");
+                double velocityY_cm = drone.getFlowVelocityY("cm");
+                double velocityX_m = drone.getFlowVelocityX("m");
+                double velocityY_m = drone.getFlowVelocityY("m");
                 
                 // Get comprehensive flow data
-                double[] flowData = drone.get_flow_data();
+                double[] flowData = drone.getFlowData();
                 
                 // Display velocity information
                 System.out.printf("Reading %d:%n", i + 1);
@@ -92,12 +91,12 @@ public class OpticalFlowExample {
             System.out.println("Testing deprecated methods (still supported):");
             
             @SuppressWarnings("deprecation")
-            double oldStyleX = drone.get_flow_x();
+            double oldStyleX = drone.getFlowX();
             @SuppressWarnings("deprecation")
-            double oldStyleY = drone.get_flow_y();
+            double oldStyleY = drone.getFlowY();
             
-            double newStyleX = drone.get_flow_velocity_x();
-            double newStyleY = drone.get_flow_velocity_y();
+            double newStyleX = drone.getFlowVelocityX();
+            double newStyleY = drone.getFlowVelocityY();
             
             System.out.printf("Old style: X=%.2f, Y=%.2f cm/s%n", oldStyleX, oldStyleY);
             System.out.printf("New style: X=%.2f, Y=%.2f cm/s%n", newStyleX, newStyleY);

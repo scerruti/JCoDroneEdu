@@ -1,3 +1,5 @@
+    // ...existing code...
+// ...existing code...
 package com.otabi.jcodroneedu;
 
 import com.google.common.util.concurrent.RateLimiter;
@@ -77,7 +79,7 @@ import java.util.concurrent.TimeoutException;
  * <h3>📡 Sensors & Safety:</h3>
  * <ul>
  *   <li>{@link #emergencyStop()} - Immediately stop all motors</li>
- *   <li>{@link #get_move_values()} - Debug your flight commands</li>
+ *   <li>{@link #getMoveValues()} - Debug your flight commands</li>
  * </ul>
  * 
  * <p><strong>💡 Pro Tip:</strong> Always test your code with small movements first, 
@@ -88,7 +90,32 @@ import java.util.concurrent.TimeoutException;
  * @since 1.0
  * @see DroneNotFoundException
  */
+import com.otabi.jcodroneedu.ml.ColorClassifier;
+
 public class Drone implements AutoCloseable {
+    // --- Machine Learning Color Classifier ---
+    private ColorClassifier colorClassifier = null;
+    private boolean colorClassifierLoaded = false;
+
+    /**
+     * Loads the color classifier from the given dataset path.
+     * @param datasetPath Path to color dataset directory
+     * @param showGraph Whether to show a 3D plot (optional)
+     * @throws java.io.IOException if loading fails
+     */
+    public void loadColorClassifier(String datasetPath, boolean showGraph) throws java.io.IOException {
+        colorClassifier = new ColorClassifier();
+        colorClassifier.loadColorData(datasetPath, showGraph);
+        colorClassifierLoaded = true;
+    }
+
+    /**
+     * Unloads the color classifier (for test or reset).
+     */
+    public void unloadColorClassifier() {
+        colorClassifier = null;
+        colorClassifierLoaded = false;
+    }
 
     private static final Logger log = LogManager.getLogger(Drone.class);
 
@@ -662,11 +689,17 @@ public class Drone implements AutoCloseable {
     /**
      * Prints current values of roll, pitch, yaw, and throttle.
      *
-     * @deprecated This method is deprecated and will be removed in a future release.Please use <pre>drone.get_move_values()</pre> instead.
+     * @deprecated This method is deprecated and will be removed in a future release. Please use <pre>drone.getMoveValues()</pre> instead.
+     */
+    /**
+     * @deprecated Use {@link #printMoveValues()} instead.
      */
     @Deprecated(forRemoval = true)
-    public void print_move_values(){
-        flightController.print_move_values();
+    public void print_move_values() {
+        printMoveValues();
+    }
+    public void printMoveValues() {
+        flightController.printMoveValues();
     }
 
     /**
@@ -674,8 +707,20 @@ public class Drone implements AutoCloseable {
      *
      * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
      */
-    public byte[] get_move_values(){
-        return flightController.get_move_values();
+    /**
+     * Returns current values of roll, pitch, yaw, and throttle.
+     *
+     * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
+     */
+    /**
+     * @deprecated Use {@link #getMoveValues()} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public byte[] get_move_values() {
+        return getMoveValues();
+    }
+    public byte[] getMoveValues() {
+        return flightController.getMoveValues();
     }
 
     /**
@@ -853,7 +898,7 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.reset_gyro()}
      * @educational
      */
-    public void reset_gyro() {
+    public void resetGyro() {
         log.info("Starting gyroscope calibration - keep drone stationary on flat surface");
         
         // Send clear bias command to initiate calibration
@@ -904,7 +949,7 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_trim(roll, pitch)}
      * @educational
      */
-    public void set_trim(int roll, int pitch) {
+    public void setTrim(int roll, int pitch) {
         // Validate input parameters
         if (roll < -100 || roll > 100) {
             throw new IllegalArgumentException("Roll trim must be between -100 and 100, got: " + roll);
@@ -939,7 +984,7 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.reset_trim()}
      * @educational  
      */
-    public void reset_trim() {
+    public void resetTrim() {
         log.debug("Resetting trim values to zero");
         clearTrim();
         log.info("Trim values reset to neutral");
@@ -956,7 +1001,18 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_trim()}
      * @educational
      */
-    public int[] get_trim() {
+    /**
+     * Gets the current trim values from the drone.
+     * <p>
+     * Returns the current roll and pitch trim values that are being
+     * applied to keep the drone level during flight.
+     * </p>
+     *
+     * @return Array containing [roll, pitch] trim values from -100 to 100
+     * @apiNote Equivalent to Python's {@code drone.get_trim()}
+     * @educational
+     */
+    public int[] getTrim() {
         log.debug("Requesting current trim values");
         
         // Only request data if connected, otherwise return defaults
@@ -2141,7 +2197,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] get_accel() {
+    /**
+     * Gets acceleration data as an array [x, y, z].
+     *
+     * @return Array containing [x, y, z] acceleration values in G-force
+     * @apiNote Equivalent to Python's {@code drone.get_accel()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] getAccel() {
         return flightController.get_accel();
     }
 
@@ -2164,7 +2228,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] get_gyro() {
+    /**
+     * Gets gyroscope data as an array [x, y, z].
+     *
+     * @return Array containing [x, y, z] angular velocity values in degrees/second
+     * @apiNote Equivalent to Python's {@code drone.get_gyro()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] getGyro() {
         return flightController.get_gyro();
     }
 
@@ -2187,7 +2259,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] get_angle() {
+    /**
+     * Gets angle data as an array [x, y, z].
+     *
+     * @return Array containing [x, y, z] angle values in degrees (roll, pitch, yaw)
+     * @apiNote Equivalent to Python's {@code drone.get_angle()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] getAngle() {
         return flightController.get_angle();
     }
 
@@ -2218,7 +2298,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[][] get_color_data() {
+    /**
+     * Gets color sensor data including HSV and color values.
+     *
+     * @return 2D array containing HSV data for front and back color sensors, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_color_data()}
+     * @since 1.0
+     * @educational
+     */
+    public int[][] getColorData() {
         com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
         if (cardColor == null) {
             return null;
@@ -2277,22 +2365,63 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] get_colors() {
+    /**
+     * Gets detected color values for front and back sensors.
+     *
+     * @return Array containing [front_color, back_color] values, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_colors()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] getColors() {
         com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
         if (cardColor == null) {
             return null;
         }
-        
+
+        // If classifier is loaded and HSVL data is available, use ML prediction
+        if (colorClassifierLoaded && colorClassifier != null) {
+            byte[][] hsvl = cardColor.getHsvl();
+            if (hsvl != null && hsvl.length >= 2 && hsvl[0] != null && hsvl[1] != null) {
+                int[] result = new int[2];
+                for (int i = 0; i < 2; i++) {
+                    double[] sample = new double[hsvl[i].length];
+                    for (int j = 0; j < hsvl[i].length; j++) {
+                        sample[j] = hsvl[i][j] & 0xFF;
+                    }
+                    String label = colorClassifier.predictColor(sample);
+                    // Map label to index (1=WHITE, 2=RED, ... 8=BLACK, 0=UNKNOWN)
+                    // You may want to adjust this mapping to match your label set
+                    result[i] = mapLabelToIndex(label);
+                }
+                return result;
+            }
+        }
+
+        // Fallback: use hardware color values
         byte[] colorData = cardColor.getColor();
         if (colorData == null || colorData.length < 2) {
             return null;
         }
-        
-        // Convert byte values to int for easier educational use
         return new int[]{
             colorData[0] & 0xFF, // Front color sensor
             colorData[1] & 0xFF  // Back color sensor
         };
+    }
+
+    // Helper: Map classifier label to color index (adjust as needed)
+    private int mapLabelToIndex(String label) {
+        switch (label.toLowerCase()) {
+            case "white": return 1;
+            case "red": return 2;
+            case "yellow": return 3;
+            case "green": return 4;
+            case "cyan": return 5;
+            case "blue": return 6;
+            case "magenta": return 7;
+            case "black": return 8;
+            default: return 0; // UNKNOWN
+        }
     }
 
     /**
@@ -2329,8 +2458,16 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int get_front_color() {
-        int[] colors = get_colors();
+    /**
+     * Gets the detected color from the front color sensor.
+     *
+     * @return Color value from front sensor (0-8), or -1 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_front_color()}
+     * @since 1.0
+     * @educational
+     */
+    public int getFrontColor() {
+        int[] colors = getColors();
         return (colors != null && colors.length > 0) ? colors[0] : -1;
     }
 
@@ -2368,8 +2505,16 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int get_back_color() {
-        int[] colors = get_colors();
+    /**
+     * Gets the detected color from the back color sensor.
+     *
+     * @return Color value from back sensor (0-8), or -1 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_back_color()}
+     * @since 1.0
+     * @educational
+     */
+    public int getBackColor() {
+        int[] colors = getColors();
         return (colors != null && colors.length > 1) ? colors[1] : -1;
     }
 
@@ -2405,7 +2550,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] get_position_data() {
+    /**
+     * Gets position data as an array [x, y, z] in millimeters.
+     *
+     * @return Array containing [x, y, z] position in mm
+     * @apiNote Equivalent to Python's {@code drone.get_position_data()}
+     * @since 1.0
+     * @educational
+     */
+    public int[] getPositionData() {
         var position = droneStatus.getPosition();
         if (position == null) {
             return null;
@@ -2475,7 +2628,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public double get_pressure() {
+    /**
+     * Gets the current pressure value from the drone.
+     *
+     * @return Pressure in hPa
+     * @apiNote Equivalent to Python's {@code drone.get_pressure()}
+     * @since 1.0
+     * @educational
+     */
+    public double getPressure() {
         var altitude = droneStatus.getAltitude();
         return (altitude != null) ? altitude.getPressure() : 0.0;
     }
@@ -2495,8 +2656,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public double get_pressure(String unit) {
-        double pascals = get_pressure();
+    /**
+     * Gets the current pressure value from the drone in the specified unit.
+     *
+     * @param unit The unit for the return value: "hPa", "psi", etc.
+     * @return Pressure in the specified unit
+     * @apiNote Equivalent to Python's {@code drone.get_pressure(unit)}
+     * @since 1.0
+     * @educational
+     */
+    public double getPressure(String unit) {
+        double pascals = getPressure();
         if (pascals == 0.0) {
             return 0.0;
         }
@@ -2537,7 +2707,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public double get_drone_temperature() {
+    /**
+     * Gets the current temperature value from the drone in Celsius.
+     *
+     * @return Temperature in Celsius
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
+     * @since 1.0
+     * @educational
+     */
+    public double getDroneTemperature() {
         var altitude = droneStatus.getAltitude();
         return (altitude != null) ? altitude.getTemperature() : 0.0;
     }
@@ -2556,8 +2734,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public double get_drone_temperature(String unit) {
-        double celsius = get_drone_temperature();
+    /**
+     * Gets the current temperature value from the drone in the specified unit.
+     *
+     * @param unit The unit for the return value: "C", "F", etc.
+     * @return Temperature in the specified unit
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @since 1.0
+     * @educational
+     */
+    public double getDroneTemperature(String unit) {
+        double celsius = getDroneTemperature();
         var altitude = droneStatus.getAltitude();
         if (altitude == null) {
             return 0.0; // No data available
@@ -2609,7 +2796,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public double[] get_sensor_data() {
+    /**
+     * Gets all sensor data as a double array.
+     *
+     * @return Array containing all sensor values, or null if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_sensor_data()}
+     * @since 1.0
+     * @educational
+     */
+    public double[] getSensorData() {
         // Check if we have basic sensor data
         if (droneStatus.getPosition() == null || droneStatus.getRange() == null) {
             return null;
@@ -2618,7 +2813,7 @@ public class Drone implements AutoCloseable {
         double[] sensorData = new double[21];
         
         // Position data (0-2)
-        int[] position = get_position_data();
+        int[] position = getPositionData();
         if (position != null) {
             sensorData[0] = position[0]; // x
             sensorData[1] = position[1]; // y  
@@ -2626,21 +2821,21 @@ public class Drone implements AutoCloseable {
         }
         
         // Motion data (3-11)
-        int[] accel = get_accel();
+        int[] accel = getAccel();
         if (accel != null) {
             sensorData[3] = accel[0]; // accel x
             sensorData[4] = accel[1]; // accel y
             sensorData[5] = accel[2]; // accel z
         }
         
-        int[] gyro = get_gyro();
+        int[] gyro = getGyro();
         if (gyro != null) {
             sensorData[6] = gyro[0]; // gyro x
             sensorData[7] = gyro[1]; // gyro y
             sensorData[8] = gyro[2]; // gyro z
         }
         
-        int[] angle = get_angle();
+        int[] angle = getAngle();
         if (angle != null) {
             sensorData[9] = angle[0];  // roll
             sensorData[10] = angle[1]; // pitch
@@ -2659,8 +2854,8 @@ public class Drone implements AutoCloseable {
         sensorData[18] = getBattery();
         
         // Environmental data (19-20)
-        sensorData[19] = get_pressure();
-        sensorData[20] = get_drone_temperature();
+        sensorData[19] = getPressure();
+        sensorData[20] = getDroneTemperature();
         
         return sensorData;
     }
@@ -2694,7 +2889,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
      */
-    public double get_flow_velocity_x(String unit) {
+    /**
+     * Retrieve optical flow velocity value measured by optical flow sensor
+     * from the X direction (forward and reverse) in specified units.
+     *
+     * @param unit The unit for the return value: "cm", "in", "mm", or "m"
+     * @return X-axis flow velocity in the specified unit, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_x(unit)}
+     * @since 1.0
+     * @educational Advanced navigation and robotics curricula
+     */
+    public double getFlowVelocityX(String unit) {
         var rawFlow = droneStatus.getRawFlow();
         if (rawFlow == null) {
             // Try to request new data only in real drone scenarios
@@ -2729,8 +2934,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
      */
-    public double get_flow_velocity_x() {
-        return get_flow_velocity_x("cm");
+    /**
+     * Retrieve optical flow velocity value measured by optical flow sensor
+     * from the X direction (forward and reverse) in centimeters.
+     *
+     * @return X-axis flow velocity in centimeters, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_x()}
+     * @since 1.0
+     * @educational Advanced navigation and robotics curricula
+     */
+    public double getFlowVelocityX() {
+        return getFlowVelocityX("cm");
     }
 
     /**
@@ -2757,7 +2971,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
      */
-    public double get_flow_velocity_y(String unit) {
+    /**
+     * Retrieve optical flow velocity value measured by optical flow sensor
+     * from the Y direction (left and right) in specified units.
+     *
+     * @param unit The unit for the return value: "cm", "in", "mm", or "m"
+     * @return Y-axis flow velocity in the specified unit, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_y(unit)}
+     * @since 1.0
+     * @educational Advanced navigation and robotics curricula
+     */
+    public double getFlowVelocityY(String unit) {
         var rawFlow = droneStatus.getRawFlow();
         if (rawFlow == null) {
             // Try to request new data only in real drone scenarios
@@ -2792,8 +3016,17 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
      */
-    public double get_flow_velocity_y() {
-        return get_flow_velocity_y("cm");
+    /**
+     * Retrieve optical flow velocity value measured by optical flow sensor
+     * from the Y direction (left and right) in centimeters.
+     *
+     * @return Y-axis flow velocity in centimeters, or 0.0 if no data available
+     * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_y()}
+     * @since 1.0
+     * @educational Advanced navigation and robotics curricula
+     */
+    public double getFlowVelocityY() {
+        return getFlowVelocityY("cm");
     }
 
     /**
@@ -2812,7 +3045,15 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational Advanced robotics and data analysis curricula
      */
-    public double[] get_flow_data() {
+    /**
+     * Get raw optical flow data for advanced applications.
+     *
+     * @return Array containing [timestamp, x_velocity, y_velocity] in meters, or null if no data available
+     * @apiNote Similar to Python's {@code drone.get_flow_data()} but returns simplified array
+     * @since 1.0
+     * @educational Advanced robotics and data analysis curricula
+     */
+    public double[] getFlowData() {
         var rawFlow = droneStatus.getRawFlow();
         if (rawFlow == null) {
             // Try to request new data only in real drone scenarios
@@ -2868,36 +3109,52 @@ public class Drone implements AutoCloseable {
      * @deprecated Use {@link #get_flow_velocity_x(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
+    /**
+     * @deprecated Use {@link #getFlowVelocityX(String)} instead.
+     * This method is provided for backward compatibility with older Python code.
+     */
     @Deprecated
-    public double get_flow_x(String unit) {
-        return get_flow_velocity_x(unit);
+    public double getFlowX(String unit) {
+        return getFlowVelocityX(unit);
     }
 
     /**
      * @deprecated Use {@link #get_flow_velocity_x()} instead.
      * This method is provided for backward compatibility with older Python code.
      */
-    @Deprecated 
-    public double get_flow_x() {
-        return get_flow_velocity_x();
+    /**
+     * @deprecated Use {@link #getFlowVelocityX()} instead.
+     * This method is provided for backward compatibility with older Python code.
+     */
+    @Deprecated
+    public double getFlowX() {
+        return getFlowVelocityX();
     }
 
     /**
      * @deprecated Use {@link #get_flow_velocity_y(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
+    /**
+     * @deprecated Use {@link #getFlowVelocityY(String)} instead.
+     * This method is provided for backward compatibility with older Python code.
+     */
     @Deprecated
-    public double get_flow_y(String unit) {
-        return get_flow_velocity_y(unit);
+    public double getFlowY(String unit) {
+        return getFlowVelocityY(unit);
     }
 
     /**
      * @deprecated Use {@link #get_flow_velocity_y()} instead.
      * This method is provided for backward compatibility with older Python code.
      */
+    /**
+     * @deprecated Use {@link #getFlowVelocityY()} instead.
+     * This method is provided for backward compatibility with older Python code.
+     */
     @Deprecated
-    public double get_flow_y() {
-        return get_flow_velocity_y();
+    public double getFlowY() {
+        return getFlowVelocityY();
     }
 
     // =============================================================================
@@ -4232,7 +4489,14 @@ public class Drone implements AutoCloseable {
      * @return Object array with button state information
      * @educational
      */
-    public Object[] get_button_data() {
+    /**
+     * Returns the current button data array.
+     * Contains [timestamp, button_flags, event_name].
+     *
+     * @return Object array with button state information
+     * @educational
+     */
+    public Object[] getButtonData() {
         return buttonData.clone(); // Return copy to prevent external modification
     }
 
@@ -4243,7 +4507,14 @@ public class Drone implements AutoCloseable {
      * @return int array with joystick state information
      * @educational
      */
-    public int[] get_joystick_data() {
+    /**
+     * Returns the current joystick data array.
+     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     *
+     * @return int array with joystick state information
+     * @educational
+     */
+    public int[] getJoystickData() {
         return joystickData.clone(); // Return copy to prevent external modification
     }
 
@@ -4253,7 +4524,13 @@ public class Drone implements AutoCloseable {
      * @return X-axis value from -100 to 100, where 0 is neutral
      * @educational
      */
-    public int get_left_joystick_x() {
+    /**
+     * Gets the left joystick X (horizontal) value.
+     *
+     * @return X-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int getLeftJoystickX() {
         return joystickData[1];
     }
 
@@ -4263,7 +4540,13 @@ public class Drone implements AutoCloseable {
      * @return Y-axis value from -100 to 100, where 0 is neutral
      * @educational
      */
-    public int get_left_joystick_y() {
+    /**
+     * Gets the left joystick Y (vertical) value.
+     *
+     * @return Y-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int getLeftJoystickY() {
         return joystickData[2];
     }
 
@@ -4273,7 +4556,13 @@ public class Drone implements AutoCloseable {
      * @return X-axis value from -100 to 100, where 0 is neutral
      * @educational
      */
-    public int get_right_joystick_x() {
+    /**
+     * Gets the right joystick X (horizontal) value.
+     *
+     * @return X-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int getRightJoystickX() {
         return joystickData[5];
     }
 
@@ -4283,7 +4572,13 @@ public class Drone implements AutoCloseable {
      * @return Y-axis value from -100 to 100, where 0 is neutral
      * @educational
      */
-    public int get_right_joystick_y() {
+    /**
+     * Gets the right joystick Y (vertical) value.
+     *
+     * @return Y-axis value from -100 to 100, where 0 is neutral
+     * @educational
+     */
+    public int getRightJoystickY() {
         return joystickData[6];
     }
 

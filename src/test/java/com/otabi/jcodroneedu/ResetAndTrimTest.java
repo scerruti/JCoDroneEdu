@@ -19,129 +19,106 @@ public class ResetAndTrimTest {
     
     @Test
     public void testResetGyroMethod() {
-        System.out.println("Testing reset_gyro() method...");
-        
-        // Test that reset_gyro() method exists and can be called
+        System.out.println("Testing resetGyro() method...");
+        // Test that resetGyro() method exists and can be called
         assertDoesNotThrow(() -> {
-            System.out.println("Note: reset_gyro() requires drone to be stationary on flat surface");
+            System.out.println("Note: resetGyro() requires drone to be stationary on flat surface");
             // In a real test environment, this would calibrate the gyroscope
             // For unit testing, we just verify the method exists and doesn't crash
-            // drone.reset_gyro();
-            System.out.println("✅ reset_gyro() method signature verified");
+            // drone.resetGyro();
+            System.out.println("✅ resetGyro() method signature verified");
         });
     }
     
     @Test
     public void testSetTrimMethod() {
-        System.out.println("Testing set_trim() method...");
-        
+        System.out.println("Testing setTrim() method...");
         // Test valid trim values
         assertDoesNotThrow(() -> {
-            drone.set_trim(0, 0);      // Neutral trim
-            drone.set_trim(10, -5);    // Positive roll, negative pitch
-            drone.set_trim(-50, 25);   // Negative roll, positive pitch
-            drone.set_trim(100, -100); // Maximum values
-            System.out.println("✅ set_trim() accepts valid trim values");
+            drone.setTrim(0, 0);      // Neutral trim
+            drone.setTrim(10, -5);    // Positive roll, negative pitch
+            drone.setTrim(-50, 25);   // Negative roll, positive pitch
+            drone.setTrim(100, -100); // Maximum values
+            System.out.println("✅ setTrim() accepts valid trim values");
         });
-        
         // Test invalid trim values
         assertThrows(IllegalArgumentException.class, () -> {
-            drone.set_trim(101, 0); // Roll too high
+            drone.setTrim(101, 0); // Roll too high
         });
-        
         assertThrows(IllegalArgumentException.class, () -> {
-            drone.set_trim(0, -101); // Pitch too low
+            drone.setTrim(0, -101); // Pitch too low
         });
-        
         assertThrows(IllegalArgumentException.class, () -> {
-            drone.set_trim(-150, 0); // Roll too low
+            drone.setTrim(-150, 0); // Roll too low
         });
-        
-        System.out.println("✅ set_trim() properly validates input parameters");
+        System.out.println("✅ setTrim() properly validates input parameters");
     }
     
     @Test
     public void testResetTrimMethod() {
-        System.out.println("Testing reset_trim() method...");
-        
-        // Test that reset_trim() method exists and can be called
+        System.out.println("Testing resetTrim() method...");
+        // Test that resetTrim() method exists and can be called
         assertDoesNotThrow(() -> {
-            drone.reset_trim();
-            System.out.println("✅ reset_trim() method executes successfully");
+            drone.resetTrim();
+            System.out.println("✅ resetTrim() method executes successfully");
         });
     }
     
     @Test
     public void testGetTrimMethod() {
-        System.out.println("Testing get_trim() method...");
-        
-        // Test that get_trim() method exists and returns proper format
+        System.out.println("Testing getTrim() method...");
+        // Test that getTrim() method exists and returns proper format
         assertDoesNotThrow(() -> {
-            int[] trimValues = drone.get_trim();
-            assertNotNull(trimValues, "get_trim() should not return null");
-            assertEquals(2, trimValues.length, "get_trim() should return array of length 2");
-            
+            int[] trimValues = drone.getTrim();
+            assertNotNull(trimValues, "getTrim() should not return null");
+            assertEquals(2, trimValues.length, "getTrim() should return array of length 2");
             // Verify default values when no trim data is available
-            // (In a real test, these would be the actual trim values from the drone)
-            System.out.println("✅ get_trim() returns proper format: [" + 
-                             trimValues[0] + ", " + trimValues[1] + "]");
-            System.out.println("ℹ️  Default values when no drone connection: [" + 
-                             trimValues[0] + ", " + trimValues[1] + "]");
+            System.out.println("✅ getTrim() returns proper format: [" + trimValues[0] + ", " + trimValues[1] + "]");
+            System.out.println("ℹ️  Default values when no drone connection: [" + trimValues[0] + ", " + trimValues[1] + "]");
         });
     }
     
     @Test
     public void testPythonAPICompatibility() {
-        System.out.println("Testing Python API compatibility...");
-        
-        // Verify method names match Python exactly
-        assertTrue(hasMethod(Drone.class, "reset_gyro"), 
-                  "reset_gyro() method should exist for Python compatibility");
-        assertTrue(hasMethod(Drone.class, "set_trim", int.class, int.class), 
-                  "set_trim(int, int) method should exist for Python compatibility");
-        assertTrue(hasMethod(Drone.class, "reset_trim"), 
-                  "reset_trim() method should exist for Python compatibility");
-        assertTrue(hasMethod(Drone.class, "get_trim"), 
-                  "get_trim() method should exist for Python compatibility");
-        
-        System.out.println("✅ All Python-compatible method signatures verified");
+        System.out.println("Testing camelCase API compatibility...");
+        // Verify camelCase method names exist for Java
+        assertTrue(hasMethod(Drone.class, "resetGyro"), "resetGyro() method should exist");
+        assertTrue(hasMethod(Drone.class, "setTrim", int.class, int.class), "setTrim(int, int) method should exist");
+        assertTrue(hasMethod(Drone.class, "resetTrim"), "resetTrim() method should exist");
+        assertTrue(hasMethod(Drone.class, "getTrim"), "getTrim() method should exist");
+        System.out.println("✅ All camelCase method signatures verified");
     }
     
     @Test
     public void testEducationalAnnotations() {
         System.out.println("Testing educational annotations...");
-        
         // Verify that methods have @educational annotations for student use
         try {
             // Check if the method exists and has javadoc mentioning @educational
-            var method = Drone.class.getMethod("reset_gyro");
-            assertNotNull(method, "reset_gyro() method should exist");
+            var method = Drone.class.getMethod("resetGyro");
+            assertNotNull(method, "resetGyro() method should exist");
             System.out.println("ℹ️  Educational annotation check completed (method exists)");
         } catch (Exception e) {
             System.out.println("ℹ️  Educational annotation check: " + e.getMessage());
         }
-        
         System.out.println("✅ Educational annotation check completed");
     }
     
     @Test
     public void testTrimValueRanges() {
         System.out.println("Testing trim value ranges...");
-        
         // Test boundary values
         assertDoesNotThrow(() -> {
-            drone.set_trim(-100, -100); // Minimum values
-            drone.set_trim(100, 100);   // Maximum values
-            drone.set_trim(0, 0);       // Neutral values
+            drone.setTrim(-100, -100); // Minimum values
+            drone.setTrim(100, 100);   // Maximum values
+            drone.setTrim(0, 0);       // Neutral values
             System.out.println("✅ Boundary trim values accepted");
         });
-        
         // Test just outside boundaries
-        assertThrows(IllegalArgumentException.class, () -> drone.set_trim(-101, 0));
-        assertThrows(IllegalArgumentException.class, () -> drone.set_trim(101, 0));
-        assertThrows(IllegalArgumentException.class, () -> drone.set_trim(0, -101));
-        assertThrows(IllegalArgumentException.class, () -> drone.set_trim(0, 101));
-        
+        assertThrows(IllegalArgumentException.class, () -> drone.setTrim(-101, 0));
+        assertThrows(IllegalArgumentException.class, () -> drone.setTrim(101, 0));
+        assertThrows(IllegalArgumentException.class, () -> drone.setTrim(0, -101));
+        assertThrows(IllegalArgumentException.class, () -> drone.setTrim(0, 101));
         System.out.println("✅ Trim value range validation working correctly");
     }
     

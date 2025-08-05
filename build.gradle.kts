@@ -33,6 +33,11 @@ dependencies {
     testImplementation("net.bytebuddy:byte-buddy:1.15.10")
 
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
+    
+    // Smile ML library for KNN and plotting
+    implementation("com.github.haifengl:smile-core:3.0.1")
+    implementation("com.github.haifengl:smile-plot:3.0.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
 }
 
 tasks.test {

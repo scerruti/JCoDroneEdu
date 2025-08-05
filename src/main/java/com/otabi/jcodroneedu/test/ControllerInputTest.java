@@ -16,17 +16,17 @@ public class ControllerInputTest {
             Drone drone = new Drone();
             
             System.out.println("\n1. Testing initial controller data:");
-            Object[] buttonData = drone.get_button_data();
-            int[] joystickData = drone.get_joystick_data();
+            Object[] buttonData = drone.getButtonData();
+            int[] joystickData = drone.getJoystickData();
             
             System.out.println("   Initial button data: [" + buttonData[0] + ", " + buttonData[1] + ", " + buttonData[2] + "]");
             System.out.println("   Initial joystick data length: " + joystickData.length);
             
             System.out.println("\n2. Testing joystick getter methods:");
-            System.out.println("   Left joystick X: " + drone.get_left_joystick_x());
-            System.out.println("   Left joystick Y: " + drone.get_left_joystick_y());
-            System.out.println("   Right joystick X: " + drone.get_right_joystick_x());
-            System.out.println("   Right joystick Y: " + drone.get_right_joystick_y());
+            System.out.println("   Left joystick X: " + drone.getLeftJoystickX());
+            System.out.println("   Left joystick Y: " + drone.getLeftJoystickY());
+            System.out.println("   Right joystick X: " + drone.getRightJoystickX());
+            System.out.println("   Right joystick Y: " + drone.getRightJoystickY());
             
             System.out.println("\n3. Testing button press methods (all should be false initially):");
             System.out.println("   L1 pressed: " + drone.l1_pressed());
@@ -60,15 +60,15 @@ public class ControllerInputTest {
             
             // Simulate button press
             drone.updateButtonData(button);
-            buttonData = drone.get_button_data();
+            buttonData = drone.getButtonData();
             System.out.println("   After button update: [" + buttonData[0] + ", " + buttonData[1] + ", " + buttonData[2] + "]");
             System.out.println("   Power button now pressed: " + drone.power_pressed());
             
             // Simulate joystick movement  
             drone.updateJoystickData(joystick);
             System.out.println("   After joystick update:");
-            System.out.println("     Left X: " + drone.get_left_joystick_x() + ", Y: " + drone.get_left_joystick_y());
-            System.out.println("     Right X: " + drone.get_right_joystick_x() + ", Y: " + drone.get_right_joystick_y());
+            System.out.println("     Left X: " + drone.getLeftJoystickX() + ", Y: " + drone.getLeftJoystickY());
+            System.out.println("     Right X: " + drone.getRightJoystickX() + ", Y: " + drone.getRightJoystickY());
             
             System.out.println("\n6. Testing Button Flag constants:");
             System.out.println("   L1 flag: 0x" + Integer.toHexString(DroneSystem.ButtonFlag.FRONT_LEFT_TOP));

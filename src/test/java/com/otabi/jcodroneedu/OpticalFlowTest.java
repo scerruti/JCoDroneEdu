@@ -38,10 +38,10 @@ public class OpticalFlowTest {
         drone.getDroneStatus().setRawFlow(testFlow);
         
         // Test X velocity conversion
-        double xInMeters = drone.get_flow_velocity_x("m");
-        double xInCm = drone.get_flow_velocity_x("cm");
-        double xInMm = drone.get_flow_velocity_x("mm");
-        double xInInches = drone.get_flow_velocity_x("in");
+        double xInMeters = drone.getFlowVelocityX("m");
+        double xInCm = drone.getFlowVelocityX("cm");
+        double xInMm = drone.getFlowVelocityX("mm");
+        double xInInches = drone.getFlowVelocityX("in");
         
         assertEquals(0.1, xInMeters, 0.001, "X velocity should be 0.1 m/s");
         assertEquals(10.0, xInCm, 0.001, "X velocity should be 10 cm/s");
@@ -49,10 +49,10 @@ public class OpticalFlowTest {
         assertEquals(3.93701, xInInches, 0.001, "X velocity should be ~3.94 inches/s");
         
         // Test Y velocity conversion
-        double yInMeters = drone.get_flow_velocity_y("m");
-        double yInCm = drone.get_flow_velocity_y("cm");
-        double yInMm = drone.get_flow_velocity_y("mm");
-        double yInInches = drone.get_flow_velocity_y("in");
+        double yInMeters = drone.getFlowVelocityY("m");
+        double yInCm = drone.getFlowVelocityY("cm");
+        double yInMm = drone.getFlowVelocityY("mm");
+        double yInInches = drone.getFlowVelocityY("in");
         
         assertEquals(0.2, yInMeters, 0.001, "Y velocity should be 0.2 m/s");
         assertEquals(20.0, yInCm, 0.001, "Y velocity should be 20 cm/s");
@@ -60,13 +60,13 @@ public class OpticalFlowTest {
         assertEquals(7.87402, yInInches, 0.001, "Y velocity should be ~7.87 inches/s");
         
         // Test default unit (cm)
-        double xDefaultUnit = drone.get_flow_velocity_x();
-        double yDefaultUnit = drone.get_flow_velocity_y();
+        double xDefaultUnit = drone.getFlowVelocityX();
+        double yDefaultUnit = drone.getFlowVelocityY();
         assertEquals(10.0, xDefaultUnit, 0.001, "Default X velocity should be 10 cm/s");
         assertEquals(20.0, yDefaultUnit, 0.001, "Default Y velocity should be 20 cm/s");
         
         // Test flow data array
-        double[] flowData = drone.get_flow_data();
+        double[] flowData = drone.getFlowData();
         assertNotNull(flowData, "Flow data should not be null");
         assertEquals(3, flowData.length, "Flow data should have 3 elements");
         assertEquals(0.1, flowData[1], 0.001, "Flow data X should be 0.1");
@@ -84,24 +84,24 @@ public class OpticalFlowTest {
         
         // Test that deprecated methods still function and return correct values
         @SuppressWarnings("deprecation")
-        double oldX = drone.get_flow_x();
-        double newX = drone.get_flow_velocity_x();
+        double oldX = drone.getFlowX();
+        double newX = drone.getFlowVelocityX();
         assertEquals(oldX, newX, 0.001, "New method should return same value as deprecated method");
         
         @SuppressWarnings("deprecation")
-        double oldY = drone.get_flow_y();
-        double newY = drone.get_flow_velocity_y();
+        double oldY = drone.getFlowY();
+        double newY = drone.getFlowVelocityY();
         assertEquals(oldY, newY, 0.001, "New method should return same value as deprecated method");
         
         // Test with units
         @SuppressWarnings("deprecation")
-        double oldXWithUnit = drone.get_flow_x("m");
-        double newXWithUnit = drone.get_flow_velocity_x("m");
+        double oldXWithUnit = drone.getFlowX("m");
+        double newXWithUnit = drone.getFlowVelocityX("m");
         assertEquals(oldXWithUnit, newXWithUnit, 0.001, "Methods with units should return same values");
         
         @SuppressWarnings("deprecation")
-        double oldYWithUnit = drone.get_flow_y("m");
-        double newYWithUnit = drone.get_flow_velocity_y("m");
+        double oldYWithUnit = drone.getFlowY("m");
+        double newYWithUnit = drone.getFlowVelocityY("m");
         assertEquals(oldYWithUnit, newYWithUnit, 0.001, "Methods with units should return same values");
     }
     
@@ -113,21 +113,21 @@ public class OpticalFlowTest {
         
         // Test that invalid units throw appropriate exceptions
         assertThrows(IllegalArgumentException.class, () -> {
-            drone.get_flow_velocity_x("invalid_unit");
+            drone.getFlowVelocityX("invalid_unit");
         }, "Should throw exception for invalid unit");
         
         assertThrows(IllegalArgumentException.class, () -> {
-            drone.get_flow_velocity_y("invalid_unit");
+            drone.getFlowVelocityY("invalid_unit");
         }, "Should throw exception for invalid unit");
         
         assertThrows(IllegalArgumentException.class, () -> {
             @SuppressWarnings("deprecation")
-            double result = drone.get_flow_x("invalid_unit");
+            double result = drone.getFlowX("invalid_unit");
         }, "Deprecated method should also throw exception for invalid unit");
         
         assertThrows(IllegalArgumentException.class, () -> {
             @SuppressWarnings("deprecation")
-            double result = drone.get_flow_y("invalid_unit");
+            double result = drone.getFlowY("invalid_unit");
         }, "Deprecated method should also throw exception for invalid unit");
     }
     
@@ -139,9 +139,9 @@ public class OpticalFlowTest {
         // Methods should return 0.0 when no data is available
         // Note: This test doesn't call sendRequest, so it won't cause NPE
         // We're testing the case where data is explicitly set to null
-        assertEquals(0.0, drone.get_flow_velocity_x("cm"), 0.001, "Should return 0.0 when no flow data available");
-        assertEquals(0.0, drone.get_flow_velocity_y("cm"), 0.001, "Should return 0.0 when no flow data available");
-        assertNull(drone.get_flow_data(), "Should return null when no flow data available");
+        assertEquals(0.0, drone.getFlowVelocityX("cm"), 0.001, "Should return 0.0 when no flow data available");
+        assertEquals(0.0, drone.getFlowVelocityY("cm"), 0.001, "Should return 0.0 when no flow data available");
+        assertNull(drone.getFlowData(), "Should return null when no flow data available");
     }
     
     @Test
@@ -150,12 +150,12 @@ public class OpticalFlowTest {
         RawFlow zeroFlow = new RawFlow(0.0f, 0.0f);
         drone.getDroneStatus().setRawFlow(zeroFlow);
         
-        assertEquals(0.0, drone.get_flow_velocity_x("cm"), 0.001, "Should return 0.0 for zero X velocity");
-        assertEquals(0.0, drone.get_flow_velocity_y("cm"), 0.001, "Should return 0.0 for zero Y velocity");
-        assertEquals(0.0, drone.get_flow_velocity_x("m"), 0.001, "Should return 0.0 for zero X velocity in meters");
-        assertEquals(0.0, drone.get_flow_velocity_y("m"), 0.001, "Should return 0.0 for zero Y velocity in meters");
+        assertEquals(0.0, drone.getFlowVelocityX("cm"), 0.001, "Should return 0.0 for zero X velocity");
+        assertEquals(0.0, drone.getFlowVelocityY("cm"), 0.001, "Should return 0.0 for zero Y velocity");
+        assertEquals(0.0, drone.getFlowVelocityX("m"), 0.001, "Should return 0.0 for zero X velocity in meters");
+        assertEquals(0.0, drone.getFlowVelocityY("m"), 0.001, "Should return 0.0 for zero Y velocity in meters");
         
-        double[] flowData = drone.get_flow_data();
+        double[] flowData = drone.getFlowData();
         assertNotNull(flowData, "Flow data should not be null even with zero velocities");
         assertEquals(0.0, flowData[1], 0.001, "Flow data X should be 0.0");
         assertEquals(0.0, flowData[2], 0.001, "Flow data Y should be 0.0");
@@ -167,9 +167,9 @@ public class OpticalFlowTest {
         RawFlow negativeFlow = new RawFlow(-0.1f, -0.05f);
         drone.getDroneStatus().setRawFlow(negativeFlow);
         
-        assertEquals(-0.1, drone.get_flow_velocity_x("m"), 0.001, "Should handle negative X velocity");
-        assertEquals(-0.05, drone.get_flow_velocity_y("m"), 0.001, "Should handle negative Y velocity");
-        assertEquals(-10.0, drone.get_flow_velocity_x("cm"), 0.001, "Should convert negative X velocity to cm");
-        assertEquals(-5.0, drone.get_flow_velocity_y("cm"), 0.001, "Should convert negative Y velocity to cm");
+        assertEquals(-0.1, drone.getFlowVelocityX("m"), 0.001, "Should handle negative X velocity");
+        assertEquals(-0.05, drone.getFlowVelocityY("m"), 0.001, "Should handle negative Y velocity");
+        assertEquals(-10.0, drone.getFlowVelocityX("cm"), 0.001, "Should convert negative X velocity to cm");
+        assertEquals(-5.0, drone.getFlowVelocityY("cm"), 0.001, "Should convert negative Y velocity to cm");
     }
 }

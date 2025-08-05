@@ -285,8 +285,14 @@ public class FlightController {
      *
      * @deprecated This method is deprecated and will be removed in a future release.Please use <pre>drone.get_move_values()</pre> instead.
      */
+    /**
+     * @deprecated Use {@link #printMoveValues()} instead.
+     */
     @Deprecated
-    public void print_move_values(){
+    public void print_move_values() {
+        printMoveValues();
+    }
+    public void printMoveValues() {
         // Keep System.out for student debugging - this is educational output
         System.out.println(Arrays.toString(new byte[]{control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle()}));
     }
@@ -296,7 +302,14 @@ public class FlightController {
      *
      * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
      */
-    public byte[] get_move_values(){
+    /**
+     * @deprecated Use {@link #getMoveValues()} instead.
+     */
+    @Deprecated
+    public byte[] get_move_values() {
+        return getMoveValues();
+    }
+    public byte[] getMoveValues() {
         return new byte[]{control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle()};
     }
 

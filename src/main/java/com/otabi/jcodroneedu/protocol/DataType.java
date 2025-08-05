@@ -4,7 +4,6 @@ import com.otabi.jcodroneedu.protocol.cardreader.*;
 import com.otabi.jcodroneedu.protocol.control.Quad8;
 import com.otabi.jcodroneedu.protocol.controllerinput.Button;
 import com.otabi.jcodroneedu.protocol.controllerinput.Joystick;
-import com.otabi.jcodroneedu.protocol.display.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.*;
 import com.otabi.jcodroneedu.protocol.information.InformationAssembledForController;
 import com.otabi.jcodroneedu.protocol.information.InformationAssembledForEntry;
