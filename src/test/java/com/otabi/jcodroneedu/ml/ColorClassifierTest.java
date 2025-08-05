@@ -16,12 +16,12 @@ public class ColorClassifierTest {
     @BeforeEach
     void setupDataset() throws IOException {
         Files.createDirectories(Paths.get(TEST_DATASET));
-        // Always create two label files for every test
+        // Always create two label files for every test, ensure each ends with a newline
         try (BufferedWriter w = Files.newBufferedWriter(Paths.get(TEST_DATASET, "red.txt"))) {
-            w.write("0 100 100 50\n1 99 99 49");
+            w.write("0 100 100 50\n1 99 99 49\n");
         }
         try (BufferedWriter w = Files.newBufferedWriter(Paths.get(TEST_DATASET, "blue.txt"))) {
-            w.write("240 100 100 50\n241 99 99 49");
+            w.write("240 100 100 50\n241 99 99 49\n");
         }
     }
 
@@ -53,19 +53,19 @@ public class ColorClassifierTest {
 
     @Test
     void testAppendColorData() throws Exception {
+        // Assert the new sample is present
+        double[][] newSamples = {{2, 98, 98, 48}};
+        assertTrue(Files.exists(Paths.get(TEST_DATASET, "red.txt")), "red.txt should exist before appending");
+        classifier.appendColorData("red", newSamples, TEST_DATASET);
         // Print contents of red.txt after appending for debugging
         Path redPath = Paths.get(TEST_DATASET, "red.txt");
         System.out.println("Contents of red.txt after append:");
         Files.lines(redPath).forEach(System.out::println);
-        // Assert the new sample is present
-        double[][] newSamples = {{2, 98, 98, 48}};
-        // Ensure the file exists before appending
-        // Path redPath = Paths.get(TEST_DATASET, "red.txt");
-        assertTrue(Files.exists(Paths.get(TEST_DATASET, "red.txt")), "red.txt should exist before appending");
-        classifier.appendColorData("red", newSamples, TEST_DATASET);
-        // Assert the new sample is present
-        String fileContents = String.join("\n", Files.readAllLines(Paths.get(TEST_DATASET, "red.txt")));
-        assertTrue(fileContents.contains("2 98 98 48"), "Appended sample not found in red.txt");
+        // Assert the new sample is present (accept both int and double formatting)
+        String fileContents = String.join("\n", Files.readAllLines(redPath));
+        boolean foundInt = fileContents.contains("2 98 98 48");
+        boolean foundDouble = fileContents.contains("2.0 98.0 98.0 48.0");
+        assertTrue(foundInt || foundDouble, "Appended sample not found in red.txt. Contents: " + fileContents);
         // Now reload classifier and check predictions
         classifier.loadColorData(TEST_DATASET, false);
         assertEquals("red", classifier.predictColor(new double[]{2, 98, 98, 48}));

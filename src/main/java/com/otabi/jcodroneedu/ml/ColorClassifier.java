@@ -94,6 +94,18 @@ public class ColorClassifier {
     public void appendColorData(String label, double[][] samples, String datasetPath) throws IOException {
         File file = new File(datasetPath, label + ".txt");
         if (!file.exists()) throw new FileNotFoundException("Label file not found: " + file.getPath());
+        // Ensure file ends with a newline before appending
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        long fileLength = raf.length();
+        if (fileLength > 0) {
+            raf.seek(fileLength - 1);
+            int lastByte = raf.read();
+            if (lastByte != '\n') {
+                raf.seek(fileLength);
+                raf.write('\n');
+            }
+        }
+        raf.close();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
             for (double[] sample : samples) {
                 writer.write(arrayToLine(sample));
