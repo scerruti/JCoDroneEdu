@@ -4,6 +4,7 @@ import com.otabi.jcodroneedu.protocol.cardreader.*;
 import com.otabi.jcodroneedu.protocol.control.Quad8;
 import com.otabi.jcodroneedu.protocol.controllerinput.Button;
 import com.otabi.jcodroneedu.protocol.controllerinput.Joystick;
+import com.otabi.jcodroneedu.protocol.display.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.*;
 import com.otabi.jcodroneedu.protocol.information.InformationAssembledForController;
 import com.otabi.jcodroneedu.protocol.information.InformationAssembledForEntry;
@@ -76,6 +77,15 @@ public enum DataType {
 
     // --- Buzzer Control (Sent) ---
     Buzzer((byte) 0x62, null, null),
+
+    // --- Display Control (Sent) ---
+    DisplayClear((byte) 0x80, null, null),
+    DisplayInvert((byte) 0x81, null, null),
+    DisplayDrawPoint((byte) 0x82, null, null),
+    DisplayDrawLine((byte) 0x83, null, null),
+    DisplayDrawRect((byte) 0x84, null, null),
+    DisplayDrawCircle((byte) 0x85, null, null),
+    DisplayDrawString((byte) 0x86, null, null),
 
     // --- Card Reader (Received) ---
     CardClassify((byte) 0x90, CardClassify.class, CardClassify::new),

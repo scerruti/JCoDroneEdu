@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol._unknown.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
+import com.otabi.jcodroneedu.protocol.display.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
 import com.otabi.jcodroneedu.protocol.lightcontroller.Color;
 import com.otabi.jcodroneedu.protocol.lightcontroller.LightDefault;
@@ -3541,6 +3542,265 @@ public class Drone implements AutoCloseable {
         header.setTo(target);
 
         transfer(header, buzzer);
+    }
+
+    // ========================================
+    // Controller Display Methods
+    // ========================================
+
+    /**
+     * Clears the entire controller display screen.
+     * 
+     * @param pixel The pixel type to use for clearing (WHITE or BLACK)
+     * @educational
+     */
+    public void controller_clear_screen(DisplayPixel pixel) {
+        DisplayClearAll clearCommand = new DisplayClearAll(pixel);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayClear);
+        header.setLength(clearCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, clearCommand);
+    }
+
+    /**
+     * Clears the entire controller display screen with white pixels.
+     * 
+     * @educational
+     */
+    public void controller_clear_screen() {
+        controller_clear_screen(DisplayPixel.WHITE);
+    }
+
+    /**
+     * Draws a point on the controller display.
+     * 
+     * @param x X coordinate (0-127)
+     * @param y Y coordinate (0-63)
+     * @param pixel The pixel type to draw (BLACK, WHITE, INVERSE, OUTLINE)
+     * @educational
+     */
+    public void controller_draw_point(int x, int y, DisplayPixel pixel) {
+        DisplayDrawPoint drawCommand = new DisplayDrawPoint(x, y, pixel);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawPoint);
+        header.setLength(drawCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, drawCommand);
+    }
+
+    /**
+     * Draws a black point on the controller display.
+     * 
+     * @param x X coordinate (0-127)
+     * @param y Y coordinate (0-63)
+     * @educational
+     */
+    public void controller_draw_point(int x, int y) {
+        controller_draw_point(x, y, DisplayPixel.BLACK);
+    }
+
+    /**
+     * Draws a line on the controller display.
+     * 
+     * @param x1 Starting X coordinate
+     * @param y1 Starting Y coordinate
+     * @param x2 Ending X coordinate
+     * @param y2 Ending Y coordinate
+     * @param pixel The pixel type to draw
+     * @param line The line style (SOLID, DOTTED, DASHED)
+     * @educational
+     */
+    public void controller_draw_line(int x1, int y1, int x2, int y2, DisplayPixel pixel, DisplayLine line) {
+        DisplayDrawLine drawCommand = new DisplayDrawLine(x1, y1, x2, y2, pixel, line);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawLine);
+        header.setLength(drawCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, drawCommand);
+    }
+
+    /**
+     * Draws a solid black line on the controller display.
+     * 
+     * @param x1 Starting X coordinate
+     * @param y1 Starting Y coordinate
+     * @param x2 Ending X coordinate
+     * @param y2 Ending Y coordinate
+     * @educational
+     */
+    public void controller_draw_line(int x1, int y1, int x2, int y2) {
+        controller_draw_line(x1, y1, x2, y2, DisplayPixel.BLACK, DisplayLine.SOLID);
+    }
+
+    /**
+     * Draws a rectangle on the controller display.
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of the rectangle
+     * @param height Height of the rectangle
+     * @param pixel The pixel type to draw
+     * @param filled Whether to fill the rectangle
+     * @param line The line style for outline
+     * @educational
+     */
+    public void controller_draw_rectangle(int x, int y, int width, int height, DisplayPixel pixel, boolean filled, DisplayLine line) {
+        DisplayDrawRect drawCommand = new DisplayDrawRect(x, y, width, height, pixel, filled, line);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawRect);
+        header.setLength(drawCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, drawCommand);
+    }
+
+    /**
+     * Draws a solid black rectangle outline on the controller display.
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of the rectangle
+     * @param height Height of the rectangle
+     * @educational
+     */
+    public void controller_draw_rectangle(int x, int y, int width, int height) {
+        controller_draw_rectangle(x, y, width, height, DisplayPixel.BLACK, false, DisplayLine.SOLID);
+    }
+
+    /**
+     * Draws a circle on the controller display.
+     * 
+     * @param x X coordinate of center
+     * @param y Y coordinate of center
+     * @param radius Radius of the circle
+     * @param pixel The pixel type to draw
+     * @param filled Whether to fill the circle
+     * @educational
+     */
+    public void controller_draw_circle(int x, int y, int radius, DisplayPixel pixel, boolean filled) {
+        DisplayDrawCircle drawCommand = new DisplayDrawCircle(x, y, radius, pixel, filled);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawCircle);
+        header.setLength(drawCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, drawCommand);
+    }
+
+    /**
+     * Draws a solid black filled circle on the controller display.
+     * 
+     * @param x X coordinate of center
+     * @param y Y coordinate of center
+     * @param radius Radius of the circle
+     * @educational
+     */
+    public void controller_draw_circle(int x, int y, int radius) {
+        controller_draw_circle(x, y, radius, DisplayPixel.BLACK, true);
+    }
+
+    /**
+     * Draws text on the controller display.
+     * 
+     * @param x X coordinate for text position
+     * @param y Y coordinate for text position
+     * @param message The text message to display
+     * @param font The font to use (LIBERATION_MONO_5X8 or LIBERATION_MONO_10X16)
+     * @param pixel The pixel type to draw
+     * @educational
+     */
+    public void controller_draw_string(int x, int y, String message, DisplayFont font, DisplayPixel pixel) {
+        DisplayDrawString drawCommand = new DisplayDrawString(x, y, font, pixel, message);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawString);
+        header.setLength(drawCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, drawCommand);
+    }
+
+    /**
+     * Draws black text on the controller display using the default font.
+     * 
+     * @param x X coordinate for text position
+     * @param y Y coordinate for text position
+     * @param message The text message to display
+     * @educational
+     */
+    public void controller_draw_string(int x, int y, String message) {
+        controller_draw_string(x, y, message, DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+    }
+
+    /**
+     * Clears a specific rectangular area on the controller display.
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of area to clear
+     * @param height Height of area to clear
+     * @param pixel The pixel type to use for clearing
+     * @educational
+     */
+    public void controller_clear_area(int x, int y, int width, int height, DisplayPixel pixel) {
+        DisplayClear clearCommand = new DisplayClear(x, y, width, height, pixel);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayClear);
+        header.setLength(clearCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, clearCommand);
+    }
+
+    /**
+     * Clears a specific rectangular area on the controller display with white pixels.
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of area to clear
+     * @param height Height of area to clear
+     * @educational
+     */
+    public void controller_clear_area(int x, int y, int width, int height) {
+        controller_clear_area(x, y, width, height, DisplayPixel.WHITE);
+    }
+
+    /**
+     * Inverts the pixels in a specific rectangular area on the controller display.
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of area to invert
+     * @param height Height of area to invert
+     * @educational
+     */
+    public void controller_invert_area(int x, int y, int width, int height) {
+        DisplayInvert invertCommand = new DisplayInvert(x, y, width, height);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayInvert);
+        header.setLength(invertCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, invertCommand);
     }
 
     // ========================================
