@@ -391,14 +391,14 @@ int[] joystickData = drone.get_joystick_data();   // Complete joystick state
 ### 14. **Autonomous Flight Methods**
 **Status**: ✅ COMPLETED (Advanced Robotics Features)
 **Python Methods**: `avoid_wall()`, `keep_distance()`, `detect_wall()`
-**Java Methods**: `avoidWall(timeout, distance)`, `keepDistance(timeout, distance)`
+**Java Methods**: `avoidWall(timeout, distance)`, `keepDistance(timeout, distance)`, `detectWall(distance)`
 **Impact**: Autonomous behavior capabilities now available
 **Educational Need**: Advanced feature for robotics and AI curricula (moved from medium priority - these are advanced, not core educational methods)
 ```java
 // Autonomous behaviors - Java now implemented
 drone.avoidWall(10, 50);    // Fly until wall detected
 drone.keepDistance(10, 60); // Maintain distance from object
-// (detectWall not yet implemented)
+drone.detectWall(30);       // Returns true if wall detected within 30cm
 ```
 
 ### 15. **Controller Screen/Display Methods**
@@ -491,6 +491,8 @@ double z = drone.getPositionZ();                   // Z position
 | **Controller Input** | 15+ | 0 | 15+ | 100% | 100% |
 | **Controller Display** | 20+ | 20+ | 0 | 0% ✅ | 100% |
 | **Autonomous Flight** | 2 | 1 | 1 | 67% | 100% |
+| **Autonomous Flight** | 3 | 3 | 0 | 0% ✅ | 100% |
+2. **All Advanced Features Complete**: All autonomous behaviors, including detectWall, are now implemented and tested
 | **Configuration** | 8 | 5 | 3 | 62% ⬆️ | 62% |
 
 **Overall Feature Parity**: ~35% ✅ / ~65% ❌ (⬆️ **Major Improvement** from 10%/90%)

@@ -1990,6 +1990,35 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Detects if there is a wall or obstacle within a specified distance in front of the drone.
+     *
+     * <p>This method is designed for educational use, providing a simple way to check for obstacles ahead using the front range sensor.</p>
+     *
+     * <h3>🧑‍🏫 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> If/else obstacle detection</li>
+     *   <li><strong>L0107 Loops:</strong> Repeat until clear path</li>
+     *   <li><strong>Autonomous Flight:</strong> Wall avoidance and navigation</li>
+     * </ul>
+     *
+     * @param distance the distance threshold in centimeters
+     * @return true if an obstacle is detected within the specified distance, false otherwise
+     * @apiNote Equivalent to Python's {@code drone.detect_wall(distance)}
+     * @since 1.1
+     *
+     * @example
+     * <pre>{@code
+     * if (drone.detectWall(30)) {
+     *     System.out.println("Wall detected ahead!");
+     *     drone.stop();
+     * }
+     * }</pre>
+     */
+    public boolean detectWall(int distance) {
+        return getFrontRange() < distance;
+    }
+
+    /**
      * Gets the X position relative to the takeoff point in centimeters.
      * 
      * <p>Returns the drone's current X coordinate relative to where it took off.
