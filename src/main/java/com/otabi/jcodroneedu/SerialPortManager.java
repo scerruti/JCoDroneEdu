@@ -66,7 +66,7 @@ public class SerialPortManager {
                 return false;
             }
 
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
+            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, DroneSystem.CommunicationConstants.SERIAL_TIMEOUT_MS, 0);
             inputStream = serialPort.getInputStream();
             startReaderThread();
             // Student-friendly success message

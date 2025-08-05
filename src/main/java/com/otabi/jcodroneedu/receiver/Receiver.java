@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  */
 public class Receiver {
     private static final Logger log = LogManager.getLogger(Receiver.class);
-    private static final int MAX_PAYLOAD_SIZE = 128;
+    private static final int MAX_PAYLOAD_SIZE = DroneSystem.CommunicationConstants.MAX_PAYLOAD_SIZE;
     private static final long RECEIVE_TIMEOUT_MS = 600;
 
     // References to other drone components
@@ -126,13 +126,13 @@ public class Receiver {
 
     private boolean handleStart(byte data) {
         if (index == 0) {
-            if (data == 0x0A) {
+            if (data == DroneSystem.CommunicationConstants.PROTOCOL_START_BYTE_1) {
                 timeReceiveStart = System.currentTimeMillis();
             } else {
                 return false; // Not a start byte, ignore
             }
         } else if (index == 1) {
-            if (data == 0x55) {
+            if (data == DroneSystem.CommunicationConstants.PROTOCOL_START_BYTE_2) {
                 currentSection = Section.HEADER; // Transition to next section
                 index = 0;
             } else {
@@ -199,9 +199,9 @@ public class Receiver {
 
     private boolean handleEnd(byte data) {
         if (index == 0) {
-            crc16received = data & 0xFF;
+            crc16received = data & DroneSystem.CommunicationConstants.BYTE_MASK;
         } else if (index == 1) {
-            crc16received |= (data & 0xFF) << 8;
+            crc16received |= (data & DroneSystem.CommunicationConstants.BYTE_MASK) << 8;
 
             if (crc16received == crc16calculated) {
                 log.info("CRC OK for {}. Received: 0x{:04X}", header.getDataType(), crc16received);

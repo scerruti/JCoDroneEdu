@@ -23,7 +23,7 @@ public class FlightController {
     
     private final Drone drone;
     private final DroneStatus droneStatus;
-    private final RateLimiter controlLoopRateLimiter = RateLimiter.create(50.0); // 50 commands per second
+    private final RateLimiter controlLoopRateLimiter = RateLimiter.create(DroneSystem.FlightControlConstants.COMMANDS_PER_SECOND);
 
     private final Quad8 control;
 
@@ -71,7 +71,7 @@ public class FlightController {
      */
     public void takeoff() {
         resetMoveValues();
-        long timeout = 4000; // 4-second timeout for each stage
+        long timeout = DroneSystem.FlightControlConstants.TAKEOFF_LANDING_TIMEOUT_MS; // 4-second timeout for each stage
         long startTime = System.currentTimeMillis();
 
         // Stage 1: Wait for the drone to enter TAKEOFF mode
@@ -81,7 +81,7 @@ public class FlightController {
                 break; // Stage 1 complete
             }
             triggerFlightEvent(FlightEvent.TAKE_OFF);
-            sleep(10);
+            sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
 
         // Stage 2: Wait for the drone to stabilize and enter FLIGHT mode
@@ -91,7 +91,7 @@ public class FlightController {
             if (currentState != null && currentState.isFlight()) {
                 return; // Takeoff successful and stable
             }
-            sleep(10);
+            sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
     }
 
@@ -103,7 +103,7 @@ public class FlightController {
      */
     public void land() {
         resetMoveValues();
-        long timeout = 4000; // 4-second timeout for each stage
+        long timeout = DroneSystem.FlightControlConstants.TAKEOFF_LANDING_TIMEOUT_MS; // 4-second timeout for each stage
         long startTime = System.currentTimeMillis();
 
         // Stage 1: Wait for the drone to enter LANDING mode
@@ -113,7 +113,7 @@ public class FlightController {
                 break; // Stage 1 complete
             }
             triggerFlightEvent(FlightEvent.LANDING);
-            sleep(10);
+            sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
 
         // Stage 2: Wait for the drone to complete landing and enter READY mode
@@ -123,7 +123,7 @@ public class FlightController {
             if (currentState != null && currentState.isReady()) {
                 return; // Landing successful
             }
-            sleep(10);
+            sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
     }
 
@@ -141,8 +141,11 @@ public class FlightController {
      * @param durationSeconds The duration to hover, in seconds (matching Python behavior).
      */
     public void hover(double durationSeconds) {
-        sendControl(0, 0, 0, 0);
-        sleep((long)(durationSeconds * 1000));
+        sendControl(DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL, 
+                   DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL, 
+                   DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL, 
+                   DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL);
+        sleep((long)(durationSeconds * DroneSystem.FlightControlConstants.MILLISECONDS_PER_SECOND));
     }
 
     /**
@@ -152,7 +155,7 @@ public class FlightController {
      */
     public void resetMoveValues(int attempts) {
         for (int i = 0; i < attempts; i++) {
-            hover(0.01); // Send a brief 10ms hover command
+            hover(DroneSystem.FlightControlConstants.RESET_HOVER_DURATION_SECONDS); // Send a brief 10ms hover command
         }
     }
 
@@ -160,7 +163,7 @@ public class FlightController {
      * Resets the drone's movement values to zero.
      */
     public void resetMoveValues() {
-        resetMoveValues(3);
+        resetMoveValues(DroneSystem.FlightControlConstants.RESET_MOVE_VALUES_DEFAULT_ATTEMPTS);
     }
 
     /**
@@ -168,7 +171,8 @@ public class FlightController {
      * @param speedLevel An integer from 1 (slow) to 3 (fast).
      */
     public void changeSpeed(int speedLevel) {
-        byte level = (byte) Math.max(1, Math.min(speedLevel, 3));
+        byte level = (byte) Math.max(DroneSystem.FlightControlConstants.SPEED_LEVEL_MIN, 
+                                   Math.min(speedLevel, DroneSystem.FlightControlConstants.SPEED_LEVEL_MAX));
         drone.sendCommand(CommandType.ControlSpeed, level);
     }
 
@@ -177,7 +181,7 @@ public class FlightController {
      * @param enable true to enable headless mode, false to disable.
      */
     public void setHeadlessMode(boolean enable) {
-        byte value = (byte) (enable ? 1 : 0);
+        byte value = (byte) (enable ? 1 : DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL);
         drone.sendCommand(CommandType.Headless, value);
     }
 
@@ -201,7 +205,8 @@ public class FlightController {
      *              Negative pitch is backwards, positive pitch is forwards.
      */
     public void setPitch(int pitch) {
-        control.setPitch((byte) Math.max(-100, Math.min(pitch, 100)));
+        control.setPitch((byte) Math.max(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN, 
+                                       Math.min(pitch, DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX)));
     }
 
     /**
@@ -216,7 +221,8 @@ public class FlightController {
      *             Negative roll is left, positive roll is right.
      */
     public void setRoll(int roll) {
-        control.setRoll((byte) Math.max(-100, Math.min(roll, 100)));
+        control.setRoll((byte) Math.max(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN, 
+                                      Math.min(roll, DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX)));
     }
 
     /**
@@ -231,7 +237,8 @@ public class FlightController {
      *            Negative yaw is right, positive yaw is left.
      */
     public void setYaw(int yaw) {
-        control.setYaw((byte) Math.max(-100, Math.min(yaw, 100)));
+        control.setYaw((byte) Math.max(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN, 
+                                     Math.min(yaw, DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX)));
     }
 
     /**
@@ -247,7 +254,8 @@ public class FlightController {
      *                 Negative throttle is down, positive throttle is up.
      */
     public void setThrottle(int throttle) {
-        control.setThrottle((byte) Math.max(-100, Math.min(throttle, 100)));
+        control.setThrottle((byte) Math.max(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN, 
+                                          Math.min(throttle, DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX)));
     }
 
     /**
@@ -267,7 +275,7 @@ public class FlightController {
      */
     public void move(int duration)
     {
-        int milliseconds = duration * 1000;
+        int milliseconds = duration * DroneSystem.FlightControlConstants.MILLISECONDS_PER_SECOND;
         // there is a while loop inside of the send control method.
         sendControlWhile(control, milliseconds);
     }
@@ -404,26 +412,29 @@ public class FlightController {
             // Set the appropriate control variable based on direction
             String dir = direction.toLowerCase();
             switch (dir) {
-                case "forward":
+                case DroneSystem.DirectionConstants.FORWARD:
                     setPitch(power);
                     break;
-                case "backward":
+                case DroneSystem.DirectionConstants.BACKWARD:
                     setPitch(-power);
                     break;
-                case "right":
+                case DroneSystem.DirectionConstants.RIGHT:
                     setRoll(power);
                     break;
-                case "left":
+                case DroneSystem.DirectionConstants.LEFT:
                     setRoll(-power);
                     break;
-                case "up":
+                case DroneSystem.DirectionConstants.UP:
                     setThrottle(power);
                     break;
-                case "down":
+                case DroneSystem.DirectionConstants.DOWN:
                     setThrottle(-power);
                     break;
                 default:
-                    System.out.println("Warning: Invalid direction '" + direction + "'. Valid directions are: forward, backward, left, right, up, down");
+                    System.out.println("Warning: Invalid direction '" + direction + "'. Valid directions are: " + 
+                        DroneSystem.DirectionConstants.FORWARD + ", " + DroneSystem.DirectionConstants.BACKWARD + ", " + 
+                        DroneSystem.DirectionConstants.LEFT + ", " + DroneSystem.DirectionConstants.RIGHT + ", " + 
+                        DroneSystem.DirectionConstants.UP + ", " + DroneSystem.DirectionConstants.DOWN);
                     return;
             }
             
@@ -678,16 +689,20 @@ public class FlightController {
      */
     private double convertToMeters(double distance, String units) {
         switch (units.toLowerCase()) {
-            case "cm":
-                return distance / 100.0;
-            case "ft":
-                return distance / 3.28084;
-            case "in":
-                return distance / 39.37;
-            case "m":
+            case DroneSystem.UnitConversion.UNIT_CENTIMETERS:
+                return distance * DroneSystem.UnitConversion.CENTIMETERS_TO_METERS;
+            case DroneSystem.UnitConversion.UNIT_FEET:
+                return distance * DroneSystem.UnitConversion.FEET_TO_METERS;
+            case DroneSystem.UnitConversion.UNIT_INCHES:
+                return distance * DroneSystem.UnitConversion.INCHES_TO_METERS;
+            case DroneSystem.UnitConversion.UNIT_METERS:
                 return distance;
             default:
-                System.out.println("Error: Invalid unit '" + units + "'. Valid units are: cm, ft, in, m");
+                System.out.println("Error: Invalid unit '" + units + "'. Valid units are: " + 
+                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " + 
+                    DroneSystem.UnitConversion.UNIT_FEET + ", " + 
+                    DroneSystem.UnitConversion.UNIT_INCHES + ", " + 
+                    DroneSystem.UnitConversion.UNIT_METERS);
                 return -1;
         }
     }

@@ -387,7 +387,7 @@ public class Drone implements AutoCloseable {
 
         ByteBuffer message = ByteBuffer.allocate(2 + headerArray.length + dataArray.length + 2);
         message.order(ByteOrder.LITTLE_ENDIAN);
-        message.put((byte) 0x0A).put((byte) 0x55);
+        message.put(DroneSystem.CommunicationConstants.PROTOCOL_START_BYTE_1).put(DroneSystem.CommunicationConstants.PROTOCOL_START_BYTE_2);
         message.put(headerArray);
         message.put(dataArray);
         message.putShort((short) crc16);
@@ -525,7 +525,25 @@ public class Drone implements AutoCloseable {
      * flight sequence, so you will have to set it back to 0 if you don't want
      * the drone to pitch again.
      *
-     * @param pitch Sets the pitch variable (-100 - 100). The number represents the
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Basic usage with literal values
+     * drone.setPitch(50);   // 50% forward power
+     * drone.setPitch(-30);  // 30% backward power
+     * drone.setPitch(0);    // Neutral/stop
+     * 
+     * // Using constants for better code quality
+     * drone.setPitch(DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX);     // 100% forward
+     * drone.setPitch(DroneSystem.FlightControlConstants.CONTROL_VALUE_OFF);     // Stop (most intuitive)
+     * drone.setPitch(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN);     // 100% backward
+     * 
+     * // Alternative ways to express "stop" - all equivalent
+     * drone.setPitch(DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL); // Technical term
+     * drone.setPitch(DroneSystem.FlightControlConstants.CONTROL_VALUE_STOP);    // Action-oriented
+     * }</pre>
+     *
+     * @param pitch Sets the pitch variable ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} 
+     *              to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *              direction and power of the output for that flight motion variable.
      *              Negative pitch is backwards, positive pitch is forwards.
      */
@@ -540,7 +558,21 @@ public class Drone implements AutoCloseable {
      * flight sequence, so you will have to set it back to 0 if you don't want
      * the drone to roll again.
      *
-     * @param roll Sets the roll variable (-100 - 100). The number represents the
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Basic usage with literal values
+     * drone.setRoll(40);   // 40% right power
+     * drone.setRoll(-25);  // 25% left power
+     * drone.setRoll(0);    // Neutral/stop
+     * 
+     * // Using constants for better code quality
+     * drone.setRoll(DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX);     // 100% right
+     * drone.setRoll(DroneSystem.FlightControlConstants.CONTROL_VALUE_OFF);     // Stop rolling
+     * drone.setRoll(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN);     // 100% left
+     * }</pre>
+     *
+     * @param roll Sets the roll variable ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} 
+     *             to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *             direction and power of the output for that flight motion variable.
      *             Negative roll is left, positive roll is right.
      */
@@ -555,7 +587,21 @@ public class Drone implements AutoCloseable {
      * flight sequence, so you will have to set it back to 0 if you don't want
      * the drone to yaw again.
      *
-     * @param yaw Sets the yaw variable (-100 - 100). The number represents the
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Basic usage with literal values
+     * drone.setYaw(60);   // 60% left turn power
+     * drone.setYaw(-45);  // 45% right turn power
+     * drone.setYaw(0);    // Neutral/stop turning
+     * 
+     * // Using constants for better code quality
+     * drone.setYaw(DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX);     // 100% left turn
+     * drone.setYaw(DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL); // Stop turning
+     * drone.setYaw(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN);     // 100% right turn
+     * }</pre>
+     *
+     * @param yaw Sets the yaw variable ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} 
+     *            to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *            direction and power of the output for that flight motion variable.
      *            Negative yaw is right, positive yaw is left.
      */
@@ -570,7 +616,21 @@ public class Drone implements AutoCloseable {
      * flight sequence, so you will have to set it back to 0 if you don't want the
      * drone to throttle again.
      *
-     * @param throttle Sets the throttle variable (-100 - 100).
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Basic usage with literal values
+     * drone.setThrottle(70);   // 70% upward power
+     * drone.setThrottle(-20);  // 20% downward power
+     * drone.setThrottle(0);    // Neutral/hover
+     * 
+     * // Using constants for better code quality
+     * drone.setThrottle(DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX);  // 100% up
+     * drone.setThrottle(DroneSystem.FlightControlConstants.CONTROL_VALUE_STOP); // Hover
+     * drone.setThrottle(DroneSystem.FlightControlConstants.CONTROL_VALUE_MIN);  // 100% down
+     * }</pre>
+     *
+     * @param throttle Sets the throttle variable ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} 
+     *                 to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
      *                 The number represents the direction and power of the
      *                 output for that flight motion variable.
      *                 Negative throttle is down, positive throttle is up.
@@ -648,10 +708,27 @@ public class Drone implements AutoCloseable {
     /**
      * Sends a single, direct flight control command to the drone.
      *
-     * @param roll     Controls sideways tilt. Positive values roll right, negative values roll left (-100 to 100).
-     * @param pitch    Controls forward and backward tilt. Positive values pitch forward, negative values pitch backward (-100 to 100).
-     * @param yaw      Controls rotation. Positive values turn left, negative values turn right (-100 to 100).
-     * @param throttle Controls altitude. Positive values increase altitude, negative values decrease altitude (-100 to 100).
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Basic usage with literal values
+     * drone.sendControl(30, 50, 0, 20);    // Roll right, pitch forward, no yaw, climb
+     * drone.sendControl(0, 0, 0, 0);       // Hover in place
+     * 
+     * // Using constants for clarity
+     * drone.sendControl(DroneSystem.FlightControlConstants.CONTROL_VALUE_OFF, 
+     *                   DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX,
+     *                   DroneSystem.FlightControlConstants.CONTROL_VALUE_STOP, 
+     *                   30); // No roll, full forward, no yaw, climb at 30%
+     * }</pre>
+     *
+     * @param roll     Controls sideways tilt. Positive values roll right, negative values roll left 
+     *                 ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param pitch    Controls forward and backward tilt. Positive values pitch forward, negative values pitch backward 
+     *                 ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param yaw      Controls rotation. Positive values turn left, negative values turn right 
+     *                 ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param throttle Controls altitude. Positive values increase altitude, negative values decrease altitude 
+     *                 ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
      */
     public void sendControl(int roll, int pitch, int yaw, int throttle) {
         flightController.sendControl(roll, pitch, yaw, throttle);
@@ -660,10 +737,25 @@ public class Drone implements AutoCloseable {
     /**
      * Continuously sends a flight control command for a specified duration.
      *
-     * @param roll     The roll value to maintain (-100 to 100).
-     * @param pitch    The pitch value to maintain (-100 to 100).
-     * @param yaw      The yaw value to maintain (-100 to 100).
-     * @param throttle The throttle value to maintain (-100 to 100).
+     * <p><strong>Examples:</strong></p>
+     * <pre>{@code
+     * // Hover forward for 2 seconds
+     * drone.sendControlWhile(0, 40, 0, 0, 2000);
+     * 
+     * // Turn left while climbing for 1.5 seconds
+     * drone.sendControlWhile(0, 0, 60, 30, 1500);
+     * 
+     * // Using constants for maximum values
+     * drone.sendControlWhile(DroneSystem.FlightControlConstants.CONTROL_VALUE_MAX, 
+     *                        DroneSystem.FlightControlConstants.CONTROL_VALUE_OFF, 
+     *                        DroneSystem.FlightControlConstants.CONTROL_VALUE_NEUTRAL, 
+     *                        DroneSystem.FlightControlConstants.CONTROL_VALUE_STOP, 1000); // Full right roll
+     * }</pre>
+     *
+     * @param roll     The roll value to maintain ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param pitch    The pitch value to maintain ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param yaw      The yaw value to maintain ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
+     * @param throttle The throttle value to maintain ({@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MIN} to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}).
      * @param timeMs   The duration to send the command for, in milliseconds.
      */
     public void sendControlWhile(int roll, int pitch, int yaw, int throttle, long timeMs) {
@@ -1019,9 +1111,19 @@ public class Drone implements AutoCloseable {
      *   <li>Use short durations (1-2 seconds) for precise control</li>
      *   <li>Valid directions: "forward", "backward", "left", "right", "up", "down"</li>
      *   <li>Direction names are case-insensitive</li>
+     *   <li>For type safety, use {@link DroneSystem.DirectionConstants}</li>
      * </ul>
      * 
+     * <p><strong>Type-Safe Examples:</strong></p>
+     * <pre>{@code
+     * // Using direction constants for better code quality
+     * drone.go(DroneSystem.DirectionConstants.FORWARD, 30, 2);
+     * drone.go(DroneSystem.DirectionConstants.LEFT, 25, 3);
+     * drone.go(DroneSystem.DirectionConstants.UP, 30, 2);
+     * }</pre>
+     * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     *                  or use {@link DroneSystem.DirectionConstants} for type safety
      * @param power Power level from 0-100 (higher = faster movement)
      * @param duration Duration in seconds (how long to fly in that direction)
      */
@@ -1035,6 +1137,7 @@ public class Drone implements AutoCloseable {
      * <p>Simplified version of {@link #go(String, int, int)} with moderate power.</p>
      * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     *                  or use {@link DroneSystem.DirectionConstants} for type safety
      * @param duration Duration in seconds
      */
     public void go(String direction, int duration) {
@@ -1047,6 +1150,7 @@ public class Drone implements AutoCloseable {
      * <p>Simplified version of {@link #go(String, int, int)} with moderate power and short duration.</p>
      * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
+     *                  or use {@link DroneSystem.DirectionConstants} for type safety
      */
     public void go(String direction) {
         flightController.go(direction);
@@ -1071,8 +1175,18 @@ public class Drone implements AutoCloseable {
      * drone.moveForward(0.5, "m");     // Move 0.5 meters forward
      * </pre>
      * 
+     * <p><strong>For better type safety, use constants:</strong></p>
+     * <pre>
+     * drone.moveForward(100, DroneSystem.UnitConversion.UNIT_CENTIMETERS);    // Type-safe cm
+     * drone.moveForward(2, DroneSystem.UnitConversion.UNIT_FEET, 1.5);        // Type-safe feet
+     * drone.moveForward(0.5, DroneSystem.UnitConversion.UNIT_METERS);         // Type-safe meters
+     * </pre>
+     * 
      * @param distance The distance to move forward
-     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+     *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_METERS}
      * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      * 
      * @see #moveBackward(double, String, double)
@@ -1102,8 +1216,17 @@ public class Drone implements AutoCloseable {
      * 
      * <p>This method provides Python API compatibility for precise backward movement.</p>
      * 
+     * <p><strong>For better type safety, use constants:</strong></p>
+     * <pre>
+     * drone.moveBackward(50, DroneSystem.UnitConversion.UNIT_CENTIMETERS);
+     * drone.moveBackward(1, DroneSystem.UnitConversion.UNIT_METERS, 1.2);
+     * </pre>
+     * 
      * @param distance The distance to move backward
-     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+     *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_METERS}
      * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
      */
     public void moveBackward(double distance, String units, double speed) {
@@ -1129,8 +1252,17 @@ public class Drone implements AutoCloseable {
      * 
      * <p>This method provides Python API compatibility for precise leftward movement.</p>
      * 
+     * <p><strong>For better type safety, use constants:</strong></p>
+     * <pre>
+     * drone.moveLeft(30, DroneSystem.UnitConversion.UNIT_CENTIMETERS);
+     * drone.moveLeft(1.5, DroneSystem.UnitConversion.UNIT_FEET, 0.8);
+     * </pre>
+     * 
      * @param distance The distance to move left
-     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+     *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_METERS}
      * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
      */
     public void moveLeft(double distance, String units, double speed) {
@@ -1156,8 +1288,17 @@ public class Drone implements AutoCloseable {
      * 
      * <p>This method provides Python API compatibility for precise rightward movement.</p>
      * 
+     * <p><strong>For better type safety, use constants:</strong></p>
+     * <pre>
+     * drone.moveRight(40, DroneSystem.UnitConversion.UNIT_CENTIMETERS);
+     * drone.moveRight(2, DroneSystem.UnitConversion.UNIT_FEET, 1.1);
+     * </pre>
+     * 
      * @param distance The distance to move right
-     * @param units The unit: "cm" (default), "in", "ft", "m"
+     * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+     *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_METERS}
      * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
      */
     public void moveRight(double distance, String units, double speed) {
@@ -2700,17 +2841,20 @@ public class Drone implements AutoCloseable {
      */
     private double convertMetersToUnit(double meters, String unit) {
         switch (unit.toLowerCase()) {
-            case "m":
+            case DroneSystem.UnitConversion.UNIT_METERS:
                 return meters;
-            case "cm":
-                return meters * 100.0;
-            case "mm":
-                return meters * 1000.0;
-            case "in":
-                return meters * 39.3701;
+            case DroneSystem.UnitConversion.UNIT_CENTIMETERS:
+                return meters * DroneSystem.UnitConversion.METERS_TO_CENTIMETERS;
+            case DroneSystem.UnitConversion.UNIT_MILLIMETERS:
+                return meters * DroneSystem.UnitConversion.METERS_TO_MILLIMETERS;
+            case DroneSystem.UnitConversion.UNIT_INCHES:
+                return meters * DroneSystem.UnitConversion.METERS_TO_INCHES;
             default:
                 throw new IllegalArgumentException("Unsupported distance unit: " + unit + 
-                    ". Supported units: m, cm, mm, in");
+                    ". Supported units: " + DroneSystem.UnitConversion.UNIT_METERS + ", " + 
+                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " + 
+                    DroneSystem.UnitConversion.UNIT_MILLIMETERS + ", " + 
+                    DroneSystem.UnitConversion.UNIT_INCHES);
         }
     }
 
@@ -3058,12 +3202,12 @@ public class Drone implements AutoCloseable {
      * 
      * <h3>🌈 Common Colors:</h3>
      * <ul>
-     *   <li>Red: {@code setDroneLED(255, 0, 0)}</li>
-     *   <li>Green: {@code setDroneLED(0, 255, 0)}</li>
-     *   <li>Blue: {@code setDroneLED(0, 0, 255)}</li>
-     *   <li>Yellow: {@code setDroneLED(255, 255, 0)}</li>
-     *   <li>Purple: {@code setDroneLED(255, 0, 255)}</li>
-     *   <li>White: {@code setDroneLED(255, 255, 255)}</li>
+     *   <li>Red: {@code setDroneLED(DroneSystem.ColorConstants.RGB_MAX, 0, 0)}</li>
+     *   <li>Green: {@code setDroneLED(0, DroneSystem.ColorConstants.RGB_MAX, 0)}</li>
+     *   <li>Blue: {@code setDroneLED(0, 0, DroneSystem.ColorConstants.RGB_MAX)}</li>
+     *   <li>Yellow: {@code setDroneLED(DroneSystem.ColorConstants.RGB_MAX, DroneSystem.ColorConstants.RGB_MAX, 0)}</li>
+     *   <li>Purple: {@code setDroneLED(DroneSystem.ColorConstants.RGB_MAX, 0, DroneSystem.ColorConstants.RGB_MAX)}</li>
+     *   <li>White: {@code setDroneLED(DroneSystem.ColorConstants.RGB_MAX, DroneSystem.ColorConstants.RGB_MAX, DroneSystem.ColorConstants.RGB_MAX)}</li>
      * </ul>
      * 
      * @param red Red component (0-255)
@@ -3078,17 +3222,21 @@ public class Drone implements AutoCloseable {
      */
     public void setDroneLED(int red, int green, int blue, int brightness) {
         // Validate input parameters
-        if (red < 0 || red > 255) {
-            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
+        if (red < DroneSystem.ColorConstants.RGB_MIN || red > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Red must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + red);
         }
-        if (green < 0 || green > 255) {
-            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
+        if (green < DroneSystem.ColorConstants.RGB_MIN || green > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Green must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + green);
         }
-        if (blue < 0 || blue > 255) {
-            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
+        if (blue < DroneSystem.ColorConstants.RGB_MIN || blue > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Blue must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + blue);
         }
-        if (brightness < 0 || brightness > 255) {
-            throw new IllegalArgumentException("Brightness must be between 0 and 255, got: " + brightness);
+        if (brightness < DroneSystem.ColorConstants.RGB_MIN || brightness > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Brightness must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + brightness);
         }
 
         // Create color and send to drone
@@ -3102,7 +3250,7 @@ public class Drone implements AutoCloseable {
         
         // Small delay for command processing
         try {
-            Thread.sleep(5);
+            Thread.sleep(DroneSystem.CommunicationConstants.LED_COMMAND_DELAY_MS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -3122,7 +3270,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLED(int red, int green, int blue) {
-        setDroneLED(red, green, blue, 255);
+        setDroneLED(red, green, blue, DroneSystem.ColorConstants.RGB_MAX);
     }
 
     /**
@@ -3291,17 +3439,21 @@ public class Drone implements AutoCloseable {
      */
     public void setControllerLED(int red, int green, int blue, int brightness) {
         // Validate input parameters
-        if (red < 0 || red > 255) {
-            throw new IllegalArgumentException("Red must be between 0 and 255, got: " + red);
+        if (red < DroneSystem.ColorConstants.RGB_MIN || red > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Red must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + red);
         }
-        if (green < 0 || green > 255) {
-            throw new IllegalArgumentException("Green must be between 0 and 255, got: " + green);
+        if (green < DroneSystem.ColorConstants.RGB_MIN || green > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Green must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + green);
         }
-        if (blue < 0 || blue > 255) {
-            throw new IllegalArgumentException("Blue must be between 0 and 255, got: " + blue);
+        if (blue < DroneSystem.ColorConstants.RGB_MIN || blue > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Blue must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + blue);
         }
-        if (brightness < 0 || brightness > 255) {
-            throw new IllegalArgumentException("Brightness must be between 0 and 255, got: " + brightness);
+        if (brightness < DroneSystem.ColorConstants.RGB_MIN || brightness > DroneSystem.ColorConstants.RGB_MAX) {
+            throw new IllegalArgumentException("Brightness must be between " + DroneSystem.ColorConstants.RGB_MIN + 
+                " and " + DroneSystem.ColorConstants.RGB_MAX + ", got: " + brightness);
         }
 
         // Create color and send to controller
@@ -3315,7 +3467,7 @@ public class Drone implements AutoCloseable {
         
         // Small delay for command processing
         try {
-            Thread.sleep(5);
+            Thread.sleep(DroneSystem.CommunicationConstants.LED_COMMAND_DELAY_MS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -3333,7 +3485,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setControllerLED(int red, int green, int blue) {
-        setControllerLED(red, green, blue, 255);
+        setControllerLED(red, green, blue, DroneSystem.ColorConstants.RGB_MAX);
     }
 
     /**
@@ -3481,7 +3633,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDRed() {
-        setDroneLED(255, 0, 0);
+        setDroneLED(DroneSystem.ColorConstants.RGB_RED[0], 
+                   DroneSystem.ColorConstants.RGB_RED[1], 
+                   DroneSystem.ColorConstants.RGB_RED[2]);
     }
 
     /**
@@ -3490,7 +3644,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDGreen() {
-        setDroneLED(0, 255, 0);
+        setDroneLED(DroneSystem.ColorConstants.RGB_GREEN[0], 
+                   DroneSystem.ColorConstants.RGB_GREEN[1], 
+                   DroneSystem.ColorConstants.RGB_GREEN[2]);
     }
 
     /**
@@ -3499,7 +3655,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDBlue() {
-        setDroneLED(0, 0, 255);
+        setDroneLED(DroneSystem.ColorConstants.RGB_BLUE[0], 
+                   DroneSystem.ColorConstants.RGB_BLUE[1], 
+                   DroneSystem.ColorConstants.RGB_BLUE[2]);
     }
 
     /**
@@ -3508,7 +3666,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDYellow() {
-        setDroneLED(255, 255, 0);
+        setDroneLED(DroneSystem.ColorConstants.RGB_YELLOW[0], 
+                   DroneSystem.ColorConstants.RGB_YELLOW[1], 
+                   DroneSystem.ColorConstants.RGB_YELLOW[2]);
     }
 
     /**
@@ -3517,7 +3677,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDPurple() {
-        setDroneLED(255, 0, 255);
+        setDroneLED(DroneSystem.ColorConstants.RGB_PURPLE[0], 
+                   DroneSystem.ColorConstants.RGB_PURPLE[1], 
+                   DroneSystem.ColorConstants.RGB_PURPLE[2]);
     }
 
     /**
@@ -3526,7 +3688,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDWhite() {
-        setDroneLED(255, 255, 255);
+        setDroneLED(DroneSystem.ColorConstants.RGB_WHITE[0], 
+                   DroneSystem.ColorConstants.RGB_WHITE[1], 
+                   DroneSystem.ColorConstants.RGB_WHITE[2]);
     }
 
     /**
@@ -3535,7 +3699,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public void setDroneLEDOrange() {
-        setDroneLED(255, 165, 0);
+        setDroneLED(DroneSystem.ColorConstants.RGB_ORANGE[0], 
+                   DroneSystem.ColorConstants.RGB_ORANGE[1], 
+                   DroneSystem.ColorConstants.RGB_ORANGE[2]);
     }
 
     // ========================================

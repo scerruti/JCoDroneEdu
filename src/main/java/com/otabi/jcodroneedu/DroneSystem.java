@@ -995,4 +995,205 @@ public class DroneSystem
             return VALUE_MAP.get(value);
         }
     }
+
+    /**
+     * Unit conversion constants for distance measurements.
+     * Provides standard conversion factors between metric and imperial units.
+     */
+    public static class UnitConversion {
+        
+        // Distance conversion constants (from meters to target unit)
+        /** Conversion factor from meters to centimeters (1 meter = 100 centimeters) */
+        public static final double METERS_TO_CENTIMETERS = 100.0;
+        
+        /** Conversion factor from meters to millimeters (1 meter = 1000 millimeters) */
+        public static final double METERS_TO_MILLIMETERS = 1000.0;
+        
+        /** Conversion factor from meters to inches (1 meter = 39.3701 inches) */
+        public static final double METERS_TO_INCHES = 39.3701;
+        
+        /** Conversion factor from meters to feet (1 meter = 3.28084 feet) */
+        public static final double METERS_TO_FEET = 3.28084;
+
+        // Distance conversion constants (from target unit to meters)
+        /** Conversion factor from centimeters to meters (1 centimeter = 0.01 meters) */
+        public static final double CENTIMETERS_TO_METERS = 1.0 / METERS_TO_CENTIMETERS;
+        
+        /** Conversion factor from millimeters to meters (1 millimeter = 0.001 meters) */
+        public static final double MILLIMETERS_TO_METERS = 1.0 / METERS_TO_MILLIMETERS;
+        
+        /** Conversion factor from inches to meters (1 inch = 0.0254 meters) */
+        public static final double INCHES_TO_METERS = 1.0 / METERS_TO_INCHES;
+        
+        /** Conversion factor from feet to meters (1 foot = 0.3048 meters) */
+        public static final double FEET_TO_METERS = 1.0 / METERS_TO_FEET;
+
+        // Unit string constants for consistency
+        /** Standard unit string for meters */
+        public static final String UNIT_METERS = "m";
+        
+        /** Standard unit string for centimeters */
+        public static final String UNIT_CENTIMETERS = "cm";
+        
+        /** Standard unit string for millimeters */
+        public static final String UNIT_MILLIMETERS = "mm";
+        
+        /** Standard unit string for inches */
+        public static final String UNIT_INCHES = "in";
+        
+        /** Standard unit string for feet */
+        public static final String UNIT_FEET = "ft";
+    }
+
+    /**
+     * Flight control constants for drone operation limits and timing.
+     * Centralizes all magic numbers used in flight operations for maintainability and clarity.
+     */
+    public static class FlightControlConstants {
+        
+        // Control value limits (matching drone's expected range)
+        /** Minimum control value for pitch, roll, yaw, and throttle */
+        public static final int CONTROL_VALUE_MIN = -100;
+        
+        /** Maximum control value for pitch, roll, yaw, and throttle */
+        public static final int CONTROL_VALUE_MAX = 100;
+        
+        /** Neutral/zero control value (no movement) */
+        public static final int CONTROL_VALUE_NEUTRAL = 0;
+        
+        /** Stop/off control value (same as neutral, more intuitive for beginners) */
+        public static final int CONTROL_VALUE_STOP = CONTROL_VALUE_NEUTRAL;
+        
+        /** Off control value (same as neutral, clearest for stopping motors) */
+        public static final int CONTROL_VALUE_OFF = CONTROL_VALUE_NEUTRAL;
+        
+        // Speed levels for drone responsiveness
+        /** Minimum speed level setting */
+        public static final int SPEED_LEVEL_MIN = 1;
+        
+        /** Maximum speed level setting */
+        public static final int SPEED_LEVEL_MAX = 3;
+        
+        // Timing constants (milliseconds)
+        /** Timeout duration for takeoff and landing operations */
+        public static final long TAKEOFF_LANDING_TIMEOUT_MS = 4000;
+        
+        /** Polling interval for state checks during takeoff/landing */
+        public static final long POLLING_INTERVAL_MS = 10;
+        
+        /** Brief hover duration for reset move values operation */
+        public static final double RESET_HOVER_DURATION_SECONDS = 0.01;
+        
+        // Rate limiting
+        /** Maximum commands per second for control loop rate limiting */
+        public static final double COMMANDS_PER_SECOND = 50.0;
+        
+        // Duration conversion
+        /** Conversion factor from seconds to milliseconds */
+        public static final int MILLISECONDS_PER_SECOND = 1000;
+        
+        // Reset operation defaults
+        /** Default number of attempts for reset move values operation */
+        public static final int RESET_MOVE_VALUES_DEFAULT_ATTEMPTS = 3;
+    }
+
+    /**
+     * Communication and protocol constants for serial port and message handling.
+     * Centralizes timing, buffer sizes, and protocol magic numbers.
+     */
+    public static class CommunicationConstants {
+        
+        // Serial port timeouts
+        /** Timeout duration for serial port read operations */
+        public static final int SERIAL_TIMEOUT_MS = 100;
+        
+        // Buffer and payload limits
+        /** Maximum payload size for drone messages */
+        public static final int MAX_PAYLOAD_SIZE = 128;
+        
+        // Byte manipulation constants
+        /** Mask for converting signed byte to unsigned int (0xFF) */
+        public static final int BYTE_MASK = 0xFF;
+        
+        // Protocol magic bytes
+        /** First protocol start byte for message framing */
+        public static final byte PROTOCOL_START_BYTE_1 = 0x0A;
+        
+        /** Second protocol start byte for message framing */
+        public static final byte PROTOCOL_START_BYTE_2 = 0x55;
+        
+        // Command processing delays
+        /** Small delay for LED command processing */
+        public static final int LED_COMMAND_DELAY_MS = 5;
+    }
+
+    /**
+     * Color constants for RGB operations and display.
+     * Centralizes color value ranges and common RGB values.
+     */
+    public static class ColorConstants {
+        
+        // Standard RGB color component range
+        /** Minimum RGB color component value */
+        public static final int RGB_MIN = 0;
+        
+        /** Maximum RGB color component value */
+        public static final int RGB_MAX = 255;
+        
+        /** Mid-range RGB value for scaling operations */
+        public static final int RGB_MID_RANGE = 127;
+        
+        // Common RGB color values
+        /** RGB value for pure red */
+        public static final int[] RGB_RED = {255, 0, 0};
+        
+        /** RGB value for pure green */
+        public static final int[] RGB_GREEN = {0, 255, 0};
+        
+        /** RGB value for pure blue */
+        public static final int[] RGB_BLUE = {0, 0, 255};
+        
+        /** RGB value for white */
+        public static final int[] RGB_WHITE = {255, 255, 255};
+        
+        /** RGB value for black */
+        public static final int[] RGB_BLACK = {0, 0, 0};
+        
+        /** RGB value for yellow */
+        public static final int[] RGB_YELLOW = {255, 255, 0};
+        
+        /** RGB value for purple/magenta */
+        public static final int[] RGB_PURPLE = {255, 0, 255};
+        
+        /** RGB value for cyan */
+        public static final int[] RGB_CYAN = {0, 255, 255};
+        
+        /** RGB value for orange */
+        public static final int[] RGB_ORANGE = {255, 165, 0};
+    }
+
+    /**
+     * Direction string constants for consistent movement commands.
+     * These constants ensure type safety and consistency when using direction-based movement methods.
+     */
+    public static class DirectionConstants {
+        
+        /** Direction string for forward movement */
+        public static final String FORWARD = "forward";
+        
+        /** Direction string for backward movement */
+        public static final String BACKWARD = "backward";
+        
+        /** Direction string for leftward movement */
+        public static final String LEFT = "left";
+        
+        /** Direction string for rightward movement */
+        public static final String RIGHT = "right";
+        
+        /** Direction string for upward movement */
+        public static final String UP = "up";
+        
+        /** Direction string for downward movement */
+        public static final String DOWN = "down";
+    }
 }
