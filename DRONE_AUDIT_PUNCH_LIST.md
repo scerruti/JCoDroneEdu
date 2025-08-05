@@ -137,30 +137,46 @@ public double get_flow_x()                  // get_flow_x() (deprecated)
 public double get_flow_y()                  // get_flow_y() (deprecated)
 ```
 
-#### ✅ Pressure/Temperature Sensors (COMPLETED):
-```java
-// ✅ Now implemented in Java
-public double get_drone_temperature()          // get_drone_temperature()
-public double get_drone_temperature(String unit)  // get_drone_temperature(unit)
 public double get_pressure()                   // get_pressure()
-public double get_pressure(String unit)        // get_pressure(unit)
-public double[] get_position_data()            // get_position_data()
 public double getPositionX()                   // getPosX()
+```java
+// ✅ Now implemented in Java (camelCase API)
+public double getFlowVelocityX()        // get_flow_velocity_x() (preferred)
+public double getFlowVelocityY()        // get_flow_velocity_y() (preferred)
+public double getFlowVelocityX(String unit)  // get_flow_velocity_x(unit) (preferred)
+public double getFlowVelocityY(String unit)  // get_flow_velocity_y(unit) (preferred)
+public double[] getFlowData()             // get_flow_data() (preferred)
 public double getPositionY()                   // getPosY()
+@Deprecated public double get_flow_velocity_x() // deprecated
+@Deprecated public double get_flow_velocity_y() // deprecated
+@Deprecated public double get_flow_velocity_x(String unit) // deprecated
+@Deprecated public double get_flow_velocity_y(String unit) // deprecated
+@Deprecated public double[] get_flow_data() // deprecated
+public double getFlowX()                  // get_flow_x() (deprecated, use getFlowVelocityX())
+public double getFlowY()                  // get_flow_y() (deprecated, use getFlowVelocityY())
+```
 public double getPositionZ()                   // getPosZ()
 public double[] get_sensor_data()              // get_sensor_data()
 ```
 
-### 6. **Built-in Flight Patterns**
-**Status**: ✅ COMPLETED and ENHANCED (November 2024)
-**Python Methods**: `square()`, `triangle()`, `circle()`, `spiral()`, `sway()`
-**Implementation**: All Python patterns implemented in BasicPatternDrone, plus additional educational patterns
-**Educational Impact**: Students now have access to engaging flight patterns that demonstrate inheritance concepts
-```java
-// Java implementation matches Python API and adds more
-// Available in BasicPatternDrone class (demonstrates inheritance)
 BasicPatternDrone drone = new BasicPatternDrone();
+```java
+// ✅ Now implemented in Java (camelCase API)
+public double getDroneTemperature()          // get_drone_temperature() (preferred)
+public double getDroneTemperature(String unit)  // get_drone_temperature(unit) (preferred)
+public double getPressure()                   // get_pressure() (preferred)
+public double getPressure(String unit)        // get_pressure(unit) (preferred)
+public double[] getPositionData()            // get_position_data() (preferred)
+public double getPositionX()                   // getPosX()
+public double getPositionY()                   // getPosY()
+public double getPositionZ()                   // getPosZ()
 
+@Deprecated public double get_drone_temperature() // deprecated
+@Deprecated public double get_drone_temperature(String unit) // deprecated
+@Deprecated public double get_pressure() // deprecated
+@Deprecated public double get_pressure(String unit) // deprecated
+@Deprecated public double[] get_position_data() // deprecated
+```
 // Python-compatible patterns
 drone.square(60, 1, 1);              // speed, seconds, direction  
 drone.triangle(60, 1, 1);            // speed, seconds, direction
@@ -396,17 +412,18 @@ drone.keepDistance(10, 60); // Maintain distance from object
 ```
 
 ### 15. **Controller Screen/Display Methods**
-**Status**: ❌ MISSING (Advanced UI Features)
+**Status**: ✅ COMPLETED (Advanced UI Features)
 **Python Methods**: 20+ screen drawing methods
-**Impact**: No way to draw on controller screen for advanced projects
+**Java Methods**: Full controller display API (draw string, rectangle, line, point, circle, clear, invert, etc.)
+**Impact**: Full support for controller screen drawing and creative projects
 **Educational Need**: Advanced feature for creative projects and data display
-```python
-# Controller display - Java missing all (20+ methods)
-image = drone.controller_create_canvas()
-drone.controller_draw_string(60, 30, "Hello World!", image)
-drone.controller_draw_rectangle(0, 0, 40, 20, image)
-drone.controller_draw_canvas(image)
-drone.controller_clear_screen()
+```java
+// Controller display - Java now supports all major features
+drone.controller_draw_string(60, 30, "Hello World!");
+drone.controller_draw_rectangle(0, 0, 40, 20);
+drone.controller_draw_line(0, 0, 40, 20);
+drone.controller_draw_circle(20, 20, 10);
+drone.controller_clear_screen();
 ```
 
 ### 16. **Advanced Color Classification**
@@ -482,7 +499,7 @@ double z = drone.getPositionZ();                   // Z position
 | **Audio/Buzzer** | 5 | 0 | 5 | 100% | 100% |
 | **Color Sensing** | 8 | 0 | 8 | 100% | 100% |
 | **Controller Input** | 15+ | 0 | 15+ | 100% | 100% |
-| **Controller Display** | 20+ | 0 | 20+ | 100% | 100% |
+| **Controller Display** | 20+ | 20+ | 0 | 0% ✅ | 100% |
 | **Autonomous Flight** | 2 | 1 | 1 | 67% | 100% |
 | **Configuration** | 8 | 5 | 3 | 62% ⬆️ | 62% |
 
