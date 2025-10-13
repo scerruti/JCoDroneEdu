@@ -7,6 +7,17 @@ plugins {
     id("signing")
 }
 
+// ------------------------------------------------------------
+// Run Smoke Test - convenience task for the example SmokeTest
+// ------------------------------------------------------------
+tasks.register<JavaExec>("runSmokeTest") {
+    group = "verification"
+    description = "Runs the SmokeTest example to verify controller connection (no flight commands)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.SmokeTest")
+    // Pass args using: ./gradlew runSmokeTest --args='/dev/cu.usbserial-XXXX'
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 

@@ -264,6 +264,12 @@ public class Receiver {
         return pendingAcks.get(dataType);
     }
     public void onAckReceived(DataType ackType) {
+        // Defensive: ackType may be null if the incoming byte did not map to a known DataType
+        if (ackType == null) {
+            log.warn("Received an ACK for an unknown/invalid DataType (null). Ignoring.");
+            return;
+        }
+
         CompletableFuture<Void> future = pendingAcks.remove(ackType);
         if (future != null) {
             future.complete(null);

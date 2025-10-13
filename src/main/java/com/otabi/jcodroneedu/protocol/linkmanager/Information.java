@@ -38,7 +38,19 @@ public class Information implements Serializable
     public void unpack(ByteBuffer buffer) throws InvalidDataSizeException
     {
         modeUpdate = DroneSystem.ModeUpdate.fromValue(buffer.get());
-        modelNumber = DroneSystem.ModelNumber.fromValue(buffer.getInt());
+        int modelInt = buffer.getInt();
+        try {
+            modelNumber = DroneSystem.ModelNumber.fromValue(modelInt);
+        } catch (IllegalArgumentException e) {
+            // Unknown model number from device; set to NONE_ and continue parsing.
+            // This prevents a single unexpected device variant from aborting connection.
+            modelNumber = DroneSystem.ModelNumber.NONE_;
+        }
+
+        // Ensure version object exists before unpacking (tests may construct buffers directly)
+        if (version == null) {
+            version = new Version((short)0, (byte)0, (byte)0);
+        }
         version.unpack(buffer);
         year = buffer.getShort();
         month = buffer.get();
