@@ -23,6 +23,7 @@ How to run the smoke test
 From your IDE:
 - Run `com.otabi.jcodroneedu.examples.SmokeTest` as a Java application. Optionally pass a serial port as the first program argument (macOS example: `/dev/tty.usbserial-XXXX` or `/dev/cu.usbserial-XXXX`).
 
+
 From the command line (Gradle):
 
 ```bash
@@ -32,17 +33,34 @@ From the command line (Gradle):
 # Run SmokeTest via the Gradle task added to the build (runSmokeTest)
 ./gradlew runSmokeTest
 
-# If you need to pass a port name
+# If you need to pass a port name (macOS example)
 ./gradlew runSmokeTest --args='/dev/cu.usbserial-XXXX'
 ```
 
-Troubleshooting
----------------
-- If auto-detection fails, locate your serial device (macOS):
-  - `ls /dev/cu.*` or `ls /dev/tty.*` and look for a USB serial device.
-  - Pass that path as the first program argument.
-- If you see permission errors, ensure your macOS user has access to the serial device.
-- Check logs (Log4j output) in the console for helpful messages from `SerialPortManager` and `Receiver`.
+## macOS-specific permissions
+
+On newer macOS versions the first time you access a USB serial device you may need to grant Terminal (or your IDE) access to "Files and Folders" or "Full Disk Access" in System Settings → Privacy & Security. If you get permission denied errors, try the following:
+
+- Check the device list:
+  - `ls /dev/cu.*` and `ls /dev/tty.*`
+- Temporarily relax device permissions (use with caution):
+  - `sudo chmod 666 /dev/cu.usbserial-XXXX`
+- If the device driver is missing, install the appropriate driver (e.g., FTDI or Prolific) or use Homebrew casks where available.
+
+Note: macOS sometimes shows a different device name for USB serial adapters (look for `usbserial` or `usbmodem` patterns).
+
+## Troubleshooting and advanced checks
+
+- If auto-detection fails, run:
+  - `ls /dev/cu.*` or `ls /dev/tty.*` to locate possible serial devices.
+  - `ioreg -p IOUSB -l -w 0 | grep -i -E "usb|serial"` (advanced) to list USB devices and their properties.
+- Verify the device is not claimed by another program (e.g., `screen`, `minicom`, or an IDE serial monitor). Close other apps that might hold the port.
+- Check that your user has sufficient rights to open the device. On Linux you might need to add your user to `dialout`/`uucp` groups; on macOS use the `chmod` trick above or grant Terminal/IDE access in System Preferences.
+- Use `screen` to test connectivity (replace device path):
+  - `screen /dev/cu.usbserial-XXXX 115200` (Ctrl-A then `\` to exit)
+- Capture logs: set environment variable to enable debug logging for Log4j or pass `-Dorg.apache.logging.log4j.simplelog.StatusLogger.level=TRACE` to the JVM to increase logging verbosity.
+
+If you get a stacktrace from `SerialPortManager` or `Receiver` please paste the console output (include the first 50-100 lines) into an issue and I'll help interpret it.
 
 Next steps after smoke test
 --------------------------
