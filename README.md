@@ -120,3 +120,7 @@ examples, tests, and the public API. These constants live in `DroneSystem.Sensor
 
 Please use the constants above for any conversion rather than hard-coded divisors
 so the behavior stays consistent across the codebase.
+
+## Changelog
+
+See `CHANGELOG.md` for a human-readable history of notable changes and merged PRs.
