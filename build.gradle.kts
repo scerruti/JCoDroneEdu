@@ -70,6 +70,18 @@ tasks.register<JavaExec>("runMotionDump") {
     mainClass.set("com.otabi.jcodroneedu.examples.MotionDump")
 }
 
+// -----------------------------------------------------------------
+// Run MultiSensorTest - range, flow, temperature, and color sensors
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runMultiSensorTest") {
+    group = "verification"
+    description = "Runs the MultiSensorTest example to snapshot range, optical flow, temperature, and color sensors."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.MultiSensorTest")
+    // Forward stdin so interactive prompts (press Enter) work when run via Gradle
+    standardInput = System.`in`
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 

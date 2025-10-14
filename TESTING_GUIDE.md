@@ -141,6 +141,23 @@ The test suite is designed to run without hardware using the built-in `MockDrone
 ./gradlew test --tests com.otabi.jcodroneedu.examples.L0102FlightMovementsTest --info
 ```
 
+### Running sensor examples (non-flying)
+
+The repository includes small example utilities to exercise sensors without flying. These are safe to run and useful for hardware verification.
+
+MultiSensorTest - snapshots range, optical flow, temperature, and color sensors:
+
+```bash
+# Interactive (prompts you to press Enter per snapshot)
+./gradlew runMultiSensorTest
+
+# Provide a port or use --auto for continuous captures
+./gradlew runMultiSensorTest --args='/dev/cu.usbserial-XXXX --auto'
+```
+
+The example will request the relevant DataType messages and print sensor values to the console. Use it to validate sensor wiring, ranges, and basic telemetry before attempting any flight.
+
+
 Notes:
 - If you add new drone API methods, update the `MockDrone` implementation in `src/test/java/com/otabi/jcodroneedu/DroneTest.java` so tests can simulate them.
 - Test helper classes and example tests live under `src/test/java/com/otabi/jcodroneedu/examples/`.
