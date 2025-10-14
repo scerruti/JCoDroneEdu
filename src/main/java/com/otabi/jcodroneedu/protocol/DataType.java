@@ -45,6 +45,7 @@ public enum DataType {
     // --- Commands (Data sent from the base - no factory needed for parsing) ---
     Request((byte) 0x04, Request.class, null),
     Control((byte) 0x10, Quad8.class, null),
+    ControlPosition((byte) 0x10, com.otabi.jcodroneedu.protocol.control.Position.class, null),
     Command((byte) 0x11, Command.class, null),
     LightManual((byte) 0x20, LightManual.class, null),
     LightMode((byte) 0x21, LightMode.class, null),
