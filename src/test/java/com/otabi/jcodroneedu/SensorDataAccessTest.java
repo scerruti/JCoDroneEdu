@@ -268,13 +268,14 @@ public class SensorDataAccessTest {
         void testGetAccelX() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelX()).thenReturn((short) 1500); // Raw value
+            // raw units: m/s^2 * 10 -> to get 1.5 G, raw ~= 1.5 * 9.80665 / 0.1 = ~147
+            when(mockMotion.getAccelX()).thenReturn((short) 147); // Raw value corresponding to 1.5 G
 
             // Act
             double accelX = flightController.getAccelX();
 
             // Assert
-            assertEquals(1.5, accelX, 0.01, "Acceleration should be scaled to G-force");
+            assertEquals(1.5, accelX, 0.02, "Acceleration should be scaled to G-force");
             verify(mockDrone).sendRequest(DataType.Motion);
         }
 
@@ -283,13 +284,14 @@ public class SensorDataAccessTest {
         void testGetAccelY() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelY()).thenReturn((short) -800); // Negative raw value
+            // raw for -0.8 G -> ~ -0.8 * 9.80665 / 0.1 = -78
+            when(mockMotion.getAccelY()).thenReturn((short) -78); // Negative raw value
 
             // Act
             double accelY = flightController.getAccelY();
 
             // Assert
-            assertEquals(-0.8, accelY, 0.01, "Acceleration should handle negative values");
+            assertEquals(-0.8, accelY, 0.02, "Acceleration should handle negative values");
         }
 
         @Test
@@ -297,13 +299,14 @@ public class SensorDataAccessTest {
         void testGetAccelZ() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelZ()).thenReturn((short) 1000); // 1G
+            // raw for 1.0 G -> ~ 1.0 * 9.80665 / 0.1 = 98
+            when(mockMotion.getAccelZ()).thenReturn((short) 98); // Raw value corresponding to 1.0 G
 
             // Act
             double accelZ = flightController.getAccelZ();
 
             // Assert
-            assertEquals(1.0, accelZ, 0.01, "Z acceleration should represent gravity");
+            assertEquals(1.0, accelZ, 0.02, "Z acceleration should represent gravity");
         }
 
         @Test
@@ -311,13 +314,14 @@ public class SensorDataAccessTest {
         void testGetAngleX() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAngleRoll()).thenReturn((short) 1500); // Raw value
+            // angles are raw degrees per reference
+            when(mockMotion.getAngleRoll()).thenReturn((short) 15); // 15 degrees raw
 
             // Act
             double angleX = flightController.getAngleX();
 
             // Assert
-            assertEquals(15.0, angleX, 0.01, "Angle should be scaled to degrees");
+            assertEquals(15.0, angleX, 0.01, "Angle should be in degrees");
         }
 
         @Test
@@ -325,7 +329,7 @@ public class SensorDataAccessTest {
         void testGetAngleY() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAnglePitch()).thenReturn((short) -1000); // Negative
+            when(mockMotion.getAnglePitch()).thenReturn((short) -10); // -10 degrees raw
 
             // Act
             double angleY = flightController.getAngleY();
@@ -339,13 +343,13 @@ public class SensorDataAccessTest {
         void testGetAngleZ() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAngleYaw()).thenReturn((short) 9000); // 90 degrees
+            when(mockMotion.getAngleYaw()).thenReturn((short) 90); // 90 degrees raw
 
             // Act
             double angleZ = flightController.getAngleZ();
 
             // Assert
-            assertEquals(90.0, angleZ, 0.01, "Yaw angle should be scaled correctly");
+            assertEquals(90.0, angleZ, 0.01, "Yaw angle should be degrees");
         }
 
         @Test

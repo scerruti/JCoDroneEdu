@@ -1422,7 +1422,9 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelX() / 1000.0; // Scale factor
+            // Convert raw accel -> G using canonical sensor scale
+            double accelMs2 = motion.getAccelX() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("X acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1448,7 +1450,8 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelY() / 1000.0; // Scale factor
+            double accelMs2 = motion.getAccelY() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("Y acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1474,7 +1477,8 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelZ() / 1000.0; // Scale factor
+            double accelMs2 = motion.getAccelZ() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("Z acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1500,7 +1504,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleRoll() / 100.0; // Scale factor
+            double angleValue = motion.getAngleRoll() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("X angle (roll): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1526,7 +1530,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAnglePitch() / 100.0; // Scale factor
+            double angleValue = motion.getAnglePitch() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("Y angle (pitch): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1552,7 +1556,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleYaw() / 100.0; // Scale factor
+            double angleValue = motion.getAngleYaw() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("Z angle (yaw): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1566,13 +1570,18 @@ public class FlightController {
     // =============================================================================
 
     /**
-     * Gets accelerometer data as an array.
-     * 
-     * <p>Returns acceleration data for all three axes in a convenient array format.
-     * This is useful for AP CSA students learning about arrays and coordinate systems.</p>
-     * 
-     * @return int array containing [X, Y, Z] acceleration values (scaled from G-force * 1000)
-     * @apiNote Equivalent to Python's various accel methods, returns array for AP CSA compatibility
+    * Gets accelerometer data as an array.
+    * 
+    * <p>Returns the raw accelerometer values from the protocol for all three axes.
+    * The protocol encodes accelerometer samples as signed 16-bit integers where the
+    * raw unit equals m/s^2 * 10 (i.e., multiply raw by {@code DroneSystem.SensorScales.ACCEL_RAW_TO_MS2}
+    * to obtain m/s^2). This method is provided for AP CSA compatibility and educational
+    * examples that expect integer arrays. For human-friendly values, use {@link #getAccelX()},
+    * {@link #getAccelY()}, and {@link #getAccelZ()} which return acceleration in G (approx).
+    * </p>
+    *
+    * @return int array containing [X, Y, Z] raw accelerometer protocol values
+    * @apiNote Equivalent to Python's {@code drone.get_accel()} and returns raw protocol integers
      * @since 1.0
      * @educational This demonstrates array usage and coordinate systems
      */
@@ -1591,7 +1600,11 @@ public class FlightController {
                 motion.getAccelY(), 
                 motion.getAccelZ()
             };
-            log.debug("Acceleration array: [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2]);
+            // Also log scaled values (m/s^2) for easier debugging
+            double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            log.debug("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
             return accelArray;
         } else {
             log.warn("Motion data not available for acceleration array reading");

@@ -18,6 +18,58 @@ tasks.register<JavaExec>("runSmokeTest") {
     // Pass args using: ./gradlew runSmokeTest --args='/dev/cu.usbserial-XXXX'
 }
 
+// ------------------------------------------------------------
+// Run Conservative Flight - gated example (requires --allow-flight)
+// ------------------------------------------------------------
+tasks.register<JavaExec>("runConservativeFlight") {
+    group = "verification"
+    description = "Runs the ConservativeFlight example (requires --allow-flight to actually fly)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ConservativeFlight")
+    // Usage: ./gradlew runConservativeFlight --args='--allow-flight'
+}
+
+// ------------------------------------------------------------
+// Run Test Harness - interactive menu to exercise drone features
+// ------------------------------------------------------------
+tasks.register<JavaExec>("runTestHarness") {
+    group = "verification"
+    description = "Runs the interactive TestHarness example for manual testing."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.TestHarness")
+    // Forward stdin so Scanner(System.in) in the harness can read user input when run via Gradle
+    standardInput = System.`in`
+}
+
+// -----------------------------------------------------------------
+// Run Sensor Display GUI - Swing-based non-flying telemetry monitor
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runSensorDisplayGui") {
+    group = "verification"
+    description = "Runs the Swing-based SensorDisplay GUI (non-flying telemetry monitor)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.SensorDisplayGui")
+}
+
+// -----------------------------------------------------------------
+// Run AccelTest - simple CLI accelerometer monitor
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runAccelTest") {
+    group = "verification"
+    description = "Runs the command-line AccelTest (prints accelerometer and angle data)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.AccelTest")
+    // Forward stdin so interactive prompts (press Enter) work when run via Gradle
+    standardInput = System.`in`
+}
+
+tasks.register<JavaExec>("runMotionDump") {
+    group = "verification"
+    description = "Dumps raw Motion short values and scaled accel/angle for 5s."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.MotionDump")
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 
