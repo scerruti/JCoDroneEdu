@@ -2718,6 +2718,65 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Calculates accurate altitude from barometric pressure using the standard barometric formula.
+     * 
+     * <p>This method provides a more accurate altitude calculation than the drone's built-in
+     * altitude reading, which may have calibration offsets of +100 to +150 meters.
+     * The calculation uses the international standard atmosphere formula:
+     * <pre>h = 44330 * (1 - (P/P₀)^0.1903)</pre>
+     * where P is measured pressure and P₀ is sea-level pressure (101325 Pa).</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Physics Learning:</strong> Understand barometric altitude calculation</li>
+     *   <li><strong>Math Application:</strong> Real-world exponential functions</li>
+     *   <li><strong>Sensor Calibration:</strong> Compare calculated vs sensor-reported values</li>
+     *   <li><strong>Data Science:</strong> Error analysis and calibration techniques</li>
+     * </ul>
+     * 
+     * <p><strong>Note:</strong> For best accuracy:
+     * <ul>
+     *   <li>Use current local sea-level pressure if available (from weather station)</li>
+     *   <li>Default uses standard atmosphere (101325 Pa / 1013.25 hPa)</li>
+     *   <li>Accuracy decreases with altitude and distance from calibration point</li>
+     * </ul>
+     * 
+     * @return Calculated altitude in meters above sea level, or 0.0 if no pressure data available
+     * @see #getPressure()
+     * @since 1.0
+     * @educational
+     */
+    public double getCalculatedAltitude() {
+        return getCalculatedAltitude(101325.0);
+    }
+
+    /**
+     * Calculates altitude from barometric pressure using a specified sea-level pressure.
+     * 
+     * <p>This allows for more accurate altitude calculations when the current local
+     * sea-level pressure is known (from local weather reports or nearby weather stations).
+     * Uses the international standard atmosphere formula.</p>
+     * 
+     * @param seaLevelPressure The current sea-level pressure in Pascals (Pa).
+     *                         Standard atmosphere is 101325 Pa (1013.25 hPa).
+     *                         Get local value from weather reports for best accuracy.
+     * @return Calculated altitude in meters above sea level, or 0.0 if no pressure data available
+     * @see #getPressure()
+     * @since 1.0
+     * @educational
+     */
+    public double getCalculatedAltitude(double seaLevelPressure) {
+        double pressure = getPressure();
+        if (pressure == 0.0) {
+            return 0.0;
+        }
+        
+        // International standard atmosphere formula
+        // h = 44330 * (1 - (P/P₀)^0.1903)
+        return 44330.0 * (1.0 - Math.pow(pressure / seaLevelPressure, 0.1903));
+    }
+
+    /**
      * Gets the drone's internal temperature in Celsius.
      * 
      * <p>Returns the temperature reading from the drone's barometric pressure sensor.
