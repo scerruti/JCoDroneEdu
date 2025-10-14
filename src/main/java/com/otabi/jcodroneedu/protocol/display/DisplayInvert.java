@@ -66,13 +66,7 @@ public class DisplayInvert implements Serializable {
         buffer.putShort(height);
     }
 
-    @Override
-    public byte[] toArray() {
-        ByteBuffer buffer = ByteBuffer.allocate(getSize());
-        buffer.order(java.nio.ByteOrder.LITTLE_ENDIAN);
-        pack(buffer);
-        return buffer.array();
-    }
+    // Note: toArray() inherited from Serializable interface (handles LITTLE_ENDIAN)
 
     @Override
     public void unpack(ByteBuffer buffer) throws InvalidDataSizeException {
