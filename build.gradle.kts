@@ -63,6 +63,26 @@ tasks.register<JavaExec>("runSensorDisplayGui") {
 }
 
 // -----------------------------------------------------------------
+// Run Buzzer Test - tests drone and controller buzzer functionality
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runBuzzerTest") {
+    group = "verification"
+    description = "Tests drone and controller buzzers with notes and frequencies."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.BuzzerTest")
+}
+
+// -----------------------------------------------------------------
+// Run Single Note Test - plays one note repeatedly for audio testing
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runSingleNoteTest") {
+    group = "verification"
+    description = "Plays a single note (G4) repeatedly to test buzzer audio."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.SingleNoteTest")
+}
+
+// -----------------------------------------------------------------
 // Run AccelTest - simple CLI accelerometer monitor
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runAccelTest") {
