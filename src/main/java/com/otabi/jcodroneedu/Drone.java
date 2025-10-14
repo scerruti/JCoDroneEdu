@@ -2720,18 +2720,21 @@ public class Drone implements AutoCloseable {
     /**
      * Gets the drone's internal temperature in Celsius.
      * 
-     * <p>Returns the temperature reading from the drone's internal sensor.
-     * This data is useful for environmental monitoring and thermal analysis projects.</p>
+     * <p>Returns the temperature reading from the drone's barometric pressure sensor.
+     * <strong>Note:</strong> This reports the sensor chip temperature, which typically
+     * reads 10-15°C cooler than ambient air temperature due to thermal characteristics
+     * of the sensor die. For accurate ambient temperature readings, consider applying
+     * a calibration offset based on your environment.</p>
      * 
      * <h3>🎯 Educational Usage:</h3>
      * <ul>
-     *   <li><strong>Environmental Science:</strong> Temperature monitoring</li>
+     *   <li><strong>Sensor Calibration:</strong> Learn about sensor accuracy and offset correction</li>
      *   <li><strong>Data Collection:</strong> Multi-sensor environmental data</li>
      *   <li><strong>Physics Learning:</strong> Heat transfer and thermal properties</li>
-     *   <li><strong>Weather Projects:</strong> Temperature trend analysis</li>
+     *   <li><strong>Weather Projects:</strong> Temperature trend analysis (with calibration)</li>
      * </ul>
      * 
-     * @return Temperature in Celsius, or 0.0 if no data available
+     * @return Temperature in Celsius (sensor die temperature), or 0.0 if no data available
      * @apiNote Equivalent to Python's {@code drone.get_drone_temperature("C")}
      * @since 1.0
      * @educational
@@ -2739,7 +2742,7 @@ public class Drone implements AutoCloseable {
     /**
      * Gets the current temperature value from the drone in Celsius.
      *
-     * @return Temperature in Celsius
+     * @return Temperature in Celsius (sensor die temperature)
      * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
      * @since 1.0
      * @educational
