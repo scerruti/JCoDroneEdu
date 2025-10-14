@@ -3531,6 +3531,7 @@ public class Drone implements AutoCloseable {
         }
 
         // Create color and send to drone
+        // Note: Python uses BodyHold mode with brightness as interval
         Color color = createColor(red, green, blue);
         LightDefault lightDefault = new LightDefault(
             com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyHold, 

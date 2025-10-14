@@ -1,4 +1,4 @@
-package com.otabi.jcodroneedu.examples;
+package com.otabi.jcodroneedu.examples.tests;
 
 import com.otabi.jcodroneedu.Drone;
 // DroneNotFoundException not used; handle generic exceptions instead
@@ -150,8 +150,8 @@ public class TestHarness {
                         if (proceed.equals("CONFIRM")) {
                             System.out.println("Proceeding with conservative flight...");
                             try {
-                                // Reuse conservative pattern from examples
-                                com.otabi.jcodroneedu.examples.ConservativeFlight.runShortFlight(drone);
+                                // Reuse conservative pattern from tests
+                                ConservativeFlight.runShortFlight(drone);
                                 System.out.println("Conservative flight completed.");
                             } catch (Exception e) {
                                 System.out.println("Flight failed: " + e.getMessage());

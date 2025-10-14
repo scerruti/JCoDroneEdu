@@ -14,7 +14,7 @@ tasks.register<JavaExec>("runSmokeTest") {
     group = "verification"
     description = "Runs the SmokeTest example to verify controller connection (no flight commands)."
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.otabi.jcodroneedu.examples.SmokeTest")
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.SmokeTest")
     // Pass args using: ./gradlew runSmokeTest --args='/dev/cu.usbserial-XXXX'
 }
 
@@ -25,9 +25,20 @@ tasks.register<JavaExec>("runConservativeFlight") {
     group = "verification"
     description = "Runs the ConservativeFlight example (requires --allow-flight to actually fly)."
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.otabi.jcodroneedu.examples.ConservativeFlight")
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.ConservativeFlight")
     // Usage: ./gradlew runConservativeFlight --args='--allow-flight'
 }
+
+// ------------------------------------------------------------
+// Run Quick LED Test - exercises drone and controller LEDs
+// ------------------------------------------------------------
+tasks.register<JavaExec>("runQuickLEDTest") {
+    group = "verification"
+    description = "Runs the QuickLEDTest example to verify drone and controller LED functionality."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.QuickLEDTest")
+}
+
 
 // ------------------------------------------------------------
 // Run Test Harness - interactive menu to exercise drone features
@@ -36,7 +47,7 @@ tasks.register<JavaExec>("runTestHarness") {
     group = "verification"
     description = "Runs the interactive TestHarness example for manual testing."
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.otabi.jcodroneedu.examples.TestHarness")
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.TestHarness")
     // Forward stdin so Scanner(System.in) in the harness can read user input when run via Gradle
     standardInput = System.`in`
 }
@@ -58,7 +69,7 @@ tasks.register<JavaExec>("runAccelTest") {
     group = "verification"
     description = "Runs the command-line AccelTest (prints accelerometer and angle data)."
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.otabi.jcodroneedu.examples.AccelTest")
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.AccelTest")
     // Forward stdin so interactive prompts (press Enter) work when run via Gradle
     standardInput = System.`in`
 }
@@ -77,7 +88,7 @@ tasks.register<JavaExec>("runMultiSensorTest") {
     group = "verification"
     description = "Runs the MultiSensorTest example to snapshot range, optical flow, temperature, and color sensors."
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.otabi.jcodroneedu.examples.MultiSensorTest")
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.MultiSensorTest")
     // Forward stdin so interactive prompts (press Enter) work when run via Gradle
     standardInput = System.`in`
 }
