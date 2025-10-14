@@ -195,7 +195,7 @@ public class SensorDisplayGui {
 
             // Altitude
             Altitude alt = status.getAltitude();
-            final String altText = alt != null ? String.format("<html>Alt: %.2fm<br>Press: %.1fhPa<br>Temp: %.1f°C</html>", alt.getAltitude(), alt.getPressure(), alt.getTemperature()) : "N/A";
+            final String altText = alt != null ? String.format("<html>Alt: %.2fm<br>Press: %.1fhPa<br>Temp: %.1f°C</html>", alt.getAltitude(), alt.getPressure() / 100.0, alt.getTemperature()) : "N/A";
 
             // Position (values are already in meters as floats)
             Position pos = status.getPosition();

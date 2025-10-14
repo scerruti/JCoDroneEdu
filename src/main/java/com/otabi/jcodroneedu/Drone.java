@@ -2658,9 +2658,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     /**
-     * Gets the current pressure value from the drone.
+     * Gets the current pressure value from the drone in Pascals.
      *
-     * @return Pressure in hPa
+     * @return Pressure in Pascals (Pa)
      * @apiNote Equivalent to Python's {@code drone.get_pressure()}
      * @since 1.0
      * @educational

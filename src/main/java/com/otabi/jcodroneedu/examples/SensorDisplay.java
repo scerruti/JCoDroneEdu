@@ -81,7 +81,7 @@ public class SensorDisplay {
             // Pressure / Temperature
             System.out.println("--- Environment ---");
             try {
-                System.out.printf("Pressure: %.3f kPa\n", status.getAltitude().getPressure());
+                System.out.printf("Pressure: %.3f kPa\n", status.getAltitude().getPressure() / 1000.0);
             } catch (Exception e) {
                 System.out.println("Pressure: N/A");
             }
