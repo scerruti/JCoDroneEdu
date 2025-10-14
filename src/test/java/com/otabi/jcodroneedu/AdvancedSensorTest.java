@@ -38,7 +38,7 @@ class AdvancedSensorTest {
         void testGetPositionDataNoData() {
             runWithDrone(drone -> {
                 // When no position data is set
-                int[] result = drone.getPositionData();
+                float[] result = drone.getPositionData();
 
                 // Should return null
                 assertNull(result, "getPositionData() should return null when no data is available");
@@ -49,19 +49,19 @@ class AdvancedSensorTest {
         @DisplayName("getPositionData() should return position array when data available")
         void testGetPositionDataWithData() {
             runWithDrone(drone -> {
-                // Create mock position data (in millimeters)
-                Position position = new Position(1000, 500, 200); // 1m forward, 0.5m left, 0.2m up
+                // Create mock position data (in meters as floats)
+                Position position = new Position(1.0f, 0.5f, 0.2f); // 1m forward, 0.5m left, 0.2m up
                 droneStatus.setPosition(position);
 
                 // Test the method
-                int[] result = drone.getPositionData();
+                float[] result = drone.getPositionData();
 
                 // Should return position array
                 assertNotNull(result, "getPositionData() should not return null when data is available");
                 assertEquals(3, result.length, "Should return array with 3 position values");
-                assertEquals(1000, result[0], "X position should match");
-                assertEquals(500, result[1], "Y position should match");
-                assertEquals(200, result[2], "Z position should match");
+                assertEquals(1.0, result[0], 0.01, "X position should match");
+                assertEquals(0.5, result[1], 0.01, "Y position should match");
+                assertEquals(0.2, result[2], 0.01, "Z position should match");
             });
         }
 
@@ -69,14 +69,14 @@ class AdvancedSensorTest {
         @DisplayName("Individual position getters should return correct values")
         void testIndividualPositionGetters() {
             runWithDrone(drone -> {
-                // Create test position data
-                Position position = new Position(-500, 1500, -300);
+                // Create test position data (in meters)
+                Position position = new Position(-0.5f, 1.5f, -0.3f);
                 droneStatus.setPosition(position);
 
                 // Test individual getters
-                assertEquals(-500, drone.getPositionX(), "getPositionX() should return correct value");
-                assertEquals(1500, drone.getPositionY(), "getPositionY() should return correct value");
-                assertEquals(-300, drone.getPositionZ(), "getPositionZ() should return correct value");
+                assertEquals(-0.5, drone.getPositionX(), 0.01, "getPositionX() should return correct value");
+                assertEquals(1.5, drone.getPositionY(), 0.01, "getPositionY() should return correct value");
+                assertEquals(-0.3, drone.getPositionZ(), 0.01, "getPositionZ() should return correct value");
             });
         }
 
@@ -259,8 +259,8 @@ class AdvancedSensorTest {
         @DisplayName("getSensorData() should return comprehensive sensor array when data available")
         void testGetSensorDataWithData() {
             runWithDrone(drone -> {
-                // Set up mock sensor data
-                Position position = new Position(1000, 500, 200);
+                // Set up mock sensor data (position in meters)
+                Position position = new Position(1.0f, 0.5f, 0.2f);
                 Altitude altitude = new Altitude(25, 900, 101325, 400);
                 droneStatus.setPosition(position);
                 droneStatus.setAltitude(altitude);
@@ -273,10 +273,10 @@ class AdvancedSensorTest {
                     // If we get data, test the structure
                     assertEquals(21, result.length, "Should return array with 21 sensor values");
 
-                    // Test position data (indices 0-2)
-                    assertEquals(1000.0, result[0], 0.001, "Position X should match");
-                    assertEquals(500.0, result[1], 0.001, "Position Y should match");
-                    assertEquals(200.0, result[2], 0.001, "Position Z should match");
+                    // Test position data (indices 0-2) - now in meters
+                    assertEquals(1.0, result[0], 0.001, "Position X should match");
+                    assertEquals(0.5, result[1], 0.001, "Position Y should match");
+                    assertEquals(0.2, result[2], 0.001, "Position Z should match");
 
                     // Test environmental data (indices 19-20)
                     assertEquals(101325.0, result[19], 0.001, "Pressure should match");

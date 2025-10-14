@@ -2587,52 +2587,52 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] getPositionData() {
+    public float[] getPositionData() {
         var position = droneStatus.getPosition();
         if (position == null) {
             return null;
         }
-        return new int[]{position.getX(), position.getY(), position.getZ()};
+        return new float[]{position.getX(), position.getY(), position.getZ()};
     }
 
     /**
-     * Gets the X position (forward/backward) in millimeters.
+     * Gets the X position (forward/backward) in meters.
      * 
      * <p>Returns the drone's forward/backward position relative to takeoff point.
      * Positive values indicate forward movement, negative values indicate backward.</p>
      * 
-     * @return X position in millimeters, or 0 if no data available
+     * @return X position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionX() {
+    public float getPositionX() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getX() : 0;
     }
 
     /**
-     * Gets the Y position (left/right) in millimeters.
+     * Gets the Y position (left/right) in meters.
      * 
      * <p>Returns the drone's left/right position relative to takeoff point.
      * Positive values indicate leftward movement, negative values indicate rightward.</p>
      * 
-     * @return Y position in millimeters, or 0 if no data available
+     * @return Y position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionY() {
+    public float getPositionY() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getY() : 0;
     }
 
     /**
-     * Gets the Z position (up/down) in millimeters.
+     * Gets the Z position (up/down) in meters.
      * 
      * <p>Returns the drone's up/down position relative to takeoff point.
      * Positive values indicate upward movement, negative values indicate downward.</p>
      * 
-     * @return Z position in millimeters, or 0 if no data available
+     * @return Z position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionZ() {
+    public float getPositionZ() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getZ() : 0;
     }
@@ -2841,8 +2841,8 @@ public class Drone implements AutoCloseable {
         
         double[] sensorData = new double[21];
         
-        // Position data (0-2)
-        int[] position = getPositionData();
+        // Position data (0-2) - now in meters as floats
+        float[] position = getPositionData();
         if (position != null) {
             sensorData[0] = position[0]; // x
             sensorData[1] = position[1]; // y  

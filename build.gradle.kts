@@ -115,6 +115,16 @@ tasks.register<JavaExec>("runExampleMenu") {
     standardInput = System.`in`
 }
 
+// -----------------------------------------------------------------
+// Run L0103 Turning Navigation - test position-based movement
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runL0103TurningNavigation") {
+    group = "application"
+    description = "Runs the L0103 Turning Navigation example to test position-based movement commands."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.L0103TurningNavigation")
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 
