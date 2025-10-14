@@ -105,3 +105,18 @@ For questions about the project timeline or educational applications, please con
 ---
 
 **Note**: This README will be updated regularly as development progresses. Star this repository to stay informed about release announcements and major milestones.
+
+## Sensor scaling (canonical)
+
+The project uses a canonical set of conversions for motion sensor data to avoid ambiguity across
+examples, tests, and the public API. These constants live in `DroneSystem.SensorScales`.
+
+- Accelerometer raw units: encoded as signed 16-bit integers where
+	raw = m/s^2 * 10. Convert to m/s^2 by multiplying raw * 0.1 (or use
+	`DroneSystem.SensorScales.ACCEL_RAW_TO_MS2`).
+- To convert to G (approx): divide m/s^2 by 9.80665 (or use
+	`DroneSystem.SensorScales.ACCEL_RAW_TO_G`).
+- Angles: raw protocol values are already in degrees — no centi-degree scaling.
+
+Please use the constants above for any conversion rather than hard-coded divisors
+so the behavior stays consistent across the codebase.

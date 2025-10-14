@@ -1046,6 +1046,21 @@ public class DroneSystem
     }
 
     /**
+     * Sensor scale constants to convert raw sensor integers to SI units.
+     * Keep these centralized to avoid divergent magic numbers across the codebase.
+     */
+    public static class SensorScales {
+        /** Raw accelerometer units: m/s^2 * 10 (i.e. raw / 10.0 -> m/s^2) */
+        public static final double ACCEL_RAW_TO_MS2 = 0.1; // multiply raw by 0.1 to get m/s^2
+
+        /** Raw accelerometer to G units (g) */
+        public static final double ACCEL_RAW_TO_G = ACCEL_RAW_TO_MS2 / 9.80665;
+
+        /** Raw angle units: raw is degrees (no additional scaling) */
+        public static final double ANGLE_RAW_TO_DEG = 1.0; // raw value already in degrees per reference
+    }
+
+    /**
      * Flight control constants for drone operation limits and timing.
      * Centralizes all magic numbers used in flight operations for maintainability and clarity.
      */
