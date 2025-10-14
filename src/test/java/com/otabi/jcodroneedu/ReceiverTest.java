@@ -6,9 +6,10 @@ import com.otabi.jcodroneedu.protocol.Header;
 import com.otabi.jcodroneedu.protocol.Serializable;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
 import com.otabi.jcodroneedu.receiver.Receiver;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,68 +23,50 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReceiverTest {
 
-    private Drone drone;
     private Receiver receiver;
     private DroneStatus droneStatus;
-
-    @BeforeEach
-    void setUp() {
-        // Create a new Drone instance before each test. This also creates fresh
-        // instances of the Receiver and DroneStatus, ensuring test isolation.
-        drone = new Drone();
-        receiver = drone.getReceiver(); // Assuming a getter exists on Drone
-        droneStatus = drone.getDroneStatus();
-    }
 
     @Test
     @DisplayName("Should correctly parse a valid State message")
     void shouldCorrectlyParseValidStateMessage() {
-        // --- 1. Arrange ---
-        // Create a complete, valid State object using the full constructor.
-        // This is the state we expect the drone to be in.
-        State expectedState = new State(
-                DroneSystem.ModeSystem.RUNNING,
-                DroneSystem.ModeFlight.FLIGHT,
-                DroneSystem.ModeControlFlight.ATTITUDE,
-                DroneSystem.ModeMovement.HOVERING,
-                DroneSystem.Headless.NORMAL_MODE,
-                (byte) 2, // Control Speed
-                DroneSystem.SensorOrientation.NORMAL,
-                (byte) 85  // Battery
-        );
+        // Use try-with-resources to create and close Drone per test
+        try (Drone drone = new Drone()) {
+            receiver = drone.getReceiver();
+            droneStatus = drone.getDroneStatus();
 
-        // Create a valid header for this message.
-        Header header = new Header(
-                DataType.State,
-                expectedState.getSize(),
-                DeviceType.Drone,
-                DeviceType.Base
-        );
+            // --- 1. Arrange ---
+            State expectedState = new State(
+                    DroneSystem.ModeSystem.RUNNING,
+                    DroneSystem.ModeFlight.FLIGHT,
+                    DroneSystem.ModeControlFlight.ATTITUDE,
+                    DroneSystem.ModeMovement.HOVERING,
+                    DroneSystem.Headless.NORMAL_MODE,
+                    (byte) 2, // Control Speed
+                    DroneSystem.SensorOrientation.NORMAL,
+                    (byte) 85  // Battery
+            );
 
-        // Manually construct the full, valid byte stream.
-        byte[] messageBytes = buildTestPacket(header, expectedState);
+            Header header = new Header(
+                    DataType.State,
+                    expectedState.getSize(),
+                    DeviceType.Drone,
+                    DeviceType.Base
+            );
 
-        // --- 2. Act ---
-        // Feed the byte stream to the receiver, one byte at a time.
-        for (byte b : messageBytes) {
-            receiver.call(b);
+            byte[] messageBytes = buildTestPacket(header, expectedState);
+
+            // --- 2. Act ---
+            for (byte b : messageBytes) {
+                receiver.call(b);
+            }
+
+            // --- 3. Assert ---
+            State actualState = droneStatus.getState();
+
+            assertNotNull(actualState, "State object should not be null after parsing.");
+            assertEquals(expectedState.getBattery(), actualState.getBattery(), "Battery level should match.");
+            assertTrue(actualState.isFlight(), "State should report as being in flight.");
         }
-
-        // --- 3. Assert ---
-        // After the last byte, the receiver should have parsed the message
-        // and updated the DroneStatus object.
-        State actualState = droneStatus.getState();
-
-        assertNotNull(actualState, "State object should not be null after parsing.");
-        assertEquals(expectedState.getBattery(), actualState.getBattery(), "Battery level should match.");
-
-        // These assertions assume that getters for these fields exist or will be added to the State class.
-        // assertEquals(expectedState.getModeSystem(), actualState.getModeSystem(), "System mode should match.");
-        // assertEquals(expectedState.getModeFlight(), actualState.getModeFlight(), "Flight mode should match.");
-        // assertEquals(expectedState.getControlSpeed(), actualState.getControlSpeed(), "Control speed should match.");
-
-        // We can also use the boolean helper methods for checks
-        assertTrue(actualState.isFlight(), "State should report as being in flight.");
     }
 
     /**
@@ -116,9 +99,127 @@ class ReceiverTest {
         return buffer.array();
     }
 
-    // TODO: Add more tests for other scenarios:
-    // - Test with a bad CRC to ensure the message is rejected.
-    // - Test with a malformed packet (e.g., wrong start bytes) to ensure it's ignored.
-    // - Test messages with no payload.
-    // - Test other message types like Attitude, Information, etc.
+    // The following tests cover additional receiver scenarios:
+    // - Bad CRC (message rejected)
+    // - Malformed start sequence (ignored)
+    // - ACK handling (completes expected future)
+    // - Zero-length payload messages (handled correctly)
+
+    @Test
+    @DisplayName("Should reject message with bad CRC")
+    void shouldRejectBadCrc() {
+        try (Drone drone = new Drone()) {
+            receiver = drone.getReceiver();
+            droneStatus = drone.getDroneStatus();
+
+            State s = new State(
+                    DroneSystem.ModeSystem.RUNNING,
+                    DroneSystem.ModeFlight.FLIGHT,
+                    DroneSystem.ModeControlFlight.ATTITUDE,
+                    DroneSystem.ModeMovement.HOVERING,
+                    DroneSystem.Headless.NORMAL_MODE,
+                    (byte)2,
+                    DroneSystem.SensorOrientation.NORMAL,
+                    (byte)50
+            );
+            Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
+            byte[] pkt = buildTestPacket(h, s);
+
+            // Corrupt one byte in payload to break CRC
+            pkt[pkt.length - 3] ^= 0xFF;
+
+            // Feed and ensure receiver does not set state
+            for (byte b : pkt) receiver.call(b);
+            assertNull(droneStatus.getState(), "State should be null after bad CRC");
+        }
+    }
+
+    @Test
+    @DisplayName("Should ignore malformed start sequence")
+    void shouldIgnoreMalformedStart() {
+        try (Drone drone = new Drone()) {
+            receiver = drone.getReceiver();
+            droneStatus = drone.getDroneStatus();
+
+            State s = new State(
+                    DroneSystem.ModeSystem.RUNNING,
+                    DroneSystem.ModeFlight.FLIGHT,
+                    DroneSystem.ModeControlFlight.ATTITUDE,
+                    DroneSystem.ModeMovement.HOVERING,
+                    DroneSystem.Headless.NORMAL_MODE,
+                    (byte)2,
+                    DroneSystem.SensorOrientation.NORMAL,
+                    (byte)50
+            );
+            Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
+            byte[] pkt = buildTestPacket(h, s);
+
+            // Change the start bytes to be invalid
+            pkt[0] = 0x00; pkt[1] = 0x00;
+
+            for (byte b : pkt) receiver.call(b);
+            assertNull(droneStatus.getState(), "Malformed start should result in no parsed state");
+        }
+    }
+
+    @Test
+    @DisplayName("Should process ACK messages and complete future")
+    void shouldProcessAck() throws Exception {
+        try (Drone drone = new Drone()) {
+            receiver = drone.getReceiver();
+            droneStatus = drone.getDroneStatus();
+
+            // Arrange: expect an ack for DataType.State
+            receiver.expectAck(DataType.State);
+            CompletableFuture<Void> f = receiver.getAckFuture(DataType.State);
+            assertNotNull(f);
+
+            // Build an Ack payload containing the DataType.State byte
+            Header h = new Header(DataType.Ack, (byte)1, DeviceType.Drone, DeviceType.Base);
+            // Ack payload is a single byte with the DataType value
+            byte[] headerArray = h.toArray();
+            byte[] payload = new byte[]{DataType.State.value()};
+
+            int crc = CRC16.calc(headerArray, 0);
+            crc = CRC16.calc(payload, crc);
+
+            ByteBuffer buf = ByteBuffer.allocate(2 + headerArray.length + payload.length + 2).order(ByteOrder.LITTLE_ENDIAN);
+            buf.put((byte)0x0A); buf.put((byte)0x55);
+            buf.put(headerArray);
+            buf.put(payload);
+            buf.putShort((short)crc);
+
+            byte[] pkt = buf.array();
+            for (byte b : pkt) receiver.call(b);
+
+            // Wait a little for future to complete
+            f.get(250, TimeUnit.MILLISECONDS);
+            assertTrue(f.isDone(), "ACK future should be completed after receiving ack");
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle zero-length payload messages (END only)")
+    void shouldHandleZeroLengthPayload() {
+        try (Drone drone = new Drone()) {
+            receiver = drone.getReceiver();
+            droneStatus = drone.getDroneStatus();
+
+            Header h = new Header(DataType.Information, (byte)0, DeviceType.Drone, DeviceType.Base);
+            byte[] headerArray = h.toArray();
+            int crc = CRC16.calc(headerArray, 0);
+
+            ByteBuffer buf = ByteBuffer.allocate(2 + headerArray.length + 0 + 2).order(ByteOrder.LITTLE_ENDIAN);
+            buf.put((byte)0x0A); buf.put((byte)0x55);
+            buf.put(headerArray);
+            buf.putShort((short)crc);
+
+            byte[] pkt = buf.array();
+            for (byte b : pkt) receiver.call(b);
+
+            // No exception should have been thrown and code should continue
+            assertTrue(true);
+        }
+    }
 }
+

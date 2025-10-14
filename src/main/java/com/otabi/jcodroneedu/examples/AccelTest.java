@@ -160,8 +160,7 @@ public class AccelTest {
             }
         }
 
-        Drone drone = new Drone();
-        try {
+        try (Drone drone = new Drone()) {
             try {
                 if (port != null) {
                     System.out.println("Connecting to port: " + port);
@@ -241,14 +240,8 @@ public class AccelTest {
             }
 
         } catch (Exception e) {
-            System.err.println("Unexpected error: " + e.getMessage());
+            System.err.println("Error in AccelTest: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            try {
-                if (drone != null) drone.disconnect();
-            } catch (Exception ignore) {
-            }
-            System.out.println("Disconnected.");
         }
     }
 

@@ -17,22 +17,25 @@ public class DetectWallTest {
 
     @Test
     void detectsWallWhenObstacleWithinDistance() {
-        TestDrone drone = new TestDrone();
-        drone.setMockFrontRange(20);
-        assertTrue(drone.detectWall(30), "Should detect wall when obstacle is within distance");
+        try (TestDrone drone = new TestDrone()) {
+            drone.setMockFrontRange(20);
+            assertTrue(drone.detectWall(30), "Should detect wall when obstacle is within distance");
+        }
     }
 
     @Test
     void doesNotDetectWallWhenNoObstacleWithinDistance() {
-        TestDrone drone = new TestDrone();
-        drone.setMockFrontRange(50);
-        assertFalse(drone.detectWall(30), "Should not detect wall when obstacle is farther than distance");
+        try (TestDrone drone = new TestDrone()) {
+            drone.setMockFrontRange(50);
+            assertFalse(drone.detectWall(30), "Should not detect wall when obstacle is farther than distance");
+        }
     }
 
     @Test
     void detectsWallAtExactDistance() {
-        TestDrone drone = new TestDrone();
-        drone.setMockFrontRange(30);
-        assertFalse(drone.detectWall(30), "Should not detect wall when obstacle is exactly at distance (uses <)");
+        try (TestDrone drone = new TestDrone()) {
+            drone.setMockFrontRange(30);
+            assertFalse(drone.detectWall(30), "Should not detect wall when obstacle is exactly at distance (uses <)");
+        }
     }
 }

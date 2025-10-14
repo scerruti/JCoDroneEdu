@@ -393,12 +393,12 @@ public class DroneSystem
         }
 
         /**
-         * Returns the ModeUpdate enum constant associated with the given integer value.
+         * Returns the ModeUpdate enum constant associated with the given byte value.
          *
-         * @param value The integer value to look up.
+         * @param value The byte value to look up.
          * @return The corresponding ModeUpdate enum constant, or null if not found.
          */
-        public static ModeUpdate fromValue(int value) {
+        public static ModeUpdate fromValue(byte value) {
             return VALUE_MAP.get(value);
         }
     }
@@ -715,6 +715,24 @@ public class DroneSystem
         public int getValue()
         {
             return value;
+        }
+    }
+
+    /**
+     * Helper to convert a `CardColorIndex` value into a human readable name.
+     * This is useful for examples and tests to map the card color byte to a string.
+     */
+    public static String cardColorIndexToName(int idx) {
+        switch (idx) {
+            case 0x01: return "WHITE";
+            case 0x02: return "RED";
+            case 0x03: return "YELLOW";
+            case 0x04: return "GREEN";
+            case 0x05: return "CYAN";
+            case 0x06: return "BLUE";
+            case 0x07: return "MAGENTA";
+            case 0x08: return "BLACK";
+            default:   return "UNKNOWN";
         }
     }
 

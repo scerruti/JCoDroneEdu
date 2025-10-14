@@ -256,6 +256,14 @@ public class Receiver {
                 return;
             }
 
+            // Defensive: if header length is zero, there is no payload to parse.
+            // Some message types (e.g., END-only Information frames) may legitimately
+            // carry no payload; attempting to parse will throw BufferUnderflowException.
+            if (header.getLength() == 0) {
+                log.debug("Zero-length payload for {} — skipping parse.", header.getDataType());
+                return;
+            }
+
             // Use the factory to create an empty instance of the correct message type.
             Serializable message = header.getDataType().createInstance();
             if (message == null) {

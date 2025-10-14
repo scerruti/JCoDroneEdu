@@ -1,7 +1,6 @@
 package com.otabi.jcodroneedu;
 
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,14 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Color Sensor Tests")
 class ColorSensorTest {
 
-    private Drone drone;
     private DroneStatus droneStatus;
 
-    @BeforeEach
-    void setUp() throws DroneNotFoundException {
-        // Create drone instance for testing
-        drone = new Drone(false);
-        droneStatus = drone.getDroneStatus();
+    @FunctionalInterface
+    private interface ThrowingConsumer<T> { void accept(T t) throws Exception; }
+
+    private void runWithDrone(ThrowingConsumer<Drone> consumer) {
+        try (Drone drone = new Drone(false)) {
+            droneStatus = drone.getDroneStatus();
+            consumer.accept(drone);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Nested
@@ -32,11 +35,13 @@ class ColorSensorTest {
         @Test
         @DisplayName("get_color_data() should return null when no color data available")
         void testGetColorDataNoData() {
-            // When no color data is set
-            int[][] result = drone.getColorData();
-            
-            // Should return null
-            assertNull(result, "getColorData() should return null when no data is available");
+            runWithDrone(drone -> {
+                // When no color data is set
+                int[][] result = drone.getColorData();
+
+                // Should return null
+                assertNull(result, "getColorData() should return null when no data is available");
+            });
         }
 
         @Test
@@ -50,16 +55,17 @@ class ColorSensorTest {
             byte[] colors = {2, 4}; // RED front, GREEN back
             byte card = 1;
             
+        runWithDrone(drone -> {
             CardColor cardColor = new CardColor(hsvl, colors, card);
             droneStatus.setCardColor(cardColor);
-            
+
             // Test the method
             int[][] result = drone.getColorData();
-            
+
             // Should return converted HSV data
             assertNotNull(result, "getColorData() should not return null when data is available");
             assertEquals(2, result.length, "Should return data for 2 sensors");
-            
+
             // Check front sensor data (index 0)
             assertArrayEquals(new int[]{120, 255, 200, 128}, result[0], 
                 "Front sensor HSV data should match");
@@ -67,6 +73,7 @@ class ColorSensorTest {
             // Check back sensor data (index 1)
             assertArrayEquals(new int[]{240, 128, 100, 64}, result[1], 
                 "Back sensor HSV data should match");
+        });
         }
 
         @Test
@@ -80,16 +87,18 @@ class ColorSensorTest {
             byte[] colors = {1, 3};
             byte card = 2;
             
+        runWithDrone(drone -> {
             CardColor cardColor = new CardColor(hsvl, colors, card);
             droneStatus.setCardColor(cardColor);
-            
+
             // Test the method
             int[][] result = drone.getColorData();
-            
+
             // Should properly convert unsigned bytes to positive integers
             assertNotNull(result);
             assertEquals(200, result[0][0], "Should convert 200 (unsigned byte) correctly");
             assertEquals(255, result[0][1], "Should convert 255 (unsigned byte) correctly");
+        });
         }
     }
 
@@ -100,11 +109,13 @@ class ColorSensorTest {
         @Test
         @DisplayName("get_colors() should return null when no color data available")
         void testGetColorsNoData() {
-            // When no color data is set
-            int[] result = drone.getColors();
-            
-            // Should return null
-            assertNull(result, "getColors() should return null when no data is available");
+            runWithDrone(drone -> {
+                // When no color data is set
+                int[] result = drone.getColors();
+
+                // Should return null
+                assertNull(result, "getColors() should return null when no data is available");
+            });
         }
 
         @Test
@@ -115,17 +126,19 @@ class ColorSensorTest {
             byte[] colors = {2, 4}; // RED front, GREEN back
             byte card = 1;
             
-            CardColor cardColor = new CardColor(hsvl, colors, card);
-            droneStatus.setCardColor(cardColor);
-            
-            // Test the method
-            int[] result = drone.getColors();
-            
-            // Should return color values
-            assertNotNull(result, "get_colors() should not return null when data is available");
-            assertEquals(2, result.length, "Should return 2 color values");
-            assertEquals(2, result[0], "Front sensor should detect RED (2)");
-            assertEquals(4, result[1], "Back sensor should detect GREEN (4)");
+            runWithDrone(drone -> {
+                CardColor cardColor = new CardColor(hsvl, colors, card);
+                droneStatus.setCardColor(cardColor);
+
+                // Test the method
+                int[] result = drone.getColors();
+
+                // Should return color values
+                assertNotNull(result, "get_colors() should not return null when data is available");
+                assertEquals(2, result.length, "Should return 2 color values");
+                assertEquals(2, result[0], "Front sensor should detect RED (2)");
+                assertEquals(4, result[1], "Back sensor should detect GREEN (4)");
+            });
         }
 
         @Test
@@ -136,16 +149,18 @@ class ColorSensorTest {
             byte[] colors = {(byte) 200, (byte) 255}; // High values that would be negative as signed
             byte card = 1;
             
-            CardColor cardColor = new CardColor(hsvl, colors, card);
-            droneStatus.setCardColor(cardColor);
-            
-            // Test the method
-            int[] result = drone.getColors();
-            
-            // Should properly convert unsigned bytes
-            assertNotNull(result);
-            assertEquals(200, result[0], "Should convert 200 correctly");
-            assertEquals(255, result[1], "Should convert 255 correctly");
+            runWithDrone(drone -> {
+                CardColor cardColor = new CardColor(hsvl, colors, card);
+                droneStatus.setCardColor(cardColor);
+
+                // Test the method
+                int[] result = drone.getColors();
+
+                // Should properly convert unsigned bytes
+                assertNotNull(result);
+                assertEquals(200, result[0], "Should convert 200 correctly");
+                assertEquals(255, result[1], "Should convert 255 correctly");
+            });
         }
     }
 
@@ -156,11 +171,13 @@ class ColorSensorTest {
         @Test
         @DisplayName("get_front_color() should return -1 when no data available")
         void testGetFrontColorNoData() {
-            // When no color data is set
-            int result = drone.getFrontColor();
-            
-            // Should return -1
-            assertEquals(-1, result, "get_front_color() should return -1 when no data is available");
+            runWithDrone(drone -> {
+                // When no color data is set
+                int result = drone.getFrontColor();
+
+                // Should return -1
+                assertEquals(-1, result, "get_front_color() should return -1 when no data is available");
+            });
         }
 
         @Test
@@ -171,24 +188,28 @@ class ColorSensorTest {
             byte[] colors = {6, 2}; // BLUE front, RED back
             byte card = 1;
             
-            CardColor cardColor = new CardColor(hsvl, colors, card);
-            droneStatus.setCardColor(cardColor);
-            
-            // Test the method
-            int result = drone.getFrontColor();
-            
-            // Should return front color
-            assertEquals(6, result, "get_front_color() should return BLUE (6)");
+            runWithDrone(drone -> {
+                CardColor cardColor = new CardColor(hsvl, colors, card);
+                droneStatus.setCardColor(cardColor);
+
+                // Test the method
+                int result = drone.getFrontColor();
+
+                // Should return front color
+                assertEquals(6, result, "get_front_color() should return BLUE (6)");
+            });
         }
 
         @Test
         @DisplayName("get_back_color() should return -1 when no data available")
         void testGetBackColorNoData() {
-            // When no color data is set
-            int result = drone.getBackColor();
-            
-            // Should return -1
-            assertEquals(-1, result, "get_back_color() should return -1 when no data is available");
+            runWithDrone(drone -> {
+                // When no color data is set
+                int result = drone.getBackColor();
+
+                // Should return -1
+                assertEquals(-1, result, "get_back_color() should return -1 when no data is available");
+            });
         }
 
         @Test
@@ -199,14 +220,16 @@ class ColorSensorTest {
             byte[] colors = {6, 2}; // BLUE front, RED back
             byte card = 1;
             
-            CardColor cardColor = new CardColor(hsvl, colors, card);
-            droneStatus.setCardColor(cardColor);
-            
-            // Test the method
-            int result = drone.getBackColor();
-            
-            // Should return back color
-            assertEquals(2, result, "get_back_color() should return RED (2)");
+            runWithDrone(drone -> {
+                CardColor cardColor = new CardColor(hsvl, colors, card);
+                droneStatus.setCardColor(cardColor);
+
+                // Test the method
+                int result = drone.getBackColor();
+
+                // Should return back color
+                assertEquals(2, result, "get_back_color() should return RED (2)");
+            });
         }
     }
 
@@ -241,15 +264,17 @@ class ColorSensorTest {
                 byte[] colors = {(byte) colorIndex.getValue(), 0};
                 byte card = 1;
                 
-                CardColor cardColor = new CardColor(hsvl, colors, card);
-                droneStatus.setCardColor(cardColor);
-                
-                // Test the method
-                int result = drone.getFrontColor();
-                
-                // Should return the correct color value
-                assertEquals(colorIndex.getValue(), result, 
-                    "Color sensor should correctly detect " + colorIndex.name());
+                runWithDrone(drone -> {
+                    CardColor cardColor = new CardColor(hsvl, colors, card);
+                    droneStatus.setCardColor(cardColor);
+
+                    // Test the method
+                    int result = drone.getFrontColor();
+
+                    // Should return the correct color value
+                    assertEquals(colorIndex.getValue(), result,
+                        "Color sensor should correctly detect " + colorIndex.name());
+                });
             }
         }
     }
@@ -261,15 +286,17 @@ class ColorSensorTest {
         @Test
         @DisplayName("Methods should match Python API naming conventions")
         void testPythonAPICompatibility() {
-            // These methods should exist and follow Python naming (snake_case)
-            assertDoesNotThrow(() -> drone.getColorData(),
-                "get_color_data() should exist for Python compatibility");
-            assertDoesNotThrow(() -> drone.getColors(),
-                "get_colors() should exist for Python compatibility");
-            assertDoesNotThrow(() -> drone.getFrontColor(),
-                "get_front_color() should exist for Python compatibility");
-            assertDoesNotThrow(() -> drone.getBackColor(),
-                "get_back_color() should exist for Python compatibility");
+            runWithDrone(drone -> {
+                // These methods should exist and follow Python naming (snake_case)
+                assertDoesNotThrow(() -> drone.getColorData(),
+                    "get_color_data() should exist for Python compatibility");
+                assertDoesNotThrow(() -> drone.getColors(),
+                    "get_colors() should exist for Python compatibility");
+                assertDoesNotThrow(() -> drone.getFrontColor(),
+                    "get_front_color() should exist for Python compatibility");
+                assertDoesNotThrow(() -> drone.getBackColor(),
+                    "get_back_color() should exist for Python compatibility");
+            });
         }
 
         @Test
@@ -284,20 +311,22 @@ class ColorSensorTest {
                 {(byte) 50, (byte) 100, (byte) 250, (byte) 25}
             };
             byte[] colors = {3, 7}; // YELLOW, MAGENTA
-            CardColor cardColor = new CardColor(hsvl, colors, (byte) 1);
-            droneStatus.setCardColor(cardColor);
-            
-            // Test return types
-            int[][] colorData = drone.getColorData();
-            assertNotNull(colorData);
-            assertTrue(colorData[0] instanceof int[], "HSV data should be int arrays for educational use");
-            
-            int[] colors_result = drone.getColors();
-            assertNotNull(colors_result);
-            assertTrue(colors_result instanceof int[], "Color values should be int array for educational use");
-            
-            int frontColor = drone.getFrontColor();
-            assertTrue(frontColor >= -1, "Individual color should be int value for educational use");
+            runWithDrone(drone -> {
+                CardColor cardColor = new CardColor(hsvl, colors, (byte) 1);
+                droneStatus.setCardColor(cardColor);
+
+                // Test return types
+                int[][] colorData = drone.getColorData();
+                assertNotNull(colorData);
+                assertTrue(colorData[0] instanceof int[], "HSV data should be int arrays for educational use");
+
+                int[] colors_result = drone.getColors();
+                assertNotNull(colors_result);
+                assertTrue(colors_result instanceof int[], "Color values should be int array for educational use");
+
+                int frontColor = drone.getFrontColor();
+                assertTrue(frontColor >= -1, "Individual color should be int value for educational use");
+            });
         }
     }
 }
