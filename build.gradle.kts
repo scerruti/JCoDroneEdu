@@ -83,6 +83,16 @@ tasks.register<JavaExec>("runSingleNoteTest") {
 }
 
 // -----------------------------------------------------------------
+// Run Melody Player - plays musical melodies on the buzzer
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runMelodyPlayer") {
+    group = "verification"
+    description = "Plays musical melodies using the drone buzzer."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.MelodyPlayer")
+}
+
+// -----------------------------------------------------------------
 // Run AccelTest - simple CLI accelerometer monitor
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runAccelTest") {
