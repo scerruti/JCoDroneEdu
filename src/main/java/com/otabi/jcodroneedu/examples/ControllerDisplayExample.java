@@ -30,7 +30,11 @@ public class ControllerDisplayExample {
         try (Drone drone = new Drone()) {
             System.out.println("=== CoDrone EDU Controller Display Demo ===\n");
             
-            // Note: Display commands work without pairing - they only affect the controller
+            // Connect to the controller
+            System.out.println("Connecting to drone controller...");
+            drone.pair();
+            System.out.println("Connected!\n");
+            
             System.out.println("1. Clearing the display screen...");
             drone.controller_clear_screen();
             sleep(1000);

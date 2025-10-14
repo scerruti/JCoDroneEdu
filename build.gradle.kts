@@ -93,6 +93,28 @@ tasks.register<JavaExec>("runMultiSensorTest") {
     standardInput = System.`in`
 }
 
+// -----------------------------------------------------------------
+// Run ControllerDisplayExample - demonstrates controller display functionality
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runControllerDisplayExample") {
+    group = "verification"
+    description = "Runs the ControllerDisplayExample to demonstrate controller display drawing capabilities."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ControllerDisplayExample")
+}
+
+// -----------------------------------------------------------------
+// Run Example Menu - interactive menu to launch any example
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runExampleMenu") {
+    group = "application"
+    description = "Runs the interactive Example Menu to launch any available example program."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ExampleMenu")
+    // Forward stdin so the menu can read user input
+    standardInput = System.`in`
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 
