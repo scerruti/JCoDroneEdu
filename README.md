@@ -124,3 +124,11 @@ so the behavior stays consistent across the codebase.
 ## Changelog
 
 See `CHANGELOG.md` for a human-readable history of notable changes and merged PRs.
+
+## Running tests
+
+Run the unit test suite locally before connecting hardware. See `TESTING_GUIDE.md` for details.
+
+```bash
+./gradlew test
+```
