@@ -107,6 +107,9 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
     testImplementation("net.bytebuddy:byte-buddy:1.15.10")
 
+        // Silence logging during tests: provide a no-op SLF4J binding and test-specific log4j2 config
+        testImplementation("org.slf4j:slf4j-nop:2.0.9")
+
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.23.1")
     
     // Smile ML library for KNN and plotting

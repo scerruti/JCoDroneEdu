@@ -226,8 +226,9 @@ public class Receiver {
             } else {
                 String rhex = String.format("%04X", crc16received & 0xFFFF);
                 String chex = String.format("%04X", crc16calculated & 0xFFFF);
-                log.error("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
-                        header.getDataType(), rhex, chex);
+        // CRC mismatches are expected in tests that mutate packets; make this debug to avoid noisy test output
+        log.debug("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
+            header.getDataType(), rhex, chex);
                 return false;
             }
         }
