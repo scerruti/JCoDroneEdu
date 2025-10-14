@@ -72,6 +72,44 @@ public class AccelTest {
             return Math.sqrt(s / (v.size() - 1));
         }
 
+        /**
+         * Circular mean of angles expressed in degrees (handles wraparound).
+         */
+        static double circularMeanDeg(List<Double> v) {
+            if (v.isEmpty()) return Double.NaN;
+            double sumSin = 0.0;
+            double sumCos = 0.0;
+            for (double a : v) {
+                double rad = Math.toRadians(a);
+                sumSin += Math.sin(rad);
+                sumCos += Math.cos(rad);
+            }
+            double meanRad = Math.atan2(sumSin, sumCos);
+            double meanDeg = Math.toDegrees(meanRad);
+            // normalize to [0,360)
+            if (meanDeg < 0) meanDeg += 360.0;
+            return meanDeg;
+        }
+
+        /**
+         * Circular standard deviation in degrees.
+         * Uses: std = sqrt(-2 * ln(R)) where R is resultant length.
+         */
+        static double circularStddevDeg(List<Double> v) {
+            if (v.size() < 2) return Double.NaN;
+            double sumSin = 0.0;
+            double sumCos = 0.0;
+            for (double a : v) {
+                double rad = Math.toRadians(a);
+                sumSin += Math.sin(rad);
+                sumCos += Math.cos(rad);
+            }
+            double R = Math.hypot(sumCos, sumSin) / v.size();
+            if (R <= 0) return Double.NaN;
+            double stdRad = Math.sqrt(Math.max(0.0, -2.0 * Math.log(R)));
+            return Math.toDegrees(stdRad);
+        }
+
         void print(String label) {
             System.out.printf(Locale.US, "\n=== %s ===\n", label);
             // Compute means/stddevs in G units, convert to m/s^2 for human-readable output
@@ -93,7 +131,14 @@ public class AccelTest {
             System.out.printf(Locale.US, "Accel Z mean=%.3f sd=%.3f m/s^2 (%.3f g)%n", meanAz, sdAz, meanAzG);
             System.out.printf(Locale.US, "Angle R mean=%.2f sd=%.2f deg%n", mean(r), stddev(r));
             System.out.printf(Locale.US, "Angle P mean=%.2f sd=%.2f deg%n", mean(p), stddev(p));
-            System.out.printf(Locale.US, "Angle Y mean=%.2f sd=%.2f deg%n", mean(y), stddev(y));
+            // Yaw is a compass heading: use circular statistics
+            double meanYaw = circularMeanDeg(y);
+            double sdYaw = circularStddevDeg(y);
+            if (Double.isFinite(meanYaw)) {
+                System.out.printf(Locale.US, "Angle Y mean=%.2f sd=%.2f deg (circular)%n", meanYaw, sdYaw);
+            } else {
+                System.out.printf(Locale.US, "Angle Y mean=%.2f sd=%.2f deg%n", mean(y), stddev(y));
+            }
 
             // Magnitude check (G)
             double magG = Math.sqrt(meanAxG * meanAxG + meanAyG * meanAyG + meanAzG * meanAzG);
@@ -136,18 +181,19 @@ public class AccelTest {
             Stats baseline = captureWindow(drone, "Baseline (5s) - drone on the ground, stationary", 5);
             baseline.print("Baseline");
 
-        String[] positions = new String[]{
-            "Right side down (right face on table)",
-            "Left side down (left face on table)",
-            "Front down (nose down)",
-            "Back down (tail down)",
-            "Top down (upside-down)",
-            "Bottom down (upright)",
-            // Diagonal positions to improve classifier coverage
-            "Front-right down (nose+right)",
-            "Back-right down (tail+right)",
-            "Back-left down (tail+left)"
-        };
+            // Orientation positions (roll/pitch oriented)
+            String[] positions = new String[]{
+                "Right side down (right face on table)",
+                "Left side down (left face on table)",
+                "Front down (nose down)",
+                "Back down (tail down)",
+                "Top down (upside-down)",
+                "Bottom down (upright)",
+                // Diagonal positions to improve classifier coverage
+                "Front-right down (nose+right)",
+                "Back-right down (tail+right)",
+                "Back-left down (tail+left)"
+            };
 
             Stats[] results = new Stats[positions.length];
 
@@ -162,9 +208,36 @@ public class AccelTest {
                 if (!auto) in.readLine();
             }
 
-            System.out.println("All captures complete. Summary:");
+            System.out.println("All orientation captures complete. Summary:");
             for (int i = 0; i < positions.length; i++) {
                 results[i].print("Summary - " + positions[i]);
+            }
+
+            // Compass-direction (yaw) captures: explicitly request yaw headings
+            System.out.println();
+            System.out.println("Now we'll capture compass-direction (yaw) samples.");
+            System.out.println("For each heading, point the drone's nose to the indicated compass bearing (relative to you or a compass) and press Enter.");
+            String[] headings = new String[]{"North (0°)", "East (90°)", "South (180°)", "West (270°)"};
+            Stats[] yawResults = new Stats[headings.length];
+            for (int i = 0; i < headings.length; i++) {
+                System.out.println();
+                System.out.println("Heading " + (i + 1) + "/" + headings.length + ": " + headings[i]);
+                System.out.println("Point the drone's nose to the heading and press Enter to start a 5s capture...");
+                if (!auto) in.readLine();
+                yawResults[i] = captureWindow(drone, "Yaw Capture: " + headings[i], 5);
+                // Print yaw summary using circular stats
+                double meanYaw = Stats.circularMeanDeg(yawResults[i].y);
+                double sdYaw = Stats.circularStddevDeg(yawResults[i].y);
+                System.out.printf(Locale.US, "Yaw mean=%.2f deg sd=%.2f deg (circular) for %s%n", meanYaw, sdYaw, headings[i]);
+                System.out.println("Capture complete. Return drone to neutral and press Enter when ready for next heading.");
+                if (!auto) in.readLine();
+            }
+
+            System.out.println("All compass-direction captures complete. Summary:");
+            for (int i = 0; i < headings.length; i++) {
+                double meanYaw = Stats.circularMeanDeg(yawResults[i].y);
+                double sdYaw = Stats.circularStddevDeg(yawResults[i].y);
+                System.out.printf(Locale.US, "Summary - %s: mean yaw=%.2f deg sd=%.2f deg%n", headings[i], meanYaw, sdYaw);
             }
 
         } catch (Exception e) {
