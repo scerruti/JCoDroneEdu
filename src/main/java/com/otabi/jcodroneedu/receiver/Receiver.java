@@ -12,6 +12,8 @@ import com.otabi.jcodroneedu.protocol.dronestatus.Flow;
 import com.otabi.jcodroneedu.protocol.dronestatus.RawFlow;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 import com.otabi.jcodroneedu.protocol.linkmanager.Information;
+import com.otabi.jcodroneedu.protocol.controllerinput.Joystick;
+import com.otabi.jcodroneedu.protocol.controllerinput.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +37,7 @@ public class Receiver {
     private static final long RECEIVE_TIMEOUT_MS = 600;
 
     // References to other drone components
+    private final Drone drone;
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
 
@@ -57,6 +60,7 @@ public class Receiver {
     private int crc16calculated;
 
     public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager) {
+        this.drone = drone;
         this.droneStatus = droneStatus;
         this.linkManager = linkManager;
         this.dataBuffer = ByteBuffer.allocate(MAX_PAYLOAD_SIZE);
@@ -80,6 +84,8 @@ public class Receiver {
         handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
         handlers.put(DataType.RawFlow, msg -> droneStatus.setRawFlow((RawFlow) msg));
         handlers.put(DataType.Flow, msg -> droneStatus.setFlow((Flow) msg));
+        handlers.put(DataType.Joystick, msg -> drone.updateJoystickData((Joystick) msg));
+        handlers.put(DataType.Button, msg -> drone.updateButtonData((Button) msg));
         // ... add handlers for all other message types here ...
     }
 

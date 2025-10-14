@@ -93,6 +93,26 @@ tasks.register<JavaExec>("runMelodyPlayer") {
 }
 
 // -----------------------------------------------------------------
+// Run Controller Input GUI - interactive controller testing
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runControllerInputGui") {
+    group = "verification"
+    description = "Interactive GUI for testing controller joysticks and buttons."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ControllerInputGui")
+}
+
+// -----------------------------------------------------------------
+// Run Controller Input Debug - console debug for controller
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runControllerInputDebug") {
+    group = "verification"
+    description = "Debug tool to see raw controller input data."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ControllerInputDebug")
+}
+
+// -----------------------------------------------------------------
 // Run AccelTest - simple CLI accelerometer monitor
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runAccelTest") {

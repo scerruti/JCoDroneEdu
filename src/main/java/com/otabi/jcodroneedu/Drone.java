@@ -4805,11 +4805,14 @@ public class Drone implements AutoCloseable {
             int currentButtons = (Integer) buttonData[1];
             String eventName = (String) buttonData[2];
             
-            // Check if the specific button flag is set and the event is Press or Down
+            // Button is pressed if:
+            // 1. The button flag bit is set in currentButtons, AND
+            // 2. The event is Press or Down (actively pressed/held)
+            // This prevents false positives from Up events where the flag might linger
             boolean buttonFlagSet = (currentButtons & buttonFlag) != 0;
-            boolean validEvent = "Press".equals(eventName) || "Down".equals(eventName);
+            boolean activeEvent = "Press".equals(eventName) || "Down".equals(eventName);
             
-            return buttonFlagSet && validEvent;
+            return buttonFlagSet && activeEvent;
         }
         return false;
     }
@@ -4825,7 +4828,7 @@ public class Drone implements AutoCloseable {
             long currentTime = System.currentTimeMillis();
             buttonData[0] = (double) currentTime / 1000.0; // timestamp in seconds
             buttonData[1] = (int) button.getButton();       // button flags
-            buttonData[2] = button.getEvent().name();       // event name
+            buttonData[2] = button.getEvent() != null ? button.getEvent().name() : "None_";       // event name
         }
     }
 
