@@ -1,0 +1,237 @@
+# API Comparison Report
+
+**Generated:** 2025-10-15T11:27:57.522697
+**Python Library:** 2.4
+
+## Summary
+
+- **Python Methods:** 263
+- **Java Methods:** 161
+- **In Python, Not Java:** 151
+- **In Java, Not Python:** 53
+
+## Methods in Python but NOT in Java
+
+⚠️ Consider implementing these methods:
+
+- `add_callback()`
+- `append_color_data()`
+- `avoid_wall()`
+- `check()`
+- `checkDetail()`
+- `controller_buzzer_sequence()`
+- `controller_create_canvas()`
+- `controller_draw_arc()`
+- `controller_draw_canvas()`
+- `controller_draw_chord()`
+- `controller_draw_ellipse()`
+- `controller_draw_image()`
+- `controller_draw_polygon()`
+- `controller_draw_square()`
+- `controller_draw_string_align()`
+- `controller_preview_canvas()`
+- `convertByteArrayToString()`
+- `convert_meter()`
+- `convert_millimeter()`
+- `detect_colors()`
+- `drone_buzzer_sequence()`
+- `dummy_function()`
+- `fit()`
+- `format_firmware_version()`
+- `getCount()`
+- `getData()`
+- `getHeader()`
+- `get_accident_count()`
+- `get_address_data()`
+- `get_altitude_data()`
+- `get_angular_speed_x()`
+- `get_angular_speed_y()`
+- `get_angular_speed_z()`
+- `get_control_speed()`
+- `get_count_data()`
+- `get_cpu_id_data()`
+- `get_error_data()`
+- `get_flight_time()`
+- `get_image_data()`
+- `get_information_data()`
+- `get_landing_count()`
+- `get_lostconnection_data()`
+- `get_motion_data()`
+- `get_range_data()`
+- `get_raw_motion_data()`
+- `get_state_data()`
+- `get_takeoff_count()`
+- `get_temperature()`
+- `get_trim_data()`
+- `get_x_accel()`
+- `get_x_angle()`
+- `get_x_gyro()`
+- `get_y_accel()`
+- `get_y_angle()`
+- `get_y_gyro()`
+- `get_z_accel()`
+- `get_z_angle()`
+- `get_z_gyro()`
+- `goto_waypoint()`
+- `height_from_pressure()`
+- `initialize_data()`
+- `j()`
+- `keep_distance()`
+- `load_classifier()`
+- `load_color_data()`
+- `load_color_data_without_print()`
+- `makeTransferDataArray()`
+- `new_color_data()`
+- `open()`
+- `percent_error()`
+- `ping()`
+- `predict()`
+- `predict_colors()`
+- `print_num_data()`
+- `receive_address_data()`
+- `receive_cpu_id_data()`
+- `reset()`
+- `reset_classifier()`
+- `reset_move()`
+- `reset_previous_land()`
+- `reset_sensor()`
+- `sendBacklight()`
+- `sendBuzzer()`
+- `sendBuzzerHz()`
+- `sendBuzzerHzReserve()`
+- `sendBuzzerMute()`
+- `sendBuzzerMuteReserve()`
+- `sendBuzzerScale()`
+- `sendBuzzerScaleReserve()`
+- `sendClearBias()`
+- `sendClearTrim()`
+- `sendCommand()`
+- `sendCommandLightEvent()`
+- `sendCommandLightEventColor()`
+- `sendCommandLightEventColors()`
+- `sendControlleLinkMode()`
+- `sendDisplayClear()`
+- `sendDisplayClearAll()`
+- `sendDisplayDrawCircle()`
+- `sendDisplayDrawLine()`
+- `sendDisplayDrawPoint()`
+- `sendDisplayDrawRect()`
+- `sendDisplayDrawString()`
+- `sendDisplayDrawStringAlign()`
+- `sendDisplayInvert()`
+- `sendFlightEvent()`
+- `sendFlip()`
+- `sendHeadless()`
+- `sendLanding()`
+- `sendLightDefaultColor()`
+- `sendLightEventColor()`
+- `sendLightEventColors()`
+- `sendLightManual()`
+- `sendLightModeColor()`
+- `sendLightModeColors()`
+- `sendLostConnection()`
+- `sendModeControlFlight()`
+- `sendMotor()`
+- `sendMotorSingle()`
+- `sendPairing()`
+- `sendPing()`
+- `sendSetDefault()`
+- `sendStop()`
+- `sendTakeOff()`
+- `sendTrim()`
+- `sendVibrator()`
+- `sendVibratorReserve()`
+- `sendWeight()`
+- `setEventHandler()`
+- `set_motor_speed()`
+- `set_waypoint()`
+- `speed_change()`
+- `stop_motors()`
+- `temperature_convert()`
+- `transfer()`
+- `turn_direction()`
+- `update_address()`
+- `update_altitude_data()`
+- `update_color_data()`
+- `update_count_data()`
+- `update_cpu_id_data()`
+- `update_error_data()`
+- `update_flow_data()`
+- `update_information()`
+- `update_lostconnection_data()`
+- `update_motion_data()`
+- `update_position_data()`
+- `update_range_data()`
+- `update_raw_motion_data()`
+- `update_state_data()`
+- `update_trim_data()`
+
+## Methods in Java but NOT in Python
+
+ℹ️ Java-specific methods (expected):
+
+- `autoConnect) throws DroneNotFoundException()`
+- `autoConnect, String portName) throws DroneNotFoundException()`
+- `changeSpeed()`
+- `clearBias()`
+- `clearCounter()`
+- `clearTrim()`
+- `controllerLEDOff()`
+- `controller_clear_area()`
+- `controller_draw_circle()`
+- `controller_invert_area()`
+- `droneLEDOff()`
+- `getAccel()`
+- `getAngle()`
+- `getBackRange()`
+- `getCalculatedAltitude()`
+- `getCorrectedElevation()`
+- `getDroneStatus()`
+- `getFlightController()`
+- `getGyro()`
+- `getHeightFromPressure()`
+- `getLeftRange()`
+- `getLinkController()`
+- `getLinkManager()`
+- `getPositionX()`
+- `getPositionY()`
+- `getPositionZ()`
+- `getReceiver()`
+- `getRightRange()`
+- `getSettingsController()`
+- `getTopRange()`
+- `getUncorrectedElevation()`
+- `loadColorClassifier()`
+- `setBacklight()`
+- `setControllerLED()`
+- `setControllerLEDMode()`
+- `setControllerMode()`
+- `setDefault()`
+- `setDroneLED()`
+- `setDroneLEDBlue()`
+- `setDroneLEDGreen()`
+- `setDroneLEDMode()`
+- `setDroneLEDOrange()`
+- `setDroneLEDPurple()`
+- `setDroneLEDRed()`
+- `setDroneLEDWhite()`
+- `setDroneLEDYellow()`
+- `setHeadlessMode()`
+- `setLinkMode()`
+- `triggerFlightEvent()`
+- `unloadColorClassifier()`
+- `updateButtonData()`
+- `useCorrectedElevation()`
+- `{()`
+
+## ⚠️ Important Missing Methods for Inventory Management
+
+- `get_information_data()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_cpu_id_data()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_address_data()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_count_data()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_flight_time()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_takeoff_count()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_landing_count()` - **RECOMMENDED FOR IMPLEMENTATION**
+- `get_accident_count()` - **RECOMMENDED FOR IMPLEMENTATION**
+

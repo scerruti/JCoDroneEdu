@@ -135,6 +135,7 @@ public class Drone implements AutoCloseable {
     
     // --- Sensor Correction Settings ---
     private boolean useCorrectedElevation = false;
+    private boolean useCalibratedTemperature = false;
     private double initialPressure = 0.0;  // For relative height measurements
 
     // --- Controller Input Data Storage ---
@@ -3099,70 +3100,343 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Gets the drone's internal temperature in Celsius.
+     * Gets temperature from the drone (DEPRECATED - use getDroneTemperature).
      * 
-     * <p>Returns the temperature reading from the drone's barometric pressure sensor.
-     * <strong>Note:</strong> This reports the sensor chip temperature, which typically
-     * reads 10-15°C cooler than ambient air temperature due to thermal characteristics
-     * of the sensor die. For accurate ambient temperature readings, consider applying
-     * a calibration offset based on your environment.</p>
+     * <p><strong>⚠️ DEPRECATED:</strong> This method is deprecated and will be removed
+     * in a future release. Use {@link #getDroneTemperature()} instead.</p>
+     * 
+     * <p>This method exists for Python API compatibility. Python's {@code get_temperature()}
+     * was deprecated in favor of {@code get_drone_temperature()} to clarify that it returns
+     * the drone's internal sensor temperature, not ambient air temperature.</p>
+     * 
+     * @return Temperature in Celsius (uncalibrated or calibrated based on settings)
+     * @deprecated Use {@link #getDroneTemperature()} instead. This method is deprecated
+     *             to match Python's API deprecation.
+     * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature()}
+     * @since 1.0
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getTemperature() {
+        log.warn("getTemperature() is deprecated. Use getDroneTemperature() instead.");
+        return getDroneTemperature();
+    }
+
+    /**
+     * Gets temperature from the drone in specified unit (DEPRECATED - use getDroneTemperature).
+     * 
+     * <p><strong>⚠️ DEPRECATED:</strong> This method is deprecated and will be removed
+     * in a future release. Use {@link #getDroneTemperature(String)} instead.</p>
+     * 
+     * @param unit The unit for temperature measurement: "C", "F", or "K"
+     * @return Temperature in the specified unit (uncalibrated or calibrated based on settings)
+     * @deprecated Use {@link #getDroneTemperature(String)} instead. This method is deprecated
+     *             to match Python's API deprecation.
+     * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature(unit)}
+     * @since 1.0
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getTemperature(String unit) {
+        log.warn("getTemperature(unit) is deprecated. Use getDroneTemperature(unit) instead.");
+        return getDroneTemperature(unit);
+    }
+
+    /**
+     * Gets the uncalibrated temperature reading from the drone's sensor in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> returns the raw sensor die temperature without any calibration.
+     * The sensor chip typically reads 10-15°C cooler than ambient air temperature.</p>
+     * 
+     * <p>This is the explicit method for getting uncalibrated temperature. Unlike
+     * {@link #getDroneTemperature()}, this method always returns raw sensor values
+     * regardless of the {@link #useCalibratedTemperature(boolean)} setting.</p>
      * 
      * <h3>🎯 Educational Usage:</h3>
      * <ul>
-     *   <li><strong>Sensor Calibration:</strong> Learn about sensor accuracy and offset correction</li>
-     *   <li><strong>Data Collection:</strong> Multi-sensor environmental data</li>
+     *   <li><strong>Sensor Calibration:</strong> Measure the sensor offset experimentally</li>
+     *   <li><strong>Data Collection:</strong> Raw sensor data for scientific analysis</li>
      *   <li><strong>Physics Learning:</strong> Heat transfer and thermal properties</li>
-     *   <li><strong>Weather Projects:</strong> Temperature trend analysis (with calibration)</li>
+     *   <li><strong>Comparison:</strong> Compare with {@link #getCalibratedTemperature()}</li>
      * </ul>
      * 
-     * @return Temperature in Celsius (sensor die temperature), or 0.0 if no data available
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature("C")}
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * double raw = drone.getUncalibratedTemperature();       // 8°C (sensor die)
+     * double calibrated = drone.getCalibratedTemperature();  // 20°C (ambient estimate)
+     * double offset = calibrated - raw;                      // 12°C correction
+     * }</pre>
+     * 
+     * @return Uncalibrated temperature in Celsius (sensor die temperature), or 0.0 if no data available
+     * @see #getCalibratedTemperature() for calibrated ambient temperature
+     * @see #getDroneTemperature() for switchable temperature (respects settings)
      * @since 1.0
      * @educational
      */
-    /**
-     * Gets the current temperature value from the drone in Celsius.
-     *
-     * @return Temperature in Celsius (sensor die temperature)
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
-     * @since 1.0
-     * @educational
-     */
-    public double getDroneTemperature() {
+    public double getUncalibratedTemperature() {
         var altitude = droneStatus.getAltitude();
         return (altitude != null) ? altitude.getTemperature() : 0.0;
     }
 
     /**
-     * Gets the drone's internal temperature in the specified unit.
+     * Gets the uncalibrated temperature reading in the specified unit.
      * 
-     * <p>Returns temperature converted to the requested unit.
-     * Supports common temperature scales for educational use.</p>
+     * <p><strong>ALWAYS</strong> returns the raw sensor temperature without calibration,
+     * converted to the requested unit.</p>
      * 
      * @param unit The unit for temperature measurement. Supported values:
      *             "C" (Celsius), "F" (Fahrenheit), "K" (Kelvin)
-     * @return Temperature in the specified unit, or 0.0 if no data available
+     * @return Uncalibrated temperature in the specified unit, or 0.0 if no data available
      * @throws IllegalArgumentException if unit is not supported
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @see #getUncalibratedTemperature() for Celsius version
+     * @see #getCalibratedTemperature(String) for calibrated temperature with unit
      * @since 1.0
      * @educational
      */
+    public double getUncalibratedTemperature(String unit) {
+        double celsius = getUncalibratedTemperature();
+        return convertTemperature(celsius, unit);
+    }
+
     /**
-     * Gets the current temperature value from the drone in the specified unit.
-     *
-     * @param unit The unit for the return value: "C", "F", etc.
-     * @return Temperature in the specified unit
+     * Gets the temperature reading - either uncalibrated or calibrated based on settings.
+     * 
+     * <p>This convenience method matches the Python API while allowing flexible behavior:
+     * <ul>
+     *   <li><strong>Default:</strong> Returns uncalibrated sensor value (Python compatibility)</li>
+     *   <li><strong>After {@code useCalibratedTemperature(true)}:</strong> Returns calibrated value</li>
+     * </ul>
+     * 
+     * <p><strong>🎓 Educational Note:</strong> For explicit control and clearer code,
+     * prefer using {@link #getUncalibratedTemperature()} or {@link #getCalibratedTemperature()}
+     * directly instead of relying on state-based behavior.</p>
+     * 
+     * <h3>📝 Usage Examples:</h3>
+     * <pre>{@code
+     * // Python-style default (uncalibrated):
+     * double temp = drone.getDroneTemperature();  // Returns uncalibrated (8°C)
+     * 
+     * // Switch to calibrated values:
+     * drone.useCalibratedTemperature(true);
+     * double temp = drone.getDroneTemperature();  // Now returns calibrated (20°C)
+     * 
+     * // Explicit control (recommended):
+     * double raw = drone.getUncalibratedTemperature();     // 8°C
+     * double accurate = drone.getCalibratedTemperature();  // 20°C
+     * }</pre>
+     * 
+     * @return Temperature in Celsius (uncalibrated or calibrated based on settings), or 0.0 if no data available
+     * @see #getUncalibratedTemperature()
+     * @see #getCalibratedTemperature()
+     * @see #useCalibratedTemperature(boolean)
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
+     * @since 1.0
+     * @educational
+     */
+    public double getDroneTemperature() {
+        return useCalibratedTemperature ? getCalibratedTemperature() : getUncalibratedTemperature();
+    }
+
+    /**
+     * Gets the temperature reading in the specified unit - uncalibrated or calibrated based on settings.
+     * 
+     * <p>Returns temperature converted to the requested unit, respecting the calibration setting.</p>
+     * 
+     * <p><strong>Note:</strong> This method's behavior changes based on {@link #useCalibratedTemperature(boolean)}.
+     * For explicit control, use {@link #getUncalibratedTemperature(String)} or
+     * {@link #getCalibratedTemperature(String)}.</p>
+     * 
+     * @param unit The unit for temperature measurement. Supported values:
+     *             "C" (Celsius), "F" (Fahrenheit), "K" (Kelvin)
+     * @return Temperature in the specified unit (uncalibrated or calibrated based on settings), or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
      * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @see #getUncalibratedTemperature(String) for always uncalibrated
+     * @see #getCalibratedTemperature(String) for always calibrated
+     * @see #useCalibratedTemperature(boolean)
      * @since 1.0
      * @educational
      */
     public double getDroneTemperature(String unit) {
-        double celsius = getDroneTemperature();
-        var altitude = droneStatus.getAltitude();
-        if (altitude == null) {
-            return 0.0; // No data available
-        }
-        
+        return useCalibratedTemperature ? getCalibratedTemperature(unit) : getUncalibratedTemperature(unit);
+    }
+
+    /**
+     * Sets whether {@link #getDroneTemperature()} returns uncalibrated or calibrated values.
+     * 
+     * <p>This allows switching between Python-compatible default behavior (uncalibrated)
+     * and accurate ambient temperature readings (calibrated) without changing code that calls
+     * {@code getDroneTemperature()}.</p>
+     * 
+     * <p><strong>Note:</strong> This only affects {@link #getDroneTemperature()}. The explicit
+     * methods {@link #getUncalibratedTemperature()} and {@link #getCalibratedTemperature()}
+     * always return their respective values regardless of this setting.</p>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Initially returns uncalibrated temperature
+     * System.out.println("Raw: " + drone.getDroneTemperature());  // 8°C
+     * 
+     * // Flip the switch to get calibrated temperatures
+     * drone.useCalibratedTemperature(true);
+     * System.out.println("Calibrated: " + drone.getDroneTemperature());  // 20°C
+     * 
+     * // Explicit methods always work regardless of setting
+     * System.out.println("Always raw: " + drone.getUncalibratedTemperature());  // 8°C
+     * System.out.println("Always calibrated: " + drone.getCalibratedTemperature());  // 20°C
+     * }</pre>
+     * 
+     * @param useCalibrated If true, {@code getDroneTemperature()} returns calibrated temperature.
+     *                      If false (default), returns uncalibrated sensor value.
+     * @see #getDroneTemperature()
+     * @since 1.0
+     * @educational
+     */
+    public void useCalibratedTemperature(boolean useCalibrated) {
+        this.useCalibratedTemperature = useCalibrated;
+    }
+
+    /**
+     * Default temperature calibration offset in Celsius.
+     * 
+     * <p>The BMP280 barometric sensor reports die temperature, which is typically
+     * 10-15°C cooler than ambient air. This default offset (12°C) provides a
+     * reasonable estimate of ambient temperature.</p>
+     * 
+     * <p>Students can experiment with different offsets based on their environment
+     * by using {@link #getCalibratedTemperature(double)}.</p>
+     */
+    private static final double DEFAULT_TEMPERATURE_OFFSET_C = 12.0;
+
+    /**
+     * Gets the calibrated ambient temperature in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> returns calibrated temperature regardless of settings.
+     * This is the explicit method for getting calibrated ambient temperature estimates.</p>
+     * 
+     * <p>This method applies a default calibration offset of 12°C to the raw sensor
+     * reading to estimate ambient air temperature. The sensor die is typically 10-15°C
+     * cooler than ambient air due to heat dissipation.</p>
+     * 
+     * <p>Unlike {@link #getDroneTemperature()}, this method always returns calibrated
+     * values regardless of the {@link #useCalibratedTemperature(boolean)} setting.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Sensor Calibration:</strong> Demonstrates offset correction</li>
+     *   <li><strong>Scientific Method:</strong> Compare with reference thermometer</li>
+     *   <li><strong>Error Analysis:</strong> Understand sensor limitations</li>
+     *   <li><strong>Weather Stations:</strong> More accurate ambient readings</li>
+     * </ul>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * double sensorTemp = drone.getUncalibratedTemperature();  // 8°C (sensor die)
+     * double ambientTemp = drone.getCalibratedTemperature();   // 20°C (ambient estimate)
+     * double offset = ambientTemp - sensorTemp;                // 12°C correction
+     * }</pre>
+     * 
+     * @return Estimated ambient temperature in Celsius, or 0.0 if no data available
+     * @see #getUncalibratedTemperature() for raw sensor reading
+     * @see #getCalibratedTemperature(double) for custom offset
+     * @see #getDroneTemperature() for switchable temperature (respects settings)
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature() {
+        return getUncalibratedTemperature() + DEFAULT_TEMPERATURE_OFFSET_C;
+    }
+
+    /**
+     * Gets the calibrated ambient temperature with a custom offset in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> applies the specified calibration offset regardless of settings.</p>
+     * 
+     * <p>Apply your own calibration offset based on experimental measurements
+     * with a reference thermometer.</p>
+     * 
+     * <h3>🧪 Calibration Procedure:</h3>
+     * <ol>
+     *   <li>Place drone and reference thermometer in same location</li>
+     *   <li>Wait 5 minutes for thermal stabilization</li>
+     *   <li>Read both temperatures</li>
+     *   <li>Calculate: offset = reference - drone reading</li>
+     *   <li>Use this offset for future measurements</li>
+     * </ol>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Experimental calibration
+     * double sensorTemp = drone.getUncalibratedTemperature();  // 7.5°C
+     * double referenceTemp = 21.0;                             // From thermometer
+     * double offset = referenceTemp - sensorTemp;              // 13.5°C
+     * 
+     * // Use calibrated readings
+     * double ambient = drone.getCalibratedTemperature(offset); // 21.0°C
+     * }</pre>
+     * 
+     * @param offsetCelsius The calibration offset to add to sensor reading (in Celsius)
+     * @return Calibrated temperature in Celsius, or offset value if no data available
+     * @see #getUncalibratedTemperature() for raw sensor reading
+     * @see #getCalibratedTemperature() for default offset
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(double offsetCelsius) {
+        return getUncalibratedTemperature() + offsetCelsius;
+    }
+
+    /**
+     * Gets the calibrated ambient temperature in the specified unit.
+     * 
+     * <p><strong>ALWAYS</strong> returns calibrated temperature (with default 12°C offset)
+     * regardless of settings, converted to the requested unit.</p>
+     * 
+     * @param unit The unit for temperature measurement: "C", "F", or "K"
+     * @return Calibrated temperature in the specified unit, or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
+     * @see #getCalibratedTemperature() for Celsius version
+     * @see #getCalibratedTemperature(double, String) for custom offset with unit conversion
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(String unit) {
+        double calibratedCelsius = getCalibratedTemperature();
+        return convertTemperature(calibratedCelsius, unit);
+    }
+
+    /**
+     * Gets the calibrated ambient temperature with custom offset in the specified unit.
+     * 
+     * <p><strong>ALWAYS</strong> applies the specified calibration offset regardless of settings,
+     * with unit conversion.</p>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Custom offset with Fahrenheit output
+     * double tempF = drone.getCalibratedTemperature(13.5, "F");
+     * }</pre>
+     * 
+     * @param offsetCelsius The calibration offset in Celsius
+     * @param unit The unit for output: "C", "F", or "K"
+     * @return Calibrated temperature in the specified unit
+     * @throws IllegalArgumentException if unit is not supported
+     * @see #getCalibratedTemperature(double) for Celsius version
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(double offsetCelsius, String unit) {
+        double calibratedCelsius = getCalibratedTemperature(offsetCelsius);
+        return convertTemperature(calibratedCelsius, unit);
+    }
+
+    /**
+     * Converts temperature from Celsius to the specified unit.
+     * 
+     * @param celsius Temperature in Celsius
+     * @param unit Target unit: "C", "F", or "K"
+     * @return Converted temperature
+     * @throws IllegalArgumentException if unit is not supported
+     */
+    private double convertTemperature(double celsius, String unit) {
         switch (unit.toUpperCase()) {
             case "C":
                 return celsius;

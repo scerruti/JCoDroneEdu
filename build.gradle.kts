@@ -211,6 +211,27 @@ tasks.register<JavaExec>("runMultiSensorTest") {
 }
 
 // -----------------------------------------------------------------
+// Run TemperatureCalibrationDemo - demonstrates temperature sensor calibration
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runTemperatureCalibrationDemo") {
+    group = "verification"
+    description = "Demonstrates temperature sensor calibration and the difference between raw sensor and calibrated ambient temperature."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.demos.TemperatureCalibrationDemo")
+}
+
+// -----------------------------------------------------------------
+// Run TemperatureCalibrationExperiment - student research experiment
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runTemperatureCalibrationExperiment") {
+    group = "research"
+    description = "Runs a systematic temperature calibration experiment collecting data about warm-up and flight effects. Outputs CSV data for analysis."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.research.TemperatureCalibrationExperiment")
+    standardInput = System.`in`
+}
+
+// -----------------------------------------------------------------
 // Run ColorSensorDebug - debug color sensor data
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runColorSensorDebug") {
@@ -388,8 +409,15 @@ tasks.register("updateReferenceCode") {
     outputs.dir("$referenceDir/codrone_edu")
     
     doLast {
-        // Find the site-packages directory
-        val codroneEduSource = File("$pythonVenvDir/lib/python3.12/site-packages/codrone_edu")
+        // Find the site-packages directory dynamically (handles different Python versions)
+        val libDir = File("$pythonVenvDir/lib")
+        val pythonDirs = libDir.listFiles { file -> file.isDirectory && file.name.startsWith("python") }
+            ?: throw GradleException("No Python directories found in: ${libDir.absolutePath}")
+        
+        val sitePackagesDir = pythonDirs.firstOrNull()?.let { File(it, "site-packages") }
+            ?: throw GradleException("No Python lib directory found")
+        
+        val codroneEduSource = File(sitePackagesDir, "codrone_edu")
         
         if (!codroneEduSource.exists()) {
             throw GradleException("Could not find codrone_edu at: ${codroneEduSource.absolutePath}")
@@ -715,4 +743,200 @@ if __name__ == "__main__":
             scriptFile.delete()
         }
     }
+}
+
+// =============================================================================
+// Pre-Release Validation Tasks
+// =============================================================================
+
+/**
+ * Compare Python and Java APIs to identify missing methods
+ */
+tasks.register("compareApis") {
+    group = "verification"
+    description = "Compare Python and Java APIs and generate report"
+    
+    doLast {
+        println("=" .repeat(60))
+        println("API COMPARISON REPORT")
+        println("=" .repeat(60))
+        println()
+        
+        val reportFile = file("API_COMPARISON.md")
+        val report = StringBuilder()
+        
+        report.appendLine("# API Comparison Report")
+        report.appendLine()
+        report.appendLine("**Generated:** ${LocalDateTime.now()}")
+        report.appendLine("**Python Library:** ${file("reference/version.txt").readText().lines().find { it.contains("Version:") }?.substringAfter("Version:")?.trim() ?: "Unknown"}")
+        report.appendLine()
+        
+        // Parse Python API
+        val pythonFile = file("reference/codrone_edu/drone.py")
+        val pythonMethods = mutableSetOf<String>()
+        
+        if (pythonFile.exists()) {
+            pythonFile.readLines().forEach { line ->
+                val trimmed = line.trim()
+                if (trimmed.startsWith("def ") && !trimmed.startsWith("def _")) {
+                    val methodName = trimmed.substringAfter("def ").substringBefore("(")
+                    if (!methodName.startsWith("_")) {
+                        pythonMethods.add(methodName)
+                    }
+                }
+            }
+        }
+        
+        // Parse Java API
+        val javaFile = file("src/main/java/com/otabi/jcodroneedu/Drone.java")
+        val javaMethods = mutableSetOf<String>()
+        
+        if (javaFile.exists()) {
+            javaFile.readLines().forEach { line ->
+                val trimmed = line.trim()
+                if (trimmed.startsWith("public ") && trimmed.contains("(")) {
+                    val methodPart = trimmed.substringAfter("public ").trim()
+                    if (!methodPart.startsWith("class ") && !methodPart.startsWith("interface ")) {
+                        val methodName = methodPart.substringAfter(" ").substringBefore("(").trim()
+                        javaMethods.add(methodName)
+                    }
+                }
+            }
+        }
+        
+        // Find differences
+        val inPythonNotJava = pythonMethods.filterNot { javaMethods.contains(it) || javaMethods.contains(toCamelCase(it)) }
+        val inJavaNotPython = javaMethods.filterNot { pythonMethods.contains(it) || pythonMethods.contains(toSnakeCase(it)) }
+        
+        // Report
+        report.appendLine("## Summary")
+        report.appendLine()
+        report.appendLine("- **Python Methods:** ${pythonMethods.size}")
+        report.appendLine("- **Java Methods:** ${javaMethods.size}")
+        report.appendLine("- **In Python, Not Java:** ${inPythonNotJava.size}")
+        report.appendLine("- **In Java, Not Python:** ${inJavaNotPython.size}")
+        report.appendLine()
+        
+        report.appendLine("## Methods in Python but NOT in Java")
+        report.appendLine()
+        if (inPythonNotJava.isEmpty()) {
+            report.appendLine("✅ All Python methods have Java equivalents!")
+        } else {
+            report.appendLine("⚠️ Consider implementing these methods:")
+            report.appendLine()
+            inPythonNotJava.sorted().forEach { method ->
+                report.appendLine("- `$method()`")
+            }
+        }
+        report.appendLine()
+        
+        report.appendLine("## Methods in Java but NOT in Python")
+        report.appendLine()
+        if (inJavaNotPython.isEmpty()) {
+            report.appendLine("✅ No Java-only methods")
+        } else {
+            report.appendLine("ℹ️ Java-specific methods (expected):")
+            report.appendLine()
+            inJavaNotPython.sorted().forEach { method ->
+                report.appendLine("- `$method()`")
+            }
+        }
+        report.appendLine()
+        
+        // Highlight important missing methods
+        val importantMissing = listOf(
+            "get_information_data",
+            "get_cpu_id_data",
+            "get_address_data",
+            "get_count_data",
+            "get_flight_time",
+            "get_takeoff_count",
+            "get_landing_count",
+            "get_accident_count"
+        )
+        
+        val criticalMissing = importantMissing.filter { it in inPythonNotJava }
+        
+        if (criticalMissing.isNotEmpty()) {
+            report.appendLine("## ⚠️ Important Missing Methods for Inventory Management")
+            report.appendLine()
+            criticalMissing.forEach { method ->
+                report.appendLine("- `$method()` - **RECOMMENDED FOR IMPLEMENTATION**")
+            }
+            report.appendLine()
+        }
+        
+        // Write report
+        reportFile.writeText(report.toString())
+        
+        println("📊 Python Methods: ${pythonMethods.size}")
+        println("📊 Java Methods: ${javaMethods.size}")
+        println()
+        println("⚠️  Missing in Java: ${inPythonNotJava.size}")
+        if (criticalMissing.isNotEmpty()) {
+            println("🔴 Critical missing: ${criticalMissing.size}")
+            criticalMissing.forEach { println("   - $it") }
+        }
+        println()
+        println("✅ Report saved to: API_COMPARISON.md")
+        println("=" .repeat(60))
+    }
+}
+
+/**
+ * Pre-release verification checklist
+ */
+tasks.register("preReleaseCheck") {
+    group = "verification"
+    description = "Run pre-release checklist and verification"
+    
+    dependsOn("test", "build", "compareApis")
+    
+    doLast {
+        println()
+        println("=" .repeat(70))
+        println("PRE-RELEASE CHECKLIST")
+        println("=" .repeat(70))
+        println()
+        println("✅ Tests passed")
+        println("✅ Build successful")
+        println("✅ API comparison generated")
+        println()
+        println("📋 Manual Checks Required:")
+        println("=" .repeat(70))
+        println()
+        println("□ Firmware updated to 25.2.1")
+        println("□ Python reference code updated (./gradlew updateReferenceCode)")
+        println("□ Reviewed API_COMPARISON.md for missing methods")
+        println("□ All smoke tests pass with new firmware")
+        println("□ Altitude offset documented")
+        println("□ All examples tested and working")
+        println("□ Documentation updated:")
+        println("  □ CHANGELOG.md")
+        println("  □ README.md")
+        println("  □ Version numbers")
+        println("□ Release notes created")
+        println()
+        println("📊 Next Steps:")
+        println("=" .repeat(70))
+        println()
+        println("1. Review PRE_RELEASE_CHECKLIST.md")
+        println("2. Check API_COMPARISON.md for missing methods")
+        println("3. Test all examples: ./gradlew runSmokeTest")
+        println("4. Update documentation")
+        println("5. Create release tag")
+        println()
+        println("=" .repeat(70))
+    }
+}
+
+// Helper functions for method name conversion
+fun toCamelCase(snakeCase: String): String {
+    return snakeCase.split("_").mapIndexed { index, s ->
+        if (index == 0) s else s.replaceFirstChar { it.uppercase() }
+    }.joinToString("")
+}
+
+fun toSnakeCase(camelCase: String): String {
+    return camelCase.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
 }
