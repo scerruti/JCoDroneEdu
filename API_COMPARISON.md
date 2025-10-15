@@ -18,6 +18,7 @@
 - Inventory data access (InformationData, CountData, AddressData, CpuIdData)
 - Controller input composite objects (ButtonData, JoystickData)
 - Three-tier API pattern for better Java ergonomics while maintaining Python compatibility
+- Error state monitoring (get_error_data with sensor and state error flags)
 
 🎯 **API Completeness (Based on Official Documentation):**
 - **Connection/Setup**: 100% complete (pair, close)
@@ -30,11 +31,11 @@
 - **Gyroscope/IMU**: 100% complete (including deprecated getters)
 - **Pressure Sensors**: 100% complete ✅ (height_from_pressure NOW VERIFIED!)
 - **Color Sensors**: ~40% complete (missing: classifier, calibration methods)
-- **State Data**: ~80% complete (missing: get_error_data details)
+- **State Data**: 100% complete ✅ (get_error_data NOW IMPLEMENTED!)
 - **Controller Input**: 100% complete
 - **Screen/Display**: ~20% complete (controller canvas methods mostly missing)
 
-📊 **Overall Completion: ~88% of documented Python API** (up from ~87%!)
+📊 **Overall Completion: ~89% of documented Python API** (up from ~88%!)
 
 ## Methods in Python Docs but NOT in Java
 
@@ -158,15 +159,13 @@ Missing:
 
 Note: Many color sensor training methods are marked as "currently unavailable for Python for Robolink" in official docs.
 
-### State/Status Data (80% - Missing 1 method)
-Implemented:
+### State/Status Data (100% ✅)
+All implemented:
 - ✅ `get_battery()` → `getBattery()`
 - ✅ `get_flight_state()` → `getFlightState()`
 - ✅ `get_movement_state()` → `getMovementState()`
 - ✅ `get_sensor_data()` → `getSensorData()` (comprehensive 31-element array)
-
-Missing:
-- ❌ `get_error_data()` - Returns error state enum (Motion calibration, low battery, etc.)
+- ✅ `get_error_data()` → `getErrorData()` + `getErrorData(delay)` overload
 
 ### Controller Input (100% ✅)
 All implemented with three-tier API:

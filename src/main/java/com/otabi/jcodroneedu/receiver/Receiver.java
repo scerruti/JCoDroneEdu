@@ -93,6 +93,7 @@ public class Receiver {
         handlers.put(DataType.Joystick, msg -> drone.updateJoystickData((Joystick) msg));
         handlers.put(DataType.Button, msg -> drone.updateButtonData((Button) msg));
         handlers.put(DataType.Count, msg -> inventoryManager.updateCount((com.otabi.jcodroneedu.protocol.settings.Count) msg));
+        handlers.put(DataType.Error, msg -> linkManager.setError((com.otabi.jcodroneedu.protocol.linkmanager.Error) msg));
         handlers.put(DataType.Address, msg -> {
             com.otabi.jcodroneedu.protocol.linkmanager.Address addr = (com.otabi.jcodroneedu.protocol.linkmanager.Address) msg;
             linkManager.setAddress(addr);

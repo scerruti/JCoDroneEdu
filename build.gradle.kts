@@ -286,6 +286,39 @@ tasks.register<JavaExec>("runL0103TurningNavigation") {
     mainClass.set("com.otabi.jcodroneedu.examples.L0103TurningNavigation")
 }
 
+// -----------------------------------------------------------------
+// Run Error Monitoring Example - demonstrates error checking (demo mode)
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runErrorMonitoringDemo") {
+    group = "verification"
+    description = "Runs the ErrorMonitoringExample in demo mode (no hardware required)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ErrorMonitoringExample")
+    // No arguments = demo mode
+}
+
+// -----------------------------------------------------------------
+// Run Error Monitoring Example - connect mode
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runErrorMonitoringConnect") {
+    group = "verification"
+    description = "Runs the ErrorMonitoringExample with drone connection (reads real error data, no flight)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ErrorMonitoringExample")
+    args = listOf("--connect")
+}
+
+// -----------------------------------------------------------------
+// Run Error Monitoring Example - flight mode (CAUTION!)
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runErrorMonitoringFly") {
+    group = "verification"
+    description = "Runs the ErrorMonitoringExample with ACTUAL FLIGHT operations (CAUTION!)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ErrorMonitoringExample")
+    args = listOf("--fly")
+}
+
 group = "com.otabi"
 version = "1.0-SNAPSHOT"
 

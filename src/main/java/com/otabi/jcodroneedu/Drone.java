@@ -1030,12 +1030,15 @@ public class Drone implements AutoCloseable {
      * gyro values.
      * </p>
      * <p>
-     * The method will block until calibration is complete, which typically
-     * takes a few seconds.
+     * The method actively monitors the {@code MOTION_CALIBRATING} error flag
+     * and blocks until calibration is complete (typically 3-5 seconds) or times out
+     * after 10 seconds.
      * </p>
      * 
      * @throws RuntimeException if calibration fails or times out
      * @apiNote Equivalent to Python's {@code drone.reset_gyro()}
+     * @see ErrorData#isCalibrating()
+     * @see DroneSystem.ErrorFlagsForSensor#MOTION_CALIBRATING
      * @educational
      */
     public void resetGyro() {
@@ -1050,22 +1053,50 @@ public class Drone implements AutoCloseable {
             // Wait for calibration to complete by monitoring error flags
             long calibrationStart = System.currentTimeMillis();
             long timeout = 10000; // 10 second timeout
+            long minCalibrationTime = 3000; // Minimum 3 seconds for calibration process
+            boolean errorDataReceived = false;
+            int nullDataCount = 0;
             
             while (System.currentTimeMillis() - calibrationStart < timeout) {
                 // Request fresh error data to check calibration status
                 sendRequest(DataType.Error);
                 Thread.sleep(100);
                 
-                // Check if motion calibration flag is cleared (calibration complete)
-                // Note: The actual error flag checking would need to be implemented
-                // For now, we'll use a fixed delay approach similar to Python reference
-                if (System.currentTimeMillis() - calibrationStart > 3000) {
-                    log.info("Gyroscope calibration complete");
-                    return;
+                // Get current error data to check calibration flag
+                ErrorData errors = getErrors();
+                
+                if (errors != null) {
+                    errorDataReceived = true;
+                    // Check if motion calibration flag is cleared (calibration complete)
+                    boolean isCalibrating = errors.isCalibrating();
+                    long elapsed = System.currentTimeMillis() - calibrationStart;
+                    
+                    // Ensure minimum calibration time has passed before accepting completion
+                    // This prevents false positives from initial flag state
+                    if (!isCalibrating && elapsed > minCalibrationTime) {
+                        log.info("Gyroscope calibration complete ({}ms)", elapsed);
+                        return;
+                    }
+                    
+                    if (isCalibrating) {
+                        log.debug("Calibrating... ({}ms elapsed)", elapsed);
+                    }
+                } else {
+                    // Track null error data to provide better error message
+                    nullDataCount++;
+                    if (nullDataCount > 20 && !errorDataReceived) {
+                        // After 2 seconds of no data, warn about possible connection issue
+                        log.warn("No error data received - check drone connection");
+                    }
                 }
             }
             
-            throw new RuntimeException("Gyroscope calibration timed out - ensure drone is on flat surface and stationary");
+            // Provide more specific error message based on what happened
+            if (!errorDataReceived) {
+                throw new RuntimeException("Gyroscope calibration timed out - no error data received. Check drone connection and ensure it is powered on.");
+            } else {
+                throw new RuntimeException("Gyroscope calibration timed out - ensure drone is on flat surface and stationary. Calibration flag may not have cleared.");
+            }
             
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -1833,6 +1864,267 @@ public class Drone implements AutoCloseable {
      */
     public String getMovementState() {
         return flightController.getMovementState();
+    }
+
+    /**
+     * Gets the current error state data from the drone.
+     * 
+     * <p>Returns error information about both sensor and state problems.
+     * This method requests fresh error data from the drone and returns
+     * it as an array containing timestamp, sensor error flags, and state error flags.</p>
+     * 
+     * <p><strong>Error Flags:</strong></p>
+     * <ul>
+     *   <li><strong>Sensor Errors:</strong> {@link DroneSystem.ErrorFlagsForSensor}
+     *     <ul>
+     *       <li>MOTION_CALIBRATING: Gyroscope/accelerometer calibrating</li>
+     *       <li>MOTION_NO_ANSWER: Motion sensor unresponsive</li>
+     *       <li>MOTION_WRONG_VALUE: Motion sensor giving incorrect data</li>
+     *       <li>MOTION_NOT_CALIBRATED: Motion sensor not calibrated</li>
+     *       <li>PRESSURE_NO_ANSWER: Barometer unresponsive</li>
+     *       <li>PRESSURE_WRONG_VALUE: Barometer giving incorrect data</li>
+     *       <li>RANGE_GROUND_NO_ANSWER: Bottom range sensor unresponsive</li>
+     *       <li>RANGE_GROUND_WRONG_VALUE: Bottom range sensor incorrect data</li>
+     *       <li>FLOW_NO_ANSWER: Optical flow sensor unresponsive</li>
+     *       <li>FLOW_WRONG_VALUE: Optical flow sensor incorrect data</li>
+     *       <li>FLOW_CANNOT_RECOGNIZE_GROUND_IMAGE: Cannot recognize ground pattern</li>
+     *     </ul>
+     *   </li>
+     *   <li><strong>State Errors:</strong> {@link DroneSystem.ErrorFlagsForState}
+     *     <ul>
+     *       <li>NOT_REGISTERED: Device not registered</li>
+     *       <li>FLASH_READ_LOCK_UNLOCKED: Flash memory read lock not engaged</li>
+     *       <li>BOOTLOADER_WRITE_LOCK_UNLOCKED: Bootloader write lock not engaged</li>
+     *       <li>LOW_BATTERY: Battery level is low</li>
+     *       <li>TAKEOFF_FAILURE_CHECK_PROPELLER_AND_MOTOR: Takeoff failed</li>
+     *       <li>CHECK_PROPELLER_VIBRATION: Propeller vibration detected</li>
+     *       <li>ATTITUDE_NOT_STABLE: Drone attitude too tilted or inverted</li>
+     *       <li>CANNOT_FLIP_LOW_BATTERY: Battery below 50% for flip</li>
+     *       <li>CANNOT_FLIP_TOO_HEAVY: Drone too heavy for flip</li>
+     *     </ul>
+     *   </li>
+     * </ul>
+     * 
+     * <h3>🔍 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check for specific error conditions</li>
+     *   <li><strong>L0108 Loops:</strong> Monitor errors during flight</li>
+     *   <li><strong>Debugging:</strong> Diagnose hardware or sensor issues</li>
+     *   <li><strong>Safety Programming:</strong> Respond to error states</li>
+     * </ul>
+     * 
+     * @return Array containing [timestamp, sensorErrorFlags, stateErrorFlags], 
+     *         or null if error data is unavailable
+     * @apiNote Equivalent to Python's {@code drone.get_error_data()}
+     * @since 2.5
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Check for low battery error
+     * double[] errorData = drone.getErrorData();
+     * if (errorData != null) {
+     *     int stateErrors = (int) errorData[2];
+     *     if ((stateErrors & DroneSystem.ErrorFlagsForState.LOW_BATTERY.getValue()) != 0) {
+     *         System.out.println("Warning: Low battery detected!");
+     *         drone.land();
+     *     }
+     * }
+     * }</pre>
+     * 
+     * @example
+     * <pre>{@code
+     * // L0108: Monitor calibration status
+     * drone.resetGyro();
+     * while (true) {
+     *     double[] errorData = drone.getErrorData();
+     *     if (errorData != null) {
+     *         int sensorErrors = (int) errorData[1];
+     *         if ((sensorErrors & DroneSystem.ErrorFlagsForSensor.MOTION_CALIBRATING.getValue()) == 0) {
+     *             System.out.println("Calibration complete!");
+     *             break;
+     *         }
+     *     }
+     *     Thread.sleep(100);
+     * }
+     * }</pre>
+     */
+    public double[] getErrorData() {
+        return getErrorData(0.2);
+    }
+
+    /**
+     * Gets the current error state data from the drone with custom delay.
+     * 
+     * <p>Allows specifying a custom delay for error data request response.
+     * Use shorter delays when checking frequently, longer delays when
+     * connection is slow.</p>
+     * 
+     * @param delay Delay in seconds to wait for error data response (default 0.2)
+     * @return Array containing [timestamp, sensorErrorFlags, stateErrorFlags], 
+     *         or null if error data is unavailable
+     * @apiNote Equivalent to Python's {@code drone.get_error_data(delay)}
+     * @since 2.5
+     * 
+     * @see #getErrorData()
+     */
+    public double[] getErrorData(double delay) {
+        log.debug("Requesting error data");
+        
+        try {
+            // Request fresh error data from drone
+            sendRequest(DataType.Error);
+            
+            // Wait for response
+            Thread.sleep((long) (delay * 1000));
+            
+            // Get error data from link manager
+            var error = linkManager.getError();
+            if (error == null) {
+                log.debug("No error data available");
+                return null;
+            }
+            
+            // Convert to Python-compatible format: [timestamp, sensorFlags, stateFlags]
+            double timestamp = error.getSystemTime() / 1000.0; // Convert ms to seconds
+            double[] result = {
+                timestamp,
+                (double) error.getErrorFlagsForSensor(),
+                (double) error.getErrorFlagsForState()
+            };
+            
+            log.debug("Retrieved error data - timestamp: {}, sensor flags: 0x{}, state flags: 0x{}",
+                     timestamp, 
+                     Integer.toHexString(error.getErrorFlagsForSensor()),
+                     Integer.toHexString(error.getErrorFlagsForState()));
+            
+            return result;
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error data request interrupted", e);
+        } catch (Exception e) {
+            log.error("Failed to get error data", e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets error state information as a type-safe immutable object (recommended).
+     * 
+     * <p><strong>This is the recommended Java-idiomatic way to check for errors.</strong>
+     * Use this instead of {@link #getErrorData()} for cleaner, more maintainable code.</p>
+     * 
+     * <p>Returns an {@link ErrorData} object providing:
+     * <ul>
+     *   <li><strong>Type-safe error checking:</strong> No bitwise operations needed</li>
+     *   <li><strong>IDE auto-completion:</strong> All error types visible in IDE</li>
+     *   <li><strong>Named methods:</strong> No array indexing required</li>
+     *   <li><strong>Compile-time safety:</strong> Can't mix up sensor vs state errors</li>
+     * </ul>
+     * </p>
+     * 
+     * <h3>🔍 Comparison with Array-Based API:</h3>
+     * <pre>{@code
+     * // Array-based approach (Python-compatible)
+     * double[] errorArray = drone.getErrorData();
+     * if (errorArray != null) {
+     *     int stateErrors = (int) errorArray[2];
+     *     if ((stateErrors & DroneSystem.ErrorFlagsForState.LOW_BATTERY.getValue()) != 0) {
+     *         drone.land();
+     *     }
+     * }
+     * 
+     * // Object-based approach (Java-idiomatic, recommended)
+     * ErrorData errorData = drone.getErrors();
+     * if (errorData != null && errorData.isLowBattery()) {
+     *     drone.land();
+     * }
+     * }</pre>
+     * 
+     * <h3>📖 Usage Examples:</h3>
+     * <pre>{@code
+     * // Basic error checking
+     * ErrorData errors = drone.getErrors();
+     * if (errors != null) {
+     *     if (errors.hasCriticalErrors()) {
+     *         System.out.println("Critical error - landing!");
+     *         drone.land();
+     *     }
+     *     
+     *     if (errors.isCalibrating()) {
+     *         System.out.println("Please wait - calibrating...");
+     *     }
+     * }
+     * 
+     * // Check specific sensor errors
+     * if (errors.hasSensorError(DroneSystem.ErrorFlagsForSensor.FLOW_NO_ANSWER)) {
+     *     System.out.println("Warning: Optical flow sensor not responding");
+     * }
+     * 
+     * // Check specific state errors
+     * if (errors.hasStateError(DroneSystem.ErrorFlagsForState.ATTITUDE_NOT_STABLE)) {
+     *     System.out.println("Attitude unstable - avoiding maneuvers");
+     * }
+     * 
+     * // Get all active errors
+     * Set<DroneSystem.ErrorFlagsForSensor> sensorErrors = errors.getSensorErrors();
+     * Set<DroneSystem.ErrorFlagsForState> stateErrors = errors.getStateErrors();
+     * 
+     * // Display all errors
+     * System.out.println(errors.toDetailedString());
+     * }</pre>
+     * 
+     * <h3>🎓 Educational Context:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Safe error handling patterns</li>
+     *   <li><strong>L0109 Methods:</strong> Clean data encapsulation</li>
+     *   <li><strong>L0111 Object-Oriented:</strong> Immutable data objects</li>
+     *   <li><strong>Safety Programming:</strong> Proactive error monitoring</li>
+     * </ul>
+     * 
+     * <h3>⚠️ Important Notes:</h3>
+     * <ul>
+     *   <li>Uses default 0.2 second delay for sensor data collection</li>
+     *   <li>Returns null if no error data is available yet</li>
+     *   <li>Always check for null before accessing the returned object</li>
+     *   <li>For custom delays, use the overload with delay parameter</li>
+     * </ul>
+     * 
+     * @return ErrorData object containing type-safe error information, or null if unavailable
+     * @see ErrorData
+     * @see #getErrorData()
+     * @see DroneSystem.ErrorFlagsForSensor
+     * @see DroneSystem.ErrorFlagsForState
+     */
+    public ErrorData getErrors() {
+        double[] errorArray = getErrorData();
+        return ErrorData.fromArray(errorArray);
+    }
+
+    /**
+     * Gets error state information as a type-safe immutable object with custom delay (recommended).
+     * 
+     * <p>Same as {@link #getErrors()} but allows specifying a custom delay
+     * for sensor data collection.</p>
+     * 
+     * <h3>📖 Usage Example:</h3>
+     * <pre>{@code
+     * // Use longer delay for more accurate data
+     * ErrorData errors = drone.getErrors(0.5);
+     * if (errors != null && errors.hasAnyErrors()) {
+     *     System.out.println(errors.toDetailedString());
+     * }
+     * }</pre>
+     * 
+     * @param delay Time in seconds to wait for sensor data collection (typically 0.1 to 0.5)
+     * @return ErrorData object containing type-safe error information, or null if unavailable
+     * @see ErrorData
+     * @see #getErrors()
+     * @see #getErrorData(double)
+     */
+    public ErrorData getErrors(double delay) {
+        double[] errorArray = getErrorData(delay);
+        return ErrorData.fromArray(errorArray);
     }
 
     /**
