@@ -103,9 +103,9 @@ System.out.println("Right joystick: (" + joystickData.getRightX() + ", " + joyst
 
 ### Receiver.java
 **Changes**:
-- **Added**: `private final ControllerInputManager controllerInputManager;` field
-- **Updated Constructor**: Added 5th parameter `ControllerInputManager`
-- **Updated Handlers**: Button and Joystick handlers now call `controllerInputManager.updateButtonData()` and `controllerInputManager.updateJoystickData()` instead of `drone.updateButtonData()` / `drone.updateJoystickData()`
+- **Handlers Updated**: Button and Joystick handlers call `drone.updateButtonData()` and `drone.updateJoystickData()`
+- **Encapsulation Maintained**: Receiver interacts with Drone, not ControllerInputManager directly
+- **Architecture Pattern**: Receiver → Drone → ControllerInputManager (proper layering)
 
 ### ControllerInputPanel.java (GUI)
 **Changes**:
@@ -259,6 +259,19 @@ if (magnitude > 50) {
 **Backward Compatibility**: All existing API methods preserved and functional.
 
 **Thread Safety**: All updates synchronized in `ControllerInputManager`.
+
+**Hardware GUI Test**: ✅ Verified with `./gradlew runControllerInputGui`
+- Joystick data updates correctly
+- Button presses detected and displayed
+- Composite objects work correctly in real-time polling
+
+### Known Hardware Limitations
+
+**Controller Button Matrix**: The CoDrone EDU controller uses a multiplexed button scanning matrix that cannot detect certain simultaneous button presses:
+- ❌ **Cannot detect**: Two buttons on the SAME side pressed simultaneously (e.g., L1 + L2, or R1 + R2)
+- ✅ **Can detect**: One button from each side pressed simultaneously (e.g., L1 + R1)
+
+This is a hardware limitation of the controller's button scanning circuit, not a software bug. The controller physically cannot send simultaneous button events for multiple buttons on the same side. This is normal behavior for multiplexed button matrices used in low-cost controllers to reduce the number of required input pins.
 
 ## Future Considerations
 

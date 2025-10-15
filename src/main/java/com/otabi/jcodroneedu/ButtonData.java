@@ -38,6 +38,12 @@ package com.otabi.jcodroneedu;
  *   <li>"Up" = Button just released</li>
  * </ul>
  * 
+ * <h3>Hardware Limitation:</h3>
+ * <p><strong>Important:</strong> The CoDrone EDU controller uses a multiplexed button scanning
+ * matrix that cannot detect multiple buttons on the same side pressed simultaneously
+ * (e.g., L1 + L2, or R1 + R2). However, it can detect one button from each side pressed
+ * together (e.g., L1 + R1). This is a hardware limitation, not a software bug.</p>
+ * 
  * @author JCoDroneEdu Development Team
  * @since 1.0.0
  * @see Drone#getButtonDataObject()

@@ -174,7 +174,7 @@ public class Drone implements AutoCloseable {
         // The 'Internals' class from the original code seems to have been absorbed
         // into the new manager/controller structure. If it has other responsibilities,
         // it would be initialized here.
-        this.receiver = new Receiver(this, droneStatus, linkManager, inventoryManager, controllerInputManager);
+        this.receiver = new Receiver(this, droneStatus, linkManager, inventoryManager);
         this.serialPortManager = new SerialPortManager(receiver);
 
         // Initialize the controllers, passing a reference to this Drone instance

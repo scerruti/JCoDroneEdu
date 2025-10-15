@@ -41,7 +41,6 @@ public class Receiver {
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
     private final InventoryManager inventoryManager;
-    private final ControllerInputManager controllerInputManager;
 
     // --- Acknowledgment Handling ---
     private final Map<DataType, CompletableFuture<Void>> pendingAcks = new ConcurrentHashMap<>();
@@ -61,12 +60,11 @@ public class Receiver {
     private int crc16received;
     private int crc16calculated;
 
-    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager, InventoryManager inventoryManager, ControllerInputManager controllerInputManager) {
+    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager, InventoryManager inventoryManager) {
         this.drone = drone;
         this.droneStatus = droneStatus;
         this.linkManager = linkManager;
         this.inventoryManager = inventoryManager;
-        this.controllerInputManager = controllerInputManager;
         this.dataBuffer = ByteBuffer.allocate(MAX_PAYLOAD_SIZE);
         initializeHandlers();
         reset();
@@ -92,8 +90,8 @@ public class Receiver {
         handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
         handlers.put(DataType.RawFlow, msg -> droneStatus.setRawFlow((RawFlow) msg));
         handlers.put(DataType.Flow, msg -> droneStatus.setFlow((Flow) msg));
-        handlers.put(DataType.Joystick, msg -> controllerInputManager.updateJoystickData((Joystick) msg));
-        handlers.put(DataType.Button, msg -> controllerInputManager.updateButtonData((Button) msg));
+        handlers.put(DataType.Joystick, msg -> drone.updateJoystickData((Joystick) msg));
+        handlers.put(DataType.Button, msg -> drone.updateButtonData((Button) msg));
         handlers.put(DataType.Count, msg -> inventoryManager.updateCount((com.otabi.jcodroneedu.protocol.settings.Count) msg));
         handlers.put(DataType.Address, msg -> {
             com.otabi.jcodroneedu.protocol.linkmanager.Address addr = (com.otabi.jcodroneedu.protocol.linkmanager.Address) msg;
