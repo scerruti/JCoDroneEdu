@@ -1,6 +1,8 @@
 package com.otabi.jcodroneedu.gui;
 
 import com.otabi.jcodroneedu.Drone;
+import com.otabi.jcodroneedu.ButtonData;
+import com.otabi.jcodroneedu.JoystickData;
 import com.otabi.jcodroneedu.protocol.DataType;
 
 import javax.swing.*;
@@ -348,11 +350,12 @@ public class ControllerInputPanel extends JPanel {
                 drone.sendRequest(DataType.Button);
                 Thread.sleep(20); // Small delay to allow data to arrive
                 
-                // Get joystick values
-                int leftX = drone.getLeftJoystickX();
-                int leftY = drone.getLeftJoystickY();
-                int rightX = drone.getRightJoystickX();
-                int rightY = drone.getRightJoystickY();
+                // Get joystick values using composite object
+                JoystickData joystickData = drone.getJoystickDataObject();
+                int leftX = joystickData.getLeftX();
+                int leftY = joystickData.getLeftY();
+                int rightX = joystickData.getRightX();
+                int rightY = joystickData.getRightY();
                 
                 // Check if any joystick moved
                 if (leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0) {
@@ -390,19 +393,10 @@ public class ControllerInputPanel extends JPanel {
         StringBuilder status = new StringBuilder();
         long currentTime = System.currentTimeMillis();
         
-        // Get raw button data
-        Object[] buttonData = drone.getButtonData();
-        int buttonFlags = 0;
-        String eventName = "None_";
-        
-        if (buttonData != null && buttonData.length >= 3) {
-            if (buttonData[1] instanceof Integer) {
-                buttonFlags = (Integer) buttonData[1];
-            }
-            if (buttonData[2] instanceof String) {
-                eventName = (String) buttonData[2];
-            }
-        }
+        // Get button data using composite object
+        ButtonData buttonData = drone.getButtonDataObject();
+        int buttonFlags = buttonData.getButtonFlags();
+        String eventName = buttonData.getEventName();
         
         // Only register button presses on "Press" events (not Up)
         boolean isActivePress = "Press".equals(eventName) || "Down".equals(eventName);
