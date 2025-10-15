@@ -159,6 +159,12 @@ public class Drone implements AutoCloseable {
         this.droneStatus = new DroneStatus();
         this.linkManager = new LinkManager();
 
+        // Initialize CardColor with default NONE values
+        byte[][] hsvl = new byte[2][4]; // All zeros
+        byte[] colors = {0, 0}; // NONE for both sensors
+        byte card = 0; // No card
+        this.droneStatus.setCardColor(new com.otabi.jcodroneedu.protocol.cardreader.CardColor(hsvl, colors, card));
+
         // Initialize core components
         // The 'Internals' class from the original code seems to have been absorbed
         // into the new manager/controller structure. If it has other responsibilities,
@@ -2445,9 +2451,12 @@ public class Drone implements AutoCloseable {
             case "red": return 2;
             case "yellow": return 3;
             case "green": return 4;
-            case "cyan": return 5;
+            case "cyan": 
+            case "light_blue":
+            case "lightblue": return 5;
             case "blue": return 6;
-            case "magenta": return 7;
+            case "magenta":
+            case "purple": return 7;
             case "black": return 8;
             default: return 0; // UNKNOWN
         }

@@ -103,6 +103,18 @@ tasks.register<JavaExec>("runControllerInputGui") {
 }
 
 // -----------------------------------------------------------------
+// Run Both Monitors - sensor and controller GUIs together
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runBothMonitors") {
+    group = "verification"
+    description = "Runs both sensor and controller monitors with L1 hold takeoff test."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.BothMonitors")
+    // Forward stdin so keyboard input (Q to quit) works
+    standardInput = System.`in`
+}
+
+// -----------------------------------------------------------------
 // Run Controller Input Debug - console debug for controller
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runControllerInputDebug") {
@@ -140,6 +152,18 @@ tasks.register<JavaExec>("runMultiSensorTest") {
     classpath = sourceSets.getByName("main").runtimeClasspath
     mainClass.set("com.otabi.jcodroneedu.examples.tests.MultiSensorTest")
     // Forward stdin so interactive prompts (press Enter) work when run via Gradle
+    standardInput = System.`in`
+}
+
+// -----------------------------------------------------------------
+// Run ColorSensorDebug - debug color sensor data
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runColorSensorDebug") {
+    group = "verification"
+    description = "Runs the ColorSensorDebug tool to show detailed color sensor data including HSVL values."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.ColorSensorDebug")
+    // Forward stdin so interactive prompts work
     standardInput = System.`in`
 }
 

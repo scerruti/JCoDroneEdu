@@ -716,23 +716,63 @@ public class DroneSystem
         {
             return value;
         }
+        
+        /**
+         * Gets the java.awt.Color representation of this card color.
+         * Useful for GUI display and visualization.
+         * 
+         * @return The AWT Color object corresponding to this card color
+         */
+        public java.awt.Color toAwtColor() {
+            switch (this) {
+                case UNKNOWN:   return java.awt.Color.GRAY;
+                case WHITE:     return java.awt.Color.WHITE;
+                case RED:       return java.awt.Color.RED;
+                case YELLOW:    return java.awt.Color.YELLOW;
+                case GREEN:     return java.awt.Color.GREEN;
+                case CYAN:      return new java.awt.Color(135, 206, 235); // Sky blue / light blue
+                case BLUE:      return java.awt.Color.BLUE;
+                case MAGENTA:   return new java.awt.Color(128, 0, 128);    // Purple
+                case BLACK:     return java.awt.Color.BLACK;
+                default:        return java.awt.Color.GRAY;
+            }
+        }
+        
+        /**
+         * Gets the CardColorIndex enum value from a color index byte.
+         * 
+         * @param index The color index (0-8)
+         * @return The corresponding CardColorIndex enum value, or UNKNOWN if invalid
+         */
+        public static CardColorIndex fromIndex(int index) {
+            for (CardColorIndex color : values()) {
+                if (color.value == index) {
+                    return color;
+                }
+            }
+            return UNKNOWN;
+        }
     }
 
     /**
      * Helper to convert a `CardColorIndex` value into a human readable name.
      * This is useful for examples and tests to map the card color byte to a string.
+     * 
+     * @param idx The color index value (0-8)
+     * @return Human-readable color name
      */
     public static String cardColorIndexToName(int idx) {
         switch (idx) {
+            case 0x00: return "NONE";        // No card detected (drone in air or no card)
             case 0x01: return "WHITE";
             case 0x02: return "RED";
             case 0x03: return "YELLOW";
             case 0x04: return "GREEN";
-            case 0x05: return "CYAN";
+            case 0x05: return "LIGHT_BLUE";
             case 0x06: return "BLUE";
-            case 0x07: return "MAGENTA";
+            case 0x07: return "PURPLE";
             case 0x08: return "BLACK";
-            default:   return "UNKNOWN";
+            default:   return "INVALID";     // Out of range value
         }
     }
 

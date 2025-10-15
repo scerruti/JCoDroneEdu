@@ -1,0 +1,268 @@
+<!-- 
+  Alternate Sensor Dashboard UI Design
+  
+  Source: Unknown web-based dashboard (possibly from Robolink's online interface)
+  Stored: October 15, 2025
+  Purpose: Reference for potential future UI improvements
+  
+  This HTML represents a more modern, web-based sensor visualization interface
+  with the following features:
+  
+  1. Accelerometer Display:
+     - Visual SVG icon showing accelerometer orientation
+     - X, Y, Z axis values displayed separately
+     - Large format with prominent visualization
+  
+  2. Gyroscope Display:
+     - Roll: Semi-circular range indicator with color-coded track (cyan/teal)
+     - Yaw: Rotating arrow/compass indicator (blue)
+     - Pitch: Semi-circular range indicator with color-coded track (red/pink)
+     - Each axis has its own visual representation
+  
+  3. Range Sensors:
+     - Front range: Horizontal slider (0-200 cm range)
+     - Bottom range: Horizontal slider (0-200 cm range)
+     - Read-only sliders for visual feedback
+     - Zoom button for expanding view
+  
+  4. Additional Sensors:
+     - Drone pressure (kPa)
+     - Drone temperature (°C)
+  
+  5. Color Sensors:
+     - Front color: HSV values + color name + circular color swatch
+     - Back color: HSV values + color name + circular color swatch
+     - More detailed than current implementation (shows H/S/V separately)
+  
+  6. Position Display:
+     - X and Y coordinates in cm
+     - Separate labeled fields
+  
+  Design Notes:
+  - Dark theme with bright accent colors
+  - CSS modules for styling (_className_hash pattern)
+  - SVG graphics for icons and visualizations
+  - Responsive layout with flexbox/grid
+  - More visual/graphical than current Swing implementation
+  - Better use of color coding (cyan for roll, blue for yaw, red for pitch)
+  
+  Potential Improvements to Consider:
+  - Semi-circular range displays for roll/pitch (vs. our horizontal bars)
+  - Rotating arrow for yaw/heading (vs. our static arrow)
+  - Separate H/S/V display for colors (vs. just RGB swatch)
+  - Slider visualization for range sensors (vs. progress bars)
+  - Pressure and temperature sensors (not currently in our display)
+  
+  File Location: /reference/alternate-sensor-dashboard-ui.html
+-->
+
+<div class="sensordashboardContainer">
+  <div class="_bodyLarge_1sgpj_2">
+    <div class="_container_g46u6_13">
+      <div class="_bodyWrapper_g46u6_1">
+        
+        <!-- Accelerometer Section -->
+        <div class="_accelContainerLarge_ag249_23">
+          <div class="_content_ag249_67">
+            <div>
+              <img alt="Accelerometer" class="_accelerometerImage_ag249_12" src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%20viewBox='0%200%2080%2080'%20fill='none'%3e%3cpath%20d='M50.9887%2011.5492L45.4944%206.99433L40.0001%202.43945L34.5058%206.99433L29.0115%2011.5492'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M40%204.80957V30.2113'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M39.9999%2070.0945C54.2134%2070.0945%2065.7356%2058.5723%2065.7356%2044.3588C65.7356%2030.1453%2054.2134%2018.623%2039.9999%2018.623C25.7864%2018.623%2014.2642%2030.1453%2014.2642%2044.3588C14.2642%2058.5723%2025.7864%2070.0945%2039.9999%2070.0945Z'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M16.5613%2077.5598L9.56188%2076.1659L2.5625%2074.772L2.63493%2067.6355L2.70736%2060.499'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M4.40161%2073.2789L29.3204%2053.0771'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M40%2048.5196C42.8998%2048.5196%2045.2505%2046.1688%2045.2505%2043.2691C45.2505%2040.3693%2042.8998%2038.0186%2040%2038.0186C37.1002%2038.0186%2034.7495%2040.3693%2034.7495%2043.2691C34.7495%2046.1688%2037.1002%2048.5196%2040%2048.5196Z'%20fill='%233E75FF'/%3e%3cpath%20d='M63.4888%2077.5598L70.4881%2076.1659L77.4875%2074.772L77.4151%2067.6355L77.3427%2060.499'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3cpath%20d='M75.6483%2073.2789L50.7295%2053.0771'%20stroke='%233E75FF'%20stroke-width='3.04982'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c/svg%3e">
+            </div>
+            <div class="_dataContainerLarge_ag249_36">
+              <div class="_accel_ag249_12">
+                <p class="_label_ag249_41">X</p>
+                <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">0</div>
+              </div>
+              <div class="_accel_ag249_12">
+                <p class="_label_ag249_41">Y</p>
+                <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">0</div>
+              </div>
+              <div class="_accel_ag249_12">
+                <p class="_label_ag249_41">Z</p>
+                <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">97</div>
+              </div>
+            </div>
+          </div>
+          <h3 class="_title_ag249_74">Accelerometer</h3>
+        </div>
+        
+        <div class="_deleteDivider_g46u6_31"></div>
+        
+        <!-- Gyroscope Section -->
+        <div class="_bodyLarge_1qszo_23" id="gyro">
+          <div class="_gyroData_1qszo_80">
+            <!-- Roll -->
+            <div class="_roll_1qszo_86">
+              <p class="_label_1qszo_72">roll</p>
+              <div class="_gyroRange_4836_1">
+                <div class="_range_4836_8" style="transform: rotate(0deg);">
+                  <div class="_track_4836_17" style="background: rgb(14, 222, 201);"></div>
+                  <div class="_divider_4836_31">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                  </div>
+                </div>
+              </div>
+              <div class="_body_i994t_1" style="color: rgb(14, 222, 201); width: 17px;">0</div>
+            </div>
+            
+            <!-- Yaw -->
+            <div class="_yaw_1qszo_87">
+              <p class="_label_1qszo_72">yaw</p>
+              <img alt="yaw" src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='23'%20height='23'%20viewBox='0%200%2023%2023'%20fill='none'%3e%3cpath%20d='M9.52356%202.76188L1.78849%2018.4987C0.926875%2020.2517%202.83109%2022.0734%204.54419%2021.1351L10.3434%2017.9586C10.9332%2017.6355%2011.6458%2017.6305%2012.2401%2017.9452L18.4191%2021.2169C20.1448%2022.1306%2022.0228%2020.2834%2021.1378%2018.5429L13.1012%202.73762C12.3542%201.2685%2010.2506%201.28276%209.52356%202.76188Z'%20fill='%233E75FF'%20stroke='%233E75FF'%20stroke-width='2'/%3e%3c/svg%3e" style="transform: rotate(10deg);">
+              <div class="_body_i994t_1" style="color: rgb(62, 117, 255); width: 17px;">-10</div>
+            </div>
+            
+            <!-- Pitch -->
+            <div class="_pitch_1qszo_85">
+              <p class="_label_1qszo_72">pitch</p>
+              <div class="_gyroRange_4836_1">
+                <div class="_range_4836_8" style="transform: rotate(0deg);">
+                  <div class="_track_4836_17" style="background: rgb(198, 29, 69);"></div>
+                  <div class="_divider_4836_31">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                    <img alt="thumb" class="_thumb_4836_27" src="data:image/svg+xml,%3csvg%20width='1'%20height='4'%20viewBox='0%200%201%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cline%20x1='0.5'%20y1='3.5'%20x2='0.5'%20y2='0.5'%20stroke='%2305001C'%20stroke-linecap='round'/%3e%3c/svg%3e">
+                  </div>
+                </div>
+              </div>
+              <div class="_body_i994t_1" style="color: rgb(198, 29, 69); width: 17px;">0</div>
+            </div>
+          </div>
+          <h3 class="_title_1qszo_35">Gyroscope</h3>
+        </div>
+        
+        <div class="_deleteDivider_g46u6_31"></div>
+        
+        <!-- Range Sensors -->
+        <div class="_rangeContainer_g46u6_34">
+          <div class="_bodyLarge_tzac8_95">
+            <div class="_containerLarge_tzac8_106">
+              <input min="0" max="200" class="_slider_tzac8_29" readonly="" type="range" value="20.2" style="pointer-events: none;">
+            </div>
+            <div class="_value_tzac8_78">
+              <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">20.2 cm</div>
+            </div>
+            <h3 class="_titleLarge_tzac8_59">Front range</h3>
+          </div>
+          <div class="_bodyLarge_tzac8_95">
+            <div class="_containerLarge_tzac8_106">
+              <input min="0" max="200" class="_slider_tzac8_29" readonly="" type="range" value="0" style="pointer-events: none;">
+            </div>
+            <div class="_value_tzac8_78">
+              <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">0.0 cm</div>
+            </div>
+            <h3 class="_titleLarge_tzac8_59">Bottom range</h3>
+          </div>
+        </div>
+        
+        <button class="_zoomButton_g46u6_51">
+          <img alt="smallerButton" src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20viewBox='0%200%2016%2016'%20fill='none'%3e%3cpath%20d='M14.5503%206.7002L9.85002%206.70019C9.29774%206.70019%208.85003%206.25248%208.85003%205.70019L8.85003%200.999927'%20stroke='%233E75FF'%20stroke-width='2'%20stroke-linecap='round'/%3e%3cpath%20d='M1%208.85059H5.70027C6.25255%208.85059%206.70027%209.2983%206.70027%209.85059L6.70027%2014.5509'%20stroke='%233E75FF'%20stroke-width='2'%20stroke-linecap='round'/%3e%3c/svg%3e">
+        </button>
+      </div>
+      
+      <!-- Additional Data Section -->
+      <div class="_largeDataContainer_g46u6_66">
+        <div class="_dataContainer_g46u6_71">
+          <div class="_firstRow_g46u6_76">
+            <!-- Pressure -->
+            <div class="_wrapper_g46u6_19">
+              <div class="_container_dvbhw_1">
+                <div class="_titleContainer_dvbhw_9">
+                  <h3 class="_title_dvbhw_9">Drone pressure</h3>
+                </div>
+                <div class="_value_dvbhw_33">
+                  <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">101.114 kPa</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Temperature -->
+            <div class="_wrapper_g46u6_19">
+              <div class="_container_dvbhw_1">
+                <div class="_titleContainer_dvbhw_9">
+                  <h3 class="_title_dvbhw_9">Drone temperature</h3>
+                </div>
+                <div class="_value_dvbhw_33">
+                  <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">8.65 °C</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Color Sensors -->
+          <div class="_secondRow_g46u6_77">
+            <!-- Front Color -->
+            <div class="_colorWrapper_g46u6_98">
+              <div class="_container_1appo_1 ">
+                <div class="_colors_1appo_16">
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">357</div>
+                    <div class="_name_1appo_23">hue</div>
+                  </div>
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">82</div>
+                    <div class="_name_1appo_23">saturation</div>
+                  </div>
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">100</div>
+                    <div class="_name_1appo_23">value</div>
+                  </div>
+                  <div class="_colorBox_1appo_77">
+                    <div class="_circleBox_1appo_84" style="background-color: red;"></div>
+                    <div class="_name_1appo_23">red</div>
+                  </div>
+                </div>
+                <h3 class="_title_1appo_33">Front color</h3>
+              </div>
+            </div>
+            
+            <!-- Back Color -->
+            <div class="_colorWrapper_g46u6_98">
+              <div class="_container_1appo_1 ">
+                <div class="_colors_1appo_16">
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">358</div>
+                    <div class="_name_1appo_23">hue</div>
+                  </div>
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">92</div>
+                    <div class="_name_1appo_23">saturation</div>
+                  </div>
+                  <div class="_colorContainer_1appo_71">
+                    <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 17px;">81</div>
+                    <div class="_name_1appo_23">value</div>
+                  </div>
+                  <div class="_colorBox_1appo_77">
+                    <div class="_circleBox_1appo_84" style="background-color: red;"></div>
+                    <div class="_name_1appo_23">red</div>
+                  </div>
+                </div>
+                <h3 class="_title_1appo_33">Back color</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Position -->
+        <div class="_positionContainer_g46u6_107">
+          <div class="_container_fgivp_26 ">
+            <div class="_titleContainer_fgivp_1">
+              <h3 class="_title_fgivp_1">Position</h3>
+            </div>
+            <div class="_position_fgivp_36">
+              <div class="_positionItem_fgivp_68">
+                <span class="_label_fgivp_42">X</span>
+                <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">0.00 cm</div>
+              </div>
+              <div class="_positionItem_fgivp_68">
+                <span class="_label_fgivp_42">Y</span>
+                <div class="_body_i994t_1" style="color: rgb(255, 255, 255); width: 100%;">-0.02 cm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

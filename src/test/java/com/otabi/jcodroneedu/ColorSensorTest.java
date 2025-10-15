@@ -33,14 +33,17 @@ class ColorSensorTest {
     class ColorDataTests {
 
         @Test
-        @DisplayName("get_color_data() should return null when no color data available")
+        @DisplayName("get_color_data() should return zeros when initialized")
         void testGetColorDataNoData() {
             runWithDrone(drone -> {
-                // When no color data is set
+                // CardColor is now initialized with NONE values (matches Python behavior)
                 int[][] result = drone.getColorData();
 
-                // Should return null
-                assertNull(result, "getColorData() should return null when no data is available");
+                // Should return zero HSVL values (initialized state)
+                assertNotNull(result, "getColorData() should return initialized data");
+                assertEquals(2, result.length, "Should have 2 sensors");
+                assertArrayEquals(new int[]{0, 0, 0, 0}, result[0], "Front sensor should be all zeros");
+                assertArrayEquals(new int[]{0, 0, 0, 0}, result[1], "Back sensor should be all zeros");
             });
         }
 
@@ -107,14 +110,17 @@ class ColorSensorTest {
     class ColorDetectionTests {
 
         @Test
-        @DisplayName("get_colors() should return null when no color data available")
+        @DisplayName("get_colors() should return NONE (0) when initialized")
         void testGetColorsNoData() {
             runWithDrone(drone -> {
-                // When no color data is set
+                // CardColor is now initialized with NONE values (matches Python behavior)
                 int[] result = drone.getColors();
 
-                // Should return null
-                assertNull(result, "getColors() should return null when no data is available");
+                // Should return NONE (0) for both sensors
+                assertNotNull(result, "getColors() should return initialized data");
+                assertEquals(2, result.length, "Should return 2 color values");
+                assertEquals(0, result[0], "Front sensor should be NONE (0)");
+                assertEquals(0, result[1], "Back sensor should be NONE (0)");
             });
         }
 
@@ -169,14 +175,14 @@ class ColorSensorTest {
     class IndividualColorSensorTests {
 
         @Test
-        @DisplayName("get_front_color() should return -1 when no data available")
+        @DisplayName("get_front_color() should return NONE (0) when initialized")
         void testGetFrontColorNoData() {
             runWithDrone(drone -> {
-                // When no color data is set
+                // CardColor is now initialized with NONE values (matches Python behavior)
                 int result = drone.getFrontColor();
 
-                // Should return -1
-                assertEquals(-1, result, "get_front_color() should return -1 when no data is available");
+                // Should return NONE (0)
+                assertEquals(0, result, "get_front_color() should return NONE (0) when initialized");
             });
         }
 
@@ -201,14 +207,14 @@ class ColorSensorTest {
         }
 
         @Test
-        @DisplayName("get_back_color() should return -1 when no data available")
+        @DisplayName("get_back_color() should return NONE (0) when initialized")
         void testGetBackColorNoData() {
             runWithDrone(drone -> {
-                // When no color data is set
+                // CardColor is now initialized with NONE values (matches Python behavior)
                 int result = drone.getBackColor();
 
-                // Should return -1
-                assertEquals(-1, result, "get_back_color() should return -1 when no data is available");
+                // Should return NONE (0)
+                assertEquals(0, result, "get_back_color() should return NONE (0) when initialized");
             });
         }
 

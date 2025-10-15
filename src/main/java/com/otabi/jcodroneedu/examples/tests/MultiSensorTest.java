@@ -3,6 +3,7 @@ package com.otabi.jcodroneedu.examples.tests;
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;
 import com.otabi.jcodroneedu.protocol.dronestatus.Range;
+import com.otabi.jcodroneedu.protocol.dronestatus.Motion;
 import com.otabi.jcodroneedu.protocol.DataType;
 
 import java.io.BufferedReader;
@@ -42,25 +43,35 @@ public class MultiSensorTest {
 
             System.out.println("MultiSensorTest - Press Enter to take a single snapshot of sensors. Ctrl-C to quit.");
             while (true) {
-                if (!auto) {
-                    System.out.println("Press Enter to capture sensor snapshot...");
-                    in.readLine();
-                }
+                // Always wait for Enter (removed auto mode check)
+                System.out.println("\nPress Enter to capture sensor snapshot...");
+                in.readLine();
 
                 // Request fresh data
                 drone.sendRequest(DataType.Range);
                 drone.sendRequest(DataType.RawFlow);
                 drone.sendRequest(DataType.Motion);
-                drone.sendRequest(com.otabi.jcodroneedu.protocol.DataType.CardColor);
+                drone.sendRequest(DataType.CardColor);
 
                 // Small delay to allow receiver to update (matches other examples)
                 try { Thread.sleep(120); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
 
-                // Range
+                // Range - only show valid sensors (>= 0, -1 means not available)
                 Range range = drone.getDroneStatus().getRange();
                 if (range != null) {
-                    System.out.printf(Locale.US, "Range (mm) - front=%d back=%d left=%d right=%d top=%d bottom=%d%n",
-                            range.getFront(), range.getRear(), range.getLeft(), range.getRight(), range.getTop(), range.getBottom());
+                    StringBuilder rangeStr = new StringBuilder("Range (mm):");
+                    if (range.getFront() >= 0) rangeStr.append(String.format(" front=%d", range.getFront()));
+                    if (range.getRear() >= 0) rangeStr.append(String.format(" back=%d", range.getRear()));
+                    if (range.getLeft() >= 0) rangeStr.append(String.format(" left=%d", range.getLeft()));
+                    if (range.getRight() >= 0) rangeStr.append(String.format(" right=%d", range.getRight()));
+                    if (range.getTop() >= 0) rangeStr.append(String.format(" top=%d", range.getTop()));
+                    if (range.getBottom() >= 0) rangeStr.append(String.format(" bottom=%d", range.getBottom()));
+                    
+                    if (rangeStr.length() > 11) { // More than just "Range (mm):"
+                        System.out.println(rangeStr.toString());
+                    } else {
+                        System.out.println("Range: no valid sensors detected");
+                    }
                 } else {
                     System.out.println("Range: no data");
                 }
@@ -73,28 +84,25 @@ public class MultiSensorTest {
                     System.out.println("Flow: no data");
                 }
 
-                // Temperature
-                double tempC = drone.getDroneTemperature();
-                System.out.printf(Locale.US, "Temperature: %.2f °C / %.2f °F%n", tempC, (tempC * 9.0/5.0) + 32.0);
+                // Temperature from Motion sensor
+                Motion motion = drone.getDroneStatus().getMotion();
+                if (motion != null) {
+                    // Motion has accel/gyro/angle data but temperature is in Altitude
+                    // For now, skip temperature since it comes from barometer which may not be enabled
+                } 
+                
+                // Note: Temperature from barometer is typically 0.0 unless Altitude data is received
+                // Skipping temperature display as it requires barometer/altitude data
 
-                // Color
+                // Color - use CardColor's toString method
                 com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = drone.getDroneStatus().getCardColor();
                 if (cardColor != null) {
-                    byte[] colors = cardColor.getColor();
-                    if (colors != null && colors.length >= 2) {
-                        System.out.printf(Locale.US, "Detected colors - front=%d back=%d%n", colors[0] & 0xFF, colors[1] & 0xFF);
-                    } else {
-                        System.out.println("CardColor: no color values available");
-                    }
+                    System.out.println("Colors - " + cardColor.toString());
                 } else {
                     System.out.println("CardColor: no data");
                 }
 
-                System.out.println("--- snapshot complete ---\n");
-                if (auto) {
-                    // In auto mode, wait a short interval then continue
-                    try { Thread.sleep(1000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
-                }
+                System.out.println("--- snapshot complete ---");
             }
 
         } catch (Exception e) {

@@ -289,7 +289,7 @@ public class Receiver {
                     dup.get(arr);
                     StringBuilder sb = new StringBuilder();
                     for (byte b : arr) sb.append(String.format("%02X ", b));
-                    log.info("Motion payload bytes (len={}): {}", arr.length, sb.toString());
+                    log.debug("Motion payload bytes (len={}): {}", arr.length, sb.toString());
 
                     // Interpret as little-endian signed shorts for quick human-readable check
                     ByteBuffer peek = ByteBuffer.wrap(arr).order(ByteOrder.LITTLE_ENDIAN);
@@ -298,9 +298,9 @@ public class Receiver {
                         short v = peek.getShort();
                         vals.append(String.format("%d%s", (int) v, (i < 8 ? "," : "")));
                     }
-                    log.info("Motion payload as little-endian shorts: {}", vals.toString());
+                    log.debug("Motion payload as little-endian shorts: {}", vals.toString());
                 } catch (Exception e) {
-                    log.warn("Failed to dump Motion payload bytes: {}", e.getMessage());
+                    log.debug("Failed to dump Motion payload bytes: {}", e.getMessage());
                 }
             }
             message.parse(payloadBuffer);
