@@ -1,11 +1,12 @@
 package com.otabi.jcodroneedu.examples;
 
 import com.otabi.jcodroneedu.Drone;
+import com.otabi.jcodroneedu.buzzer.BuzzerSequence;
 import com.otabi.jcodroneedu.protocol.buzzer.Note;
 
 /**
- * Simple buzzer test program.
- * Tests both drone and controller buzzers with various notes and frequencies.
+ * Comprehensive buzzer test program.
+ * Tests drone and controller buzzers with notes, frequencies, and sequences.
  */
 public class BuzzerTest {
     public static void main(String[] args) {
@@ -73,6 +74,81 @@ public class BuzzerTest {
             System.out.println("  High frequency (4000 Hz)");
             drone.drone_buzzer(4000, 1000);
             Thread.sleep(1200);
+            
+            // Test 6: Built-in buzzer sequences
+            System.out.println("\nTest 6: Built-in buzzer sequences");
+            
+            System.out.println("  Playing 'success' on drone...");
+            drone.droneBuzzerSequence("success");
+            Thread.sleep(1000);
+            
+            System.out.println("  Playing 'warning' on drone...");
+            drone.droneBuzzerSequence("warning");
+            Thread.sleep(1000);
+            
+            System.out.println("  Playing 'error' on drone...");
+            drone.droneBuzzerSequence("error");
+            Thread.sleep(1000);
+            
+            System.out.println("  Playing 'success' on controller...");
+            drone.controllerBuzzerSequence("success");
+            Thread.sleep(1000);
+            
+            // Test 7: Custom buzzer sequences
+            System.out.println("\nTest 7: Custom buzzer sequences");
+            
+            // Create a simple melody
+            System.out.println("  Creating custom melody...");
+            BuzzerSequence melody = new BuzzerSequence.Builder()
+                .addNote(523, 200)  // C5
+                .addPause(50)
+                .addNote(659, 200)  // E5
+                .addPause(50)
+                .addNote(784, 400)  // G5
+                .build("custom-melody");
+            
+            drone.registerBuzzerSequence("custom-melody", melody);
+            System.out.println("  Playing custom melody on drone...");
+            drone.droneBuzzerSequence("custom-melody");
+            Thread.sleep(1500);
+            
+            // Create a more complex sequence
+            System.out.println("  Creating Star Wars theme intro...");
+            BuzzerSequence starWars = new BuzzerSequence.Builder()
+                .addNote(440, 500)   // A
+                .addNote(440, 500)   // A
+                .addNote(440, 500)   // A
+                .addNote(349, 350)   // F
+                .addPause(150)
+                .addNote(523, 150)   // C
+                .addNote(440, 500)   // A
+                .addNote(349, 350)   // F
+                .addPause(150)
+                .addNote(523, 150)   // C
+                .addNote(440, 1000)  // A (long)
+                .build("starwars");
+            
+            drone.registerBuzzerSequence("starwars", starWars);
+            System.out.println("  Playing Star Wars on drone...");
+            drone.droneBuzzerSequence("starwars");
+            Thread.sleep(5000);
+            
+            // Test 8: Alarm sequence
+            System.out.println("\nTest 8: Alarm sequence");
+            BuzzerSequence alarm = new BuzzerSequence.Builder()
+                .addNote(1000, 100)
+                .addPause(50)
+                .addNote(1000, 100)
+                .addPause(50)
+                .addNote(1000, 100)
+                .addPause(200)
+                .addNote(1500, 300)
+                .build("alarm");
+            
+            drone.registerBuzzerSequence("alarm", alarm);
+            System.out.println("  Playing alarm on controller...");
+            drone.controllerBuzzerSequence("alarm");
+            Thread.sleep(2000);
             
             System.out.println("\nBuzzer test complete!");
             

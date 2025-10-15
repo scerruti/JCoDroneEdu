@@ -73,6 +73,17 @@ tasks.register<JavaExec>("runBuzzerTest") {
 }
 
 // -----------------------------------------------------------------
+// Run Autonomous Ping Test - tests autonomous methods and ping feature
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runAutonomousPingTest") {
+    group = "verification"
+    description = "Comprehensive test for autonomous flight (avoidWall, keepDistance) and ping feature."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.AutonomousPingTest")
+    standardInput = System.`in`  // Forward stdin for manual confirmations
+}
+
+// -----------------------------------------------------------------
 // Run Single Note Test - plays one note repeatedly for audio testing
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runSingleNoteTest") {
