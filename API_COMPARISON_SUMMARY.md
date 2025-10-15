@@ -1,15 +1,15 @@
 # API Comparison Summary
 
-**Date:** October 15, 2025
+**Date:** October 15, 2025 (Updated)
 **Comparison Source:** [Official Robolink Python Documentation](https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation)
 
 ## Quick Stats
 
-📊 **Overall API Completion: ~80%**
+📊 **Overall API Completion: ~83%** ⬆️ (up from ~80%)
 
 Based on the official Python documentation (150+ documented methods):
-- ✅ **Fully Complete Categories:** Connection, Flight Variables, LED, Range Sensors, Optical Flow, Gyroscope/IMU
-- 🟢 **Nearly Complete (85-90%):** Flight Commands, Sounds, Pressure Sensors, State Data
+- ✅ **Fully Complete Categories:** Connection, Flight Commands, Flight Variables, LED, Range Sensors, Optical Flow, Gyroscope/IMU
+- 🟢 **Nearly Complete (85-90%):** Sounds, Pressure Sensors, State Data
 - 🟡 **Partial (40%):** Color Sensors (many methods unavailable for hardware)
 - 🔴 **Limited (20%):** Controller Display (unavailable for JROTC hardware)
 
@@ -18,7 +18,7 @@ Based on the official Python documentation (150+ documented methods):
 | Category | Completion | Notes |
 |----------|-----------|-------|
 | Connection/Setup | 100% ✅ | `pair()`, `close()` |
-| Flight Commands | 85% 🟢 | Missing: `avoid_wall()`, `keep_distance()` |
+| Flight Commands | 100% ✅ | **NEW:** `avoidWall()`, `keepDistance()` added! |
 | Flight Sequences | 100% ✅ | All 6 sequences implemented |
 | Flight Variables | 100% ✅ | All movement control |
 | LED Control | 100% ✅ | All LED methods + Java shortcuts |
@@ -32,13 +32,15 @@ Based on the official Python documentation (150+ documented methods):
 | Controller Input | 100% ✅ | Three-tier API with composites |
 | Controller Display | 20% 🔴 | Canvas methods unavailable for JROTC |
 
-## Top 5 High-Priority Missing Methods
+## Top 3 High-Priority Missing Methods (Updated)
 
-1. **`avoid_wall(timeout, distance)`** - Autonomous navigation with obstacle avoidance
-2. **`keep_distance(timeout, distance)`** - Maintain distance from detected object
-3. **`ping()`** - Find drone feature (beep + random LED color)
-4. **`controller_buzzer_sequence(sequence)`** - Predefined sound sequences
-5. **`get_error_data()`** - Detailed error state reporting
+1. **`ping()`** - Find drone feature (beep + random LED color)
+2. **`controller_buzzer_sequence(sequence)`** - Predefined sound sequences
+3. **`get_error_data()`** - Detailed error state reporting
+
+✅ **Recently Implemented:**
+- ~~`avoid_wall(timeout, distance)`~~ → `avoidWall(timeout, distance)` ✅ 
+- ~~`keep_distance(timeout, distance)`~~ → `keepDistance(timeout, distance)` ✅
 
 ## What Java Does Better Than Python
 

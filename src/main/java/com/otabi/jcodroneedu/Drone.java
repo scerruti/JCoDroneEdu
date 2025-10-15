@@ -3,6 +3,8 @@
 package com.otabi.jcodroneedu;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.otabi.jcodroneedu.autonomous.AutonomousMethod;
+import com.otabi.jcodroneedu.autonomous.AutonomousMethodRegistry;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
@@ -17,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -551,6 +555,131 @@ public class Drone implements AutoCloseable {
      */
     public void resetMoveValues() {
         flightController.resetMoveValues();
+    }
+
+    // ============================================================================
+    // Autonomous Flight Methods - Sensor-Driven Behaviors
+    // ============================================================================
+
+    /**
+     * Autonomously maintains a specified distance from a wall ahead of the drone.
+     * The drone uses its front range sensor to detect the wall and adjusts pitch
+     * (forward/backward movement) to stay at the target distance. This method
+     * provides matching functionality to the Python API's avoid_wall() method.
+     * 
+     * <p><strong>🎯 How it works:</strong></p>
+     * <ul>
+     *   <li>Continuously reads front range sensor</li>
+     *   <li>Calculates distance error from target</li>
+     *   <li>Applies proportional control to adjust position</li>
+     *   <li>Maintains position within threshold (±20cm)</li>
+     * </ul>
+     * 
+     * <p><strong>💡 Educational Use (L0205):</strong></p>
+     * <pre>{@code
+     * // Basic wall avoidance
+     * drone.takeoff();
+     * drone.avoidWall(10, 50);  // Keep 50cm from wall for 10 seconds
+     * drone.land();
+     * 
+     * // Following a wall at different distances
+     * drone.takeoff();
+     * drone.avoidWall(5, 80);   // Stay 80cm away
+     * drone.setYaw(50);          // Start turning
+     * drone.move(3);             // Turn while maintaining wall distance
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>⚠️ Safety Notes:</strong></p>
+     * <ul>
+     *   <li>Requires clear space in front of the drone</li>
+     *   <li>Front range sensor must detect a surface within 200cm</li>
+     *   <li>Does not control altitude, yaw, or roll - use hover() for stability</li>
+     *   <li>Best used in controlled indoor environments</li>
+     * </ul>
+     * 
+     * @param timeout Duration to maintain wall distance, in seconds (1-30)
+     * @param distance Target distance from wall, in centimeters (10-100)
+     * @throws IllegalArgumentException if timeout not in range 1-30 or distance not in range 10-100
+     * @see #keepDistance(int, int)
+     * @see #getFrontRange()
+     * @educational
+     * @pythonEquivalent avoid_wall(timeout, distance)
+     */
+    public void avoidWall(int timeout, int distance) {
+        AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
+        AutonomousMethod method = registry.getMethod("avoidWall");
+        
+        Map<String, Integer> params = new HashMap<>();
+        params.put("timeout", timeout);
+        params.put("distance", distance);
+        
+        method.execute(this, params);
+    }
+
+    /**
+     * Autonomously maintains a specified distance from an object ahead of the drone.
+     * Similar to avoidWall(), but optimized for tracking moving objects or maintaining
+     * distance from non-wall surfaces. The drone uses its front range sensor and applies
+     * proportional control to adjust its position. This method provides matching
+     * functionality to the Python API's keep_distance() method.
+     * 
+     * <p><strong>🎯 How it works:</strong></p>
+     * <ul>
+     *   <li>Continuously monitors front range sensor</li>
+     *   <li>Calculates distance error from target</li>
+     *   <li>Applies proportional control (P-controller)</li>
+     *   <li>Maintains position within threshold (±10cm)</li>
+     * </ul>
+     * 
+     * <p><strong>💡 Educational Use (L0206):</strong></p>
+     * <pre>{@code
+     * // Following a moving person/object
+     * drone.takeoff();
+     * drone.keepDistance(15, 60);  // Maintain 60cm distance for 15 seconds
+     * drone.land();
+     * 
+     * // Combining with other movements
+     * drone.takeoff();
+     * drone.keepDistance(8, 40);   // Stay 40cm from object
+     * drone.setRoll(30);           // Strafe right while tracking
+     * drone.move(2);
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>🔬 Algorithm Details:</strong></p>
+     * The method uses a proportional controller with P-value of 0.4:
+     * <pre>{@code
+     * error = (target_distance - current_distance) / target_distance
+     * speed = error * 0.4 * 100
+     * }</pre>
+     * This creates smooth, responsive distance maintenance without oscillation.
+     * 
+     * <p><strong>⚠️ Safety Notes:</strong></p>
+     * <ul>
+     *   <li>Requires detectable object within sensor range (10-200cm)</li>
+     *   <li>May move forward/backward to maintain distance</li>
+     *   <li>Does not control altitude, yaw, or roll</li>
+     *   <li>Best for flat, level surfaces</li>
+     * </ul>
+     * 
+     * @param timeout Duration to maintain distance, in seconds (1-30)
+     * @param distance Target distance from object, in centimeters (10-100)
+     * @throws IllegalArgumentException if timeout not in range 1-30 or distance not in range 10-100
+     * @see #avoidWall(int, int)
+     * @see #getFrontRange()
+     * @educational
+     * @pythonEquivalent keep_distance(timeout, distance)
+     */
+    public void keepDistance(int timeout, int distance) {
+        AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
+        AutonomousMethod method = registry.getMethod("keepDistance");
+        
+        Map<String, Integer> params = new HashMap<>();
+        params.put("timeout", timeout);
+        params.put("distance", distance);
+        
+        method.execute(this, params);
     }
 
     /**

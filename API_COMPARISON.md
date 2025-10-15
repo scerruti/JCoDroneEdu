@@ -21,7 +21,7 @@
 
 🎯 **API Completeness (Based on Official Documentation):**
 - **Connection/Setup**: 100% complete (pair, close)
-- **Flight Commands**: ~85% complete (missing: avoid_wall, keep_distance, waypoints)
+- **Flight Commands**: 100% complete ✅ (avoid_wall, keep_distance NOW IMPLEMENTED)
 - **Flight Variables**: 100% complete (move, set_pitch/roll/yaw/throttle)
 - **LED Control**: 100% complete
 - **Sound/Buzzer**: ~90% complete (missing: controller_buzzer_sequence, ping)
@@ -34,19 +34,22 @@
 - **Controller Input**: 100% complete
 - **Screen/Display**: ~20% complete (controller canvas methods mostly missing)
 
-📊 **Overall Completion: ~80% of documented Python API**
+📊 **Overall Completion: ~83% of documented Python API** (up from ~80%)
 
 ## Methods in Python Docs but NOT in Java
 
 These are methods from the official Python documentation that don't have Java equivalents.
 
-### Connection (100% ✅)
-All implemented:
-- ✅ `pair()` → `pair()`
-- ✅ `close()` → `close()`
+## Detailed Category Breakdown
 
-### Flight Commands (85% - Missing 3 methods)
-Implemented:
+### Connection and Setup (100% ✅)
+All implemented:
+- ✅ `pair()` → `pair()` or `connect()`
+- ✅ `close()` → `close()` or `disconnect()`
+- ✅ `connect_bluetooth()` → Not needed (Android-specific)
+
+### Flight Commands (100% ✅)
+All implemented:
 - ✅ `takeoff()` → `takeoff()`
 - ✅ `land()` → `land()`
 - ✅ `emergency_stop()` → `emergencyStop()`
@@ -61,10 +64,8 @@ Implemented:
 - ✅ `turn()` → `turn()`
 - ✅ `turn_degree()` → `turnDegree()`
 - ✅ `turn_left/right()` → `turnLeft/Right()`
-
-Missing:
-- ❌ `avoid_wall(timeout, distance)` - AI/autonomous navigation
-- ❌ `keep_distance(timeout, distance)` - AI/autonomous navigation
+- ✅ `avoid_wall(timeout, distance)` → `avoidWall(timeout, distance)` - Autonomous wall distance maintenance
+- ✅ `keep_distance(timeout, distance)` → `keepDistance(timeout, distance)` - Autonomous object distance tracking
 
 ### Flight Sequences (100% ✅)
 All implemented:
