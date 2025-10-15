@@ -144,6 +144,61 @@ tasks.register<JavaExec>("runMotionDump") {
 }
 
 // -----------------------------------------------------------------
+// Run Altitude/Pressure Test - displays altitude, pressure, and height
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runAltitudePressureTest") {
+    group = "verification"
+    description = "Displays altitude, pressure, and height sensor data with calculations."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.AltitudePressureTest")
+}
+
+// Run Elevation API Demo - demonstrates new elevation methods
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runElevationApiDemo") {
+    group = "verification"
+    description = "Demonstrates the elevation API (getUncorrectedElevation, getCorrectedElevation, getElevation)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.ElevationApiDemo")
+}
+
+// Run Calibrated Elevation Demo - shows weather-calibrated altitude
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runCalibratedElevationDemo") {
+    group = "verification"
+    description = "Demonstrates weather-calibrated elevation using real-time pressure data."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.CalibratedElevationDemo")
+}
+
+// Run Weather Service Test - tests API connectivity without drone
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runWeatherServiceTest") {
+    group = "verification"
+    description = "Tests weather API connectivity and data retrieval (no drone required)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.WeatherServiceTest")
+}
+
+// Run Relative Height Demo - demonstrates pressure-based relative height
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runRelativeHeightDemo") {
+    group = "verification"
+    description = "Demonstrates relative height measurement using pressure reference (Python compatibility)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.RelativeHeightDemo")
+}
+
+// Run Automatic Elevation Demo - demonstrates automatic location detection
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runAutomaticElevationDemo") {
+    group = "verification"
+    description = "Demonstrates automatic location detection and pressure calibration with fallback strategy."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.AutomaticElevationDemo")
+}
+
+// -----------------------------------------------------------------
 // Run MultiSensorTest - range, flow, temperature, and color sensors
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runMultiSensorTest") {
@@ -213,6 +268,9 @@ dependencies {
     
     // JSR 385 - Units of Measurement API for unit conversion
     implementation("tech.units:indriya:2.2")
+    
+    // JSON parsing for weather API
+    implementation("org.json:json:20240303")
 
     // JUnit 5 (Jupiter) for testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")

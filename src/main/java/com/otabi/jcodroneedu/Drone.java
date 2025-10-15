@@ -132,6 +132,10 @@ public class Drone implements AutoCloseable {
 
     private final RateLimiter commandRateLimiter;
     private boolean isConnected = false;
+    
+    // --- Sensor Correction Settings ---
+    private boolean useCorrectedElevation = false;
+    private double initialPressure = 0.0;  // For relative height measurements
 
     // --- Controller Input Data Storage ---
     private volatile Object[] buttonData = new Object[3];      // [timestamp, button_flags, event_name]
@@ -2727,13 +2731,117 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Gets the uncorrected elevation from the drone's firmware.
+     * 
+     * <p><strong>⚠️ Important:</strong> This returns the raw altitude value from the drone's
+     * firmware, which has a known offset of approximately +100 to +150 meters. This value
+     * should NOT be used for accurate altitude measurements. Use {@link #getCorrectedElevation()}
+     * for accurate altitude readings.</p>
+     * 
+     * <p>This method is provided for:
+     * <ul>
+     *   <li>Python API compatibility (matches {@code drone.get_elevation()})</li>
+     *   <li>Educational purposes to demonstrate sensor calibration concepts</li>
+     *   <li>Debugging and comparison with corrected values</li>
+     * </ul>
+     * 
+     * <h3>📊 Example Readings:</h3>
+     * <pre>
+     * // At 16m above sea level with 1011 hPa pressure:
+     * double uncorrected = drone.getUncorrectedElevation();  // ~126m (off by ~110m!)
+     * double corrected = drone.getCorrectedElevation();       // ~17m (accurate!)
+     * </pre>
+     * 
+     * @return Uncorrected elevation in meters (with firmware offset), or 0.0 if no data available
+     * @see #getCorrectedElevation()
+     * @see #getElevation()
+     * @apiNote Equivalent to Python's {@code drone.get_elevation()}
+     * @since 1.0
+     * @educational
+     */
+    public double getUncorrectedElevation() {
+        var altitude = droneStatus.getAltitude();
+        return altitude != null ? altitude.getAltitude() : 0.0;
+    }
+
+    /**
+     * Gets the elevation reading - either corrected or uncorrected based on settings.
+     * 
+     * <p>This convenience method matches the Python API while allowing flexible behavior:
+     * <ul>
+     *   <li><strong>Default:</strong> Returns uncorrected firmware value (Python compatibility)</li>
+     *   <li><strong>After {@code useCorrectedElevation(true)}:</strong> Returns corrected value</li>
+     * </ul>
+     * 
+     * <p><strong>🎓 Educational Note:</strong> For explicit control and clearer code,
+     * prefer using {@link #getUncorrectedElevation()} or {@link #getCorrectedElevation()}
+     * directly instead of relying on state-based behavior.</p>
+     * 
+     * <h3>📝 Usage Examples:</h3>
+     * <pre>
+     * // Python-style default (uncorrected):
+     * double elevation = drone.getElevation();  // Returns uncorrected value
+     * 
+     * // Switch to corrected values:
+     * drone.useCorrectedElevation(true);
+     * double elevation = drone.getElevation();  // Now returns corrected value
+     * 
+     * // Explicit control (recommended):
+     * double raw = drone.getUncorrectedElevation();
+     * double accurate = drone.getCorrectedElevation();
+     * </pre>
+     * 
+     * @return Elevation in meters (corrected or uncorrected based on settings)
+     * @see #getUncorrectedElevation()
+     * @see #getCorrectedElevation()
+     * @see #useCorrectedElevation(boolean)
+     * @apiNote Equivalent to Python's {@code drone.get_elevation()}
+     * @since 1.0
+     * @educational
+     */
+    public double getElevation() {
+        return useCorrectedElevation ? getCorrectedElevation() : getUncorrectedElevation();
+    }
+
+    /**
+     * Sets whether {@link #getElevation()} returns corrected or uncorrected values.
+     * 
+     * <p>This allows switching between Python-compatible default behavior (uncorrected)
+     * and accurate altitude readings (corrected) without changing code that calls
+     * {@code getElevation()}.</p>
+     * 
+     * <p><strong>Note:</strong> This only affects {@link #getElevation()}. The explicit
+     * methods {@link #getUncorrectedElevation()} and {@link #getCorrectedElevation()}
+     * always return their respective values regardless of this setting.</p>
+     * 
+     * @param useCorrected If true, {@code getElevation()} returns corrected altitude.
+     *                     If false (default), returns uncorrected firmware value.
+     * @see #getElevation()
+     * @since 1.0
+     * @educational
+     */
+    public void useCorrectedElevation(boolean useCorrected) {
+        this.useCorrectedElevation = useCorrected;
+    }
+
+    /**
      * Calculates accurate altitude from barometric pressure using the standard barometric formula.
      * 
-     * <p>This method provides a more accurate altitude calculation than the drone's built-in
-     * altitude reading, which may have calibration offsets of +100 to +150 meters.
-     * The calculation uses the international standard atmosphere formula:
+     * <p>This method provides accurate altitude calculation, correcting the drone's built-in
+     * altitude reading which has a firmware offset of +100 to +150 meters.</p>
+     * 
+     * <p><strong>🌐 Automatic Calibration:</strong> This method now automatically attempts to
+     * determine your location and fetch current weather data for best accuracy:
+     * <ol>
+     *   <li>Try OS location services (if available via JNI)</li>
+     *   <li>Try IP-based geolocation</li>
+     *   <li>Fall back to standard atmosphere (101325 Pa)</li>
+     * </ol>
+     * All failures are handled gracefully - you'll always get a valid altitude reading!</p>
+     * 
+     * <p>The calculation uses the international standard atmosphere formula:
      * <pre>h = 44330 * (1 - (P/P₀)^0.1903)</pre>
-     * where P is measured pressure and P₀ is sea-level pressure (101325 Pa).</p>
+     * where P is measured pressure and P₀ is sea-level pressure.</p>
      * 
      * <h3>🎯 Educational Usage:</h3>
      * <ul>
@@ -2741,40 +2849,49 @@ public class Drone implements AutoCloseable {
      *   <li><strong>Math Application:</strong> Real-world exponential functions</li>
      *   <li><strong>Sensor Calibration:</strong> Compare calculated vs sensor-reported values</li>
      *   <li><strong>Data Science:</strong> Error analysis and calibration techniques</li>
+     *   <li><strong>Graceful Degradation:</strong> Learn about fallback strategies</li>
      * </ul>
      * 
-     * <p><strong>Note:</strong> For best accuracy:
-     * <ul>
-     *   <li>Use current local sea-level pressure if available (from weather station)</li>
-     *   <li>Default uses standard atmosphere (101325 Pa / 1013.25 hPa)</li>
-     *   <li>Accuracy decreases with altitude and distance from calibration point</li>
-     * </ul>
+     * <p><strong>Note:</strong> For explicit control of pressure source, use
+     * {@link #getCorrectedElevation(double)} or {@link #getCorrectedElevation(double, double)}.</p>
      * 
-     * @return Calculated altitude in meters above sea level, or 0.0 if no pressure data available
+     * @return Corrected altitude in meters above sea level, or 0.0 if no pressure data available
      * @see #getPressure()
+     * @see #getUncorrectedElevation()
+     * @see #getCorrectedElevation(double)
+     * @see #getCorrectedElevation(double, double)
      * @since 1.0
      * @educational
      */
-    public double getCalculatedAltitude() {
-        return getCalculatedAltitude(101325.0);
+    public double getCorrectedElevation() {
+        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getAutomaticSeaLevelPressure();
+        return getCorrectedElevation(seaLevelPressure);
     }
 
     /**
-     * Calculates altitude from barometric pressure using a specified sea-level pressure.
+     * Calculates corrected altitude from barometric pressure using a calibrated sea-level pressure.
      * 
      * <p>This allows for more accurate altitude calculations when the current local
      * sea-level pressure is known (from local weather reports or nearby weather stations).
-     * Uses the international standard atmosphere formula.</p>
+     * Uses the international standard atmosphere formula with calibrated sea-level pressure.</p>
+     * 
+     * <h3>📡 Getting Local Sea-Level Pressure:</h3>
+     * <ul>
+     *   <li>Check local weather stations or weather apps</li>
+     *   <li>Look for "barometric pressure" or "QNH" in aviation weather</li>
+     *   <li>Convert if needed: 1 hPa = 100 Pa, 1 inHg = 3386.39 Pa</li>
+     * </ul>
      * 
      * @param seaLevelPressure The current sea-level pressure in Pascals (Pa).
      *                         Standard atmosphere is 101325 Pa (1013.25 hPa).
      *                         Get local value from weather reports for best accuracy.
-     * @return Calculated altitude in meters above sea level, or 0.0 if no pressure data available
+     * @return Corrected altitude in meters above sea level, or 0.0 if no pressure data available
      * @see #getPressure()
+     * @see #getCorrectedElevation()
      * @since 1.0
      * @educational
      */
-    public double getCalculatedAltitude(double seaLevelPressure) {
+    public double getCorrectedElevation(double seaLevelPressure) {
         double pressure = getPressure();
         if (pressure == 0.0) {
             return 0.0;
@@ -2783,6 +2900,202 @@ public class Drone implements AutoCloseable {
         // International standard atmosphere formula
         // h = 44330 * (1 - (P/P₀)^0.1903)
         return 44330.0 * (1.0 - Math.pow(pressure / seaLevelPressure, 0.1903));
+    }
+
+    /**
+     * @deprecated Use {@link #getCorrectedElevation()} instead.
+     *             Method renamed for clarity (calculated → corrected).
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getCalculatedAltitude() {
+        return getCorrectedElevation();
+    }
+
+    /**
+     * @deprecated Use {@link #getCorrectedElevation(double)} instead.
+     *             Method renamed for clarity (calculated → corrected).
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getCalculatedAltitude(double seaLevelPressure) {
+        return getCorrectedElevation(seaLevelPressure);
+    }
+
+    /**
+     * Gets corrected elevation using current sea-level pressure from online weather data.
+     * 
+     * <p>This method automatically fetches the current barometric pressure from online
+     * weather services (Open-Meteo API) based on your location coordinates. This provides
+     * the most accurate altitude readings by accounting for local weather conditions.</p>
+     * 
+     * <h3>📍 How to Find Your Coordinates:</h3>
+     * <ul>
+     *   <li><strong>Google Maps:</strong> Right-click location → "What's here?"</li>
+     *   <li><strong>iPhone:</strong> Open Compass app (shows coordinates at bottom)</li>
+     *   <li><strong>Settings:</strong> Enable Location Services for more accuracy</li>
+     *   <li><strong>Command line:</strong> curl ipinfo.io (approximate)</li>
+     * </ul>
+     * 
+     * <h3>🌐 Network Requirements:</h3>
+     * <ul>
+     *   <li>Requires internet connection</li>
+     *   <li>Uses Open-Meteo API (free, no API key)</li>
+     *   <li>Falls back to standard pressure if offline</li>
+     *   <li>5-second timeout to avoid blocking</li>
+     * </ul>
+     * 
+     * <h3>💡 Example Usage:</h3>
+     * <pre>
+     * // San Francisco, CA
+     * double elevation = drone.getCorrectedElevation(37.7749, -122.4194);
+     * 
+     * // New York, NY  
+     * double elevation = drone.getCorrectedElevation(40.7128, -74.0060);
+     * 
+     * // Tokyo, Japan
+     * double elevation = drone.getCorrectedElevation(35.6762, 139.6503);
+     * </pre>
+     * 
+     * @param latitude Latitude of your location in decimal degrees (-90 to 90)
+     * @param longitude Longitude of your location in decimal degrees (-180 to 180)
+     * @return Corrected elevation in meters with weather-calibrated sea-level pressure
+     * @throws IllegalArgumentException if coordinates are out of valid range
+     * @see com.otabi.jcodroneedu.util.WeatherService#getSeaLevelPressure(double, double)
+     * @since 1.0
+     * @educational
+     */
+    public double getCorrectedElevation(double latitude, double longitude) {
+        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getSeaLevelPressure(latitude, longitude);
+        return getCorrectedElevation(seaLevelPressure);
+    }
+
+    /**
+     * Sets the initial pressure reference point for relative height measurements.
+     * 
+     * <p>This method captures the current barometric pressure from the drone and stores it
+     * as a reference point. Subsequent calls to {@link #getHeightFromPressure()} will return
+     * the height change relative to this reference point.</p>
+     * 
+     * <p><strong>🎯 Use Cases:</strong></p>
+     * <ul>
+     *   <li><strong>Indoor Flying:</strong> Measure height above floor without knowing sea level</li>
+     *   <li><strong>Climb/Descent Tracking:</strong> Monitor altitude changes during flight</li>
+     *   <li><strong>Simple Calibration:</strong> No need for weather data or coordinates</li>
+     *   <li><strong>Relative Navigation:</strong> "How much higher/lower am I than where I started?"</li>
+     * </ul>
+     * 
+     * <h3>📝 Usage Pattern:</h3>
+     * <pre>
+     * // Place drone on ground/starting position
+     * drone.setInitialPressure();
+     * 
+     * // Fly around
+     * drone.takeoff();
+     * Thread.sleep(3000);
+     * 
+     * // Check how high you've climbed
+     * double heightChange = drone.getHeightFromPressure();
+     * System.out.printf("Height above starting point: %.2f m\n", heightChange / 1000.0);
+     * </pre>
+     * 
+     * <p><strong>Note:</strong> Call this method when the drone is at the position you want
+     * to use as your reference "zero" point. Typically this is done on the ground before takeoff.</p>
+     * 
+     * @see #getHeightFromPressure()
+     * @see #getHeightFromPressure(double, double)
+     * @apiNote Equivalent to Python's {@code drone.set_initial_pressure()}
+     * @since 1.0
+     * @educational
+     */
+    public void setInitialPressure() {
+        this.initialPressure = getPressure();
+    }
+
+    /**
+     * Gets the relative height change from the initial pressure reference point.
+     * 
+     * <p>Returns the height change in millimeters since {@link #setInitialPressure()} was called.
+     * This uses a linear approximation of pressure-to-height conversion with default calibration
+     * values (b=0, m=9.34 mm/Pa).</p>
+     * 
+     * <p><strong>⚠️ Important:</strong> You MUST call {@link #setInitialPressure()} first,
+     * otherwise this will return 0.0.</p>
+     * 
+     * <h3>🎯 Educational Context:</h3>
+     * <ul>
+     *   <li><strong>Linear vs Exponential:</strong> Compare with {@link #getCorrectedElevation()}</li>
+     *   <li><strong>Relative vs Absolute:</strong> This measures change, not position</li>
+     *   <li><strong>Indoor Applications:</strong> Works without internet or weather data</li>
+     *   <li><strong>Sensor Precision:</strong> Accuracy is ±5-10mm in stable conditions</li>
+     * </ul>
+     * 
+     * <h3>📐 Formula:</h3>
+     * <pre>height_mm = (initial_pressure - current_pressure) * 9.34</pre>
+     * 
+     * <p><strong>Why 9.34?</strong> This is an empirically-derived constant representing
+     * approximately 9.34 mm of height change per Pascal of pressure change near sea level.</p>
+     * 
+     * @return Height change in millimeters from initial reference point, or 0.0 if
+     *         {@code setInitialPressure()} has not been called
+     * @see #setInitialPressure()
+     * @see #getHeightFromPressure(double, double)
+     * @apiNote Equivalent to Python's {@code drone.height_from_pressure()}
+     * @since 1.0
+     * @educational
+     */
+    public double getHeightFromPressure() {
+        return getHeightFromPressure(0.0, 9.34);
+    }
+
+    /**
+     * Gets the relative height change with custom calibration parameters.
+     * 
+     * <p>This overload allows fine-tuning the pressure-to-height conversion using
+     * custom calibration values. The formula is:
+     * <pre>height_mm = (initial_pressure - current_pressure + b) * m</pre>
+     * 
+     * <h3>📊 Calibration Parameters:</h3>
+     * <ul>
+     *   <li><strong>b (offset):</strong> Pressure offset in Pascals. Use to correct for
+     *       systematic errors or sensor drift. Default: 0.0</li>
+     *   <li><strong>m (slope):</strong> Conversion factor in mm/Pa. Adjusts sensitivity.
+     *       Default: 9.34 mm/Pa</li>
+     * </ul>
+     * 
+     * <h3>🔬 When to Adjust:</h3>
+     * <ul>
+     *   <li><strong>m parameter:</strong> If measurements consistently over/under-report height</li>
+     *   <li><strong>b parameter:</strong> If you need to compensate for known pressure offset</li>
+     *   <li><strong>Default values:</strong> Work well for most educational applications</li>
+     * </ul>
+     * 
+     * <h3>💡 Example Calibration:</h3>
+     * <pre>
+     * // Measure known height (e.g., 1 meter = 1000mm)
+     * drone.setInitialPressure();
+     * drone.goToHeight(100); // Fly to 100cm
+     * double measured = drone.getHeightFromPressure();
+     * 
+     * // If measured is 1050mm instead of 1000mm, adjust m:
+     * double newM = 9.34 * (1000.0 / 1050.0); // ≈ 8.9
+     * double corrected = drone.getHeightFromPressure(0, newM);
+     * </pre>
+     * 
+     * @param b Pressure offset in Pascals (y-intercept of linear model)
+     * @param m Conversion slope in millimeters per Pascal
+     * @return Height change in millimeters from initial reference point
+     * @see #setInitialPressure()
+     * @see #getHeightFromPressure()
+     * @apiNote Equivalent to Python's {@code drone.height_from_pressure(b, m)}
+     * @since 1.0
+     * @educational
+     */
+    public double getHeightFromPressure(double b, double m) {
+        if (initialPressure == 0.0) {
+            return 0.0;
+        }
+        double currentPressure = getPressure();
+        double heightMm = (initialPressure - currentPressure + b) * m;
+        return Math.round(heightMm * 100.0) / 100.0; // Round to 2 decimal places
     }
 
     /**
