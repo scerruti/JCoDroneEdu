@@ -66,7 +66,7 @@ public enum DataType {
     Flow((byte) 0x46, Flow.class, Flow::new),
 
     // --- Settings (Received) ---
-    Count((byte) 0x50, Count.class, null),
+    Count((byte) 0x50, Count.class, Count::new),
     Bias((byte) 0x51, Bias.class, null),
     Trim((byte) 0x52, Trim.class, null),
     Weight((byte) 0x53, Weight.class, null),

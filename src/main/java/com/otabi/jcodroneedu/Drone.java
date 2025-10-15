@@ -122,6 +122,8 @@ public class Drone implements AutoCloseable {
     // --- Core Components ---
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
+    private final InventoryManager inventoryManager;
+    private final ControllerInputManager controllerInputManager;
     private final Receiver receiver;
     private final SerialPortManager serialPortManager;
 
@@ -137,10 +139,6 @@ public class Drone implements AutoCloseable {
     private boolean useCorrectedElevation = false;
     private boolean useCalibratedTemperature = false;
     private double initialPressure = 0.0;  // For relative height measurements
-
-    // --- Controller Input Data Storage ---
-    private volatile Object[] buttonData = new Object[3];      // [timestamp, button_flags, event_name]
-    private volatile int[] joystickData = new int[9];          // [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
 
     /**
      * Creates a new Drone instance ready for connection.
@@ -163,6 +161,8 @@ public class Drone implements AutoCloseable {
         // Initialize state-holding managers
         this.droneStatus = new DroneStatus();
         this.linkManager = new LinkManager();
+        this.inventoryManager = new InventoryManager();
+        this.controllerInputManager = new ControllerInputManager();
 
         // Initialize CardColor with default NONE values
         byte[][] hsvl = new byte[2][4]; // All zeros
@@ -174,7 +174,7 @@ public class Drone implements AutoCloseable {
         // The 'Internals' class from the original code seems to have been absorbed
         // into the new manager/controller structure. If it has other responsibilities,
         // it would be initialized here.
-        this.receiver = new Receiver(this, droneStatus, linkManager);
+        this.receiver = new Receiver(this, droneStatus, linkManager, inventoryManager, controllerInputManager);
         this.serialPortManager = new SerialPortManager(receiver);
 
         // Initialize the controllers, passing a reference to this Drone instance
@@ -185,9 +185,6 @@ public class Drone implements AutoCloseable {
         // Set a default command rate limit (e.g., ~16 commands/sec)
         double permitsPerSecond = 1.0 / 0.060;
         this.commandRateLimiter = RateLimiter.create(permitsPerSecond);
-
-        // Initialize controller input data
-        initializeControllerInputData();
 
         log.info("Drone instance created and ready for connection.");
     }
@@ -1299,21 +1296,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveBackward(double distance, String units, double speed) {
         flightController.moveBackward(distance, units, speed);
     }
     
     /**
-     * Move backward with default units (cm) and speed (1.0 m/s).
+     * Move backward with default units (cm) and speed (0.5 m/s).
      */
     public void moveBackward(double distance) {
         flightController.moveBackward(distance);
     }
     
     /**
-     * Move backward with specified units and default speed (1.0 m/s).
+     * Move backward with specified units and default speed (0.5 m/s).
      */
     public void moveBackward(double distance, String units) {
         flightController.moveBackward(distance, units);
@@ -1335,21 +1332,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveLeft(double distance, String units, double speed) {
         flightController.moveLeft(distance, units, speed);
     }
     
     /**
-     * Move left with default units (cm) and speed (1.0 m/s).
+     * Move left with default units (cm) and speed (0.5 m/s).
      */
     public void moveLeft(double distance) {
         flightController.moveLeft(distance);
     }
     
     /**
-     * Move left with specified units and default speed (1.0 m/s).
+     * Move left with specified units and default speed (0.5 m/s).
      */
     public void moveLeft(double distance, String units) {
         flightController.moveLeft(distance, units);
@@ -1371,21 +1368,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveRight(double distance, String units, double speed) {
         flightController.moveRight(distance, units, speed);
     }
     
     /**
-     * Move right with default units (cm) and speed (1.0 m/s).
+     * Move right with default units (cm) and speed (0.5 m/s).
      */
     public void moveRight(double distance) {
         flightController.moveRight(distance);
     }
     
     /**
-     * Move right with specified units and default speed (1.0 m/s).
+     * Move right with specified units and default speed (0.5 m/s).
      */
     public void moveRight(double distance, String units) {
         flightController.moveRight(distance, units);
@@ -5155,63 +5152,44 @@ public class Drone implements AutoCloseable {
     // Controller Input Methods
     // ========================================
 
-    /**
-     * Initializes controller input data arrays with default values.
-     */
-    private void initializeControllerInputData() {
-        // Initialize button data: [timestamp, button_flags, event_name]
-        buttonData[0] = 0.0;                    // timestamp
-        buttonData[1] = 0;                      // button flags
-        buttonData[2] = "None_";                // event name
-        
-        // Initialize joystick data: [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
-        for (int i = 0; i < joystickData.length; i++) {
-            joystickData[i] = 0;
-        }
-    }
+    // =================================================================================
+    // --- Controller Input API ---
+    // =================================================================================
 
     /**
-     * Returns the current button data array.
-     * Contains [timestamp, button_flags, event_name].
+     * Returns the current button data array (Python API compatibility).
      * 
-     * @return Object array with button state information
-     * @educational
-     */
-    /**
-     * Returns the current button data array.
-     * Contains [timestamp, button_flags, event_name].
+     * <p>Contains [timestamp, button_flags, event_name].</p>
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getButtonDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
      *
      * @return Object array with button state information
      * @educational
+     * @see #getButtonDataObject() Recommended Java alternative
      */
     public Object[] getButtonData() {
-        return buttonData.clone(); // Return copy to prevent external modification
+        return controllerInputManager.getButtonDataArray();
     }
 
     /**
-     * Returns the current joystick data array.
-     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     * Returns the current joystick data array (Python API compatibility).
      * 
-     * @return int array with joystick state information
-     * @educational
-     */
-    /**
-     * Returns the current joystick data array.
-     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     * <p>Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].</p>
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getJoystickDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
      *
      * @return int array with joystick state information
      * @educational
+     * @see #getJoystickDataObject() Recommended Java alternative
      */
     public int[] getJoystickData() {
-        return joystickData.clone(); // Return copy to prevent external modification
+        return controllerInputManager.getJoystickDataArray();
     }
 
-    /**
-     * Gets the left joystick X (horizontal) value.
-     * 
-     * @return X-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the left joystick X (horizontal) value.
      *
@@ -5219,15 +5197,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getLeftJoystickX() {
-        return joystickData[1];
+        return controllerInputManager.getLeftJoystickX();
     }
 
-    /**
-     * Gets the left joystick Y (vertical) value.
-     * 
-     * @return Y-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the left joystick Y (vertical) value.
      *
@@ -5235,15 +5207,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getLeftJoystickY() {
-        return joystickData[2];
+        return controllerInputManager.getLeftJoystickY();
     }
 
-    /**
-     * Gets the right joystick X (horizontal) value.
-     * 
-     * @return X-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the right joystick X (horizontal) value.
      *
@@ -5251,15 +5217,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getRightJoystickX() {
-        return joystickData[5];
+        return controllerInputManager.getRightJoystickX();
     }
 
-    /**
-     * Gets the right joystick Y (vertical) value.
-     * 
-     * @return Y-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the right joystick Y (vertical) value.
      *
@@ -5267,7 +5227,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getRightJoystickY() {
-        return joystickData[6];
+        return controllerInputManager.getRightJoystickY();
     }
 
     /**
@@ -5397,20 +5357,17 @@ public class Drone implements AutoCloseable {
      * @return true if the button is pressed or held, false otherwise
      */
     private boolean isButtonPressed(int buttonFlag) {
-        if (buttonData[1] instanceof Integer) {
-            int currentButtons = (Integer) buttonData[1];
-            String eventName = (String) buttonData[2];
-            
-            // Button is pressed if:
-            // 1. The button flag bit is set in currentButtons, AND
-            // 2. The event is Press or Down (actively pressed/held)
-            // This prevents false positives from Up events where the flag might linger
-            boolean buttonFlagSet = (currentButtons & buttonFlag) != 0;
-            boolean activeEvent = "Press".equals(eventName) || "Down".equals(eventName);
-            
-            return buttonFlagSet && activeEvent;
-        }
-        return false;
+        ButtonData buttonData = controllerInputManager.getButtonDataObject();
+        
+        // Button is pressed if:
+        // 1. The button flag bit is set in buttonFlags, AND
+        // 2. The event is Press or Down (actively pressed/held)
+        // This prevents false positives from Up events where the flag might linger
+        boolean buttonFlagSet = (buttonData.getButtonFlags() & buttonFlag) != 0;
+        boolean activeEvent = "Press".equals(buttonData.getEventName()) || 
+                             "Down".equals(buttonData.getEventName());
+        
+        return buttonFlagSet && activeEvent;
     }
 
     /**
@@ -5420,12 +5377,7 @@ public class Drone implements AutoCloseable {
      * @param button The button protocol data received
      */
     public void updateButtonData(com.otabi.jcodroneedu.protocol.controllerinput.Button button) {
-        if (button != null) {
-            long currentTime = System.currentTimeMillis();
-            buttonData[0] = (double) currentTime / 1000.0; // timestamp in seconds
-            buttonData[1] = (int) button.getButton();       // button flags
-            buttonData[2] = button.getEvent() != null ? button.getEvent().name() : "None_";       // event name
-        }
+        controllerInputManager.updateButtonData(button);
     }
 
     /**
@@ -5435,18 +5387,443 @@ public class Drone implements AutoCloseable {
      * @param joystick The joystick protocol data received
      */
     public void updateJoystickData(com.otabi.jcodroneedu.protocol.controllerinput.Joystick joystick) {
-        if (joystick != null) {
-            long currentTime = System.currentTimeMillis();
-            joystickData[0] = (int) (currentTime / 1000); // timestamp in seconds
-            joystickData[1] = joystick.getLeft().getX();   // left X
-            joystickData[2] = joystick.getLeft().getY();   // left Y
-            joystickData[3] = joystick.getLeft().getDirection().getValue(); // left direction
-            joystickData[4] = joystick.getLeft().getEvent().getValue();     // left event
-            joystickData[5] = joystick.getRight().getX();  // right X
-            joystickData[6] = joystick.getRight().getY();  // right Y
-            joystickData[7] = joystick.getRight().getDirection().getValue(); // right direction
-            joystickData[8] = joystick.getRight().getEvent().getValue();     // right event
+        controllerInputManager.updateJoystickData(joystick);
+    }
+
+    /**
+     * Gets button data as a type-safe Java object (recommended for Java code).
+     * 
+     * <p>This method provides a Java-idiomatic way to access button data with proper types
+     * instead of working with Object arrays.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * ButtonData data = drone.getButtonDataObject();
+     * System.out.println("Button: " + data.getButtonFlags());
+     * System.out.println("Event: " + data.getEventName());
+     * }</pre>
+     * 
+     * @return ButtonData object containing timestamp, flags, and event name
+     * @since 1.0.0
+     * @see ButtonData
+     */
+    public ButtonData getButtonDataObject() {
+        return controllerInputManager.getButtonDataObject();
+    }
+
+    /**
+     * Gets joystick data as a type-safe Java object (recommended for Java code).
+     * 
+     * <p>This method provides a Java-idiomatic way to access joystick data with proper types
+     * instead of working with int arrays.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * JoystickData data = drone.getJoystickDataObject();
+     * System.out.println("Left X: " + data.getLeftX());
+     * System.out.println("Right Y: " + data.getRightY());
+     * }</pre>
+     * 
+     * @return JoystickData object containing all joystick values
+     * @since 1.0.0
+     * @see JoystickData
+     */
+    public JoystickData getJoystickDataObject() {
+        return controllerInputManager.getJoystickDataObject();
+    }
+
+    // ========================================
+    // Inventory Methods
+    // ========================================
+
+    /**
+     * Retrieves flight count statistics from the drone and returns an array containing:
+     * [timestamp, flight_time, takeoff_count, landing_count, accident_count]
+     *
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCountDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     *
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with count data
+     * @educational
+     * @since 1.0.0
+     * @see #getCountDataObject(double) Recommended Java alternative
+     * @see #getFlightTime() For individual value access
+     */
+    public Object[] getCountData(double delay) {
+        Request request = new Request(DataType.Count);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return inventoryManager.getCountDataArray();
+    }
+
+    /**
+     * Retrieves flight count statistics from the drone with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCountDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with count data [timestamp, flight_time, takeoff_count, landing_count, accident_count]
+     * @educational
+     * @since 1.0.0
+     * @see #getCountDataObject() Recommended Java alternative
+     * @see #getFlightTime() For individual value access
+     */
+    public Object[] getCountData() {
+        return getCountData(0.05);
+    }
+
+    /**
+     * Gets the total flight time in seconds from the count data.
+     * 
+     * @return Flight time in seconds
+     * @educational
+     * @since 1.0.0
+     */
+    public int getFlightTime() {
+        getCountData();
+        return inventoryManager.getFlightTime();
+    }
+
+    /**
+     * Gets the total number of takeoffs from the count data.
+     * 
+     * @return Number of takeoffs
+     * @educational
+     * @since 1.0.0
+     */
+    public int getTakeoffCount() {
+        getCountData();
+        return inventoryManager.getTakeoffCount();
+    }
+
+    /**
+     * Gets the total number of landings from the count data.
+     * 
+     * @return Number of landings
+     * @educational
+     * @since 1.0.0
+     */
+    public int getLandingCount() {
+        getCountData();
+        return inventoryManager.getLandingCount();
+    }
+
+    /**
+     * Gets the total number of accidents from the count data.
+     * 
+     * @return Number of accidents
+     * @educational
+     * @since 1.0.0
+     */
+    public int getAccidentCount() {
+        getCountData();
+        return inventoryManager.getAccidentCount();
+    }
+
+    /**
+     * Retrieves device information for both drone and controller.
+     * Returns an array containing: [timestamp, drone_model, drone_firmware, controller_model, controller_firmware]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getInformationDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with information data
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationDataObject(double) Recommended Java alternative
+     */
+    public Object[] getInformationData(double delay) {
+        Request request = new Request(DataType.Information);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getInformationDataArray();
+    }
+
+    /**
+     * Retrieves device information with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getInformationDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with information data [timestamp, drone_model, drone_firmware, controller_model, controller_firmware]
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationDataObject() Recommended Java alternative
+     */
+    public Object[] getInformationData() {
+        return getInformationData(0.05);
+    }
+
+    /**
+     * Retrieves CPU ID for both drone and controller.
+     * Returns an array containing: [timestamp, drone_cpu_id, controller_cpu_id]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCpuIdDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with CPU ID data
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdDataObject(double) Recommended Java alternative
+     */
+    public Object[] getCpuIdData(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCpuIdDataArray();
+    }
+
+    /**
+     * Retrieves CPU ID data with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCpuIdDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with CPU ID data [timestamp, drone_cpu_id, controller_cpu_id]
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdDataObject() Recommended Java alternative
+     */
+    public Object[] getCpuIdData() {
+        return getCpuIdData(0.05);
+    }
+
+    /**
+     * Retrieves addresses for both drone and controller.
+     * Returns an array containing: [timestamp, drone_address, controller_address]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getAddressDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with address data
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressDataObject(double) Recommended Java alternative
+     */
+    public Object[] getAddressData(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getAddressDataArray();
+    }
+
+    /**
+     * Retrieves address data with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getAddressDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with address data [timestamp, drone_address, controller_address]
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressDataObject() Recommended Java alternative
+     */
+    public Object[] getAddressData() {
+        return getAddressData(0.05);
+    }
+
+    // ========================================
+    // Inventory Methods - Java Composite Objects
+    // ========================================
+    
+    /**
+     * Retrieves flight count statistics from the drone as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getCountData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return CountData object with flight statistics, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCountData()
+     */
+    public CountData getCountDataObject(double delay) {
+        Request request = new Request(DataType.Count);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCountDataObject();
+    }
+    
+    /**
+     * Retrieves flight count statistics from the drone as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getCountData()}.
+     * 
+     * @return CountData object with flight statistics, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCountData()
+     */
+    public CountData getCountDataObject() {
+        return getCountDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves device information as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getInformationData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return InformationData object with device information, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationData()
+     */
+    public InformationData getInformationDataObject(double delay) {
+        Request request = new Request(DataType.Information);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getInformationDataObject();
+    }
+    
+    /**
+     * Retrieves device information as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getInformationData()}.
+     * 
+     * @return InformationData object with device information, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationData()
+     */
+    public InformationData getInformationDataObject() {
+        return getInformationDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves CPU IDs as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getCpuIdData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return CpuIdData object with CPU IDs, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdData()
+     */
+    public CpuIdData getCpuIdDataObject(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCpuIdDataObject();
+    }
+    
+    /**
+     * Retrieves CPU IDs as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getCpuIdData()}.
+     * 
+     * @return CpuIdData object with CPU IDs, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdData()
+     */
+    public CpuIdData getCpuIdDataObject() {
+        return getCpuIdDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves Bluetooth addresses as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getAddressData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return AddressData object with Bluetooth addresses, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressData()
+     */
+    public AddressData getAddressDataObject(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getAddressDataObject();
+    }
+    
+    /**
+     * Retrieves Bluetooth addresses as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getAddressData()}.
+     * 
+     * @return AddressData object with Bluetooth addresses, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressData()
+     */
+    public AddressData getAddressDataObject() {
+        return getAddressDataObject(0.05);
     }
 
     // ========================================

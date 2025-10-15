@@ -40,6 +40,8 @@ public class Receiver {
     private final Drone drone;
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
+    private final InventoryManager inventoryManager;
+    private final ControllerInputManager controllerInputManager;
 
     // --- Acknowledgment Handling ---
     private final Map<DataType, CompletableFuture<Void>> pendingAcks = new ConcurrentHashMap<>();
@@ -59,10 +61,12 @@ public class Receiver {
     private int crc16received;
     private int crc16calculated;
 
-    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager) {
+    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager, InventoryManager inventoryManager, ControllerInputManager controllerInputManager) {
         this.drone = drone;
         this.droneStatus = droneStatus;
         this.linkManager = linkManager;
+        this.inventoryManager = inventoryManager;
+        this.controllerInputManager = controllerInputManager;
         this.dataBuffer = ByteBuffer.allocate(MAX_PAYLOAD_SIZE);
         initializeHandlers();
         reset();
@@ -74,18 +78,28 @@ public class Receiver {
      */
     private void initializeHandlers() {
         handlers.put(DataType.State, msg -> droneStatus.setState((State) msg));
-        handlers.put(DataType.Information, msg -> linkManager.setInformation((Information) msg));
+        handlers.put(DataType.Information, msg -> {
+            Information info = (Information) msg;
+            linkManager.setInformation(info);
+            inventoryManager.updateInformation(info);
+        });
         handlers.put(DataType.Attitude, msg -> droneStatus.setAttitude((Attitude) msg));
         handlers.put(DataType.Position, msg -> droneStatus.setPosition((Position) msg));
         handlers.put(DataType.Altitude, msg -> droneStatus.setAltitude((Altitude) msg));
-    handlers.put(DataType.Motion, msg -> droneStatus.setMotion((Motion) msg));
-    handlers.put(DataType.Range, msg -> droneStatus.setRange((Range) msg));
+        handlers.put(DataType.Motion, msg -> droneStatus.setMotion((Motion) msg));
+        handlers.put(DataType.Range, msg -> droneStatus.setRange((Range) msg));
         handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((CardColor) msg));
         handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
         handlers.put(DataType.RawFlow, msg -> droneStatus.setRawFlow((RawFlow) msg));
         handlers.put(DataType.Flow, msg -> droneStatus.setFlow((Flow) msg));
-        handlers.put(DataType.Joystick, msg -> drone.updateJoystickData((Joystick) msg));
-        handlers.put(DataType.Button, msg -> drone.updateButtonData((Button) msg));
+        handlers.put(DataType.Joystick, msg -> controllerInputManager.updateJoystickData((Joystick) msg));
+        handlers.put(DataType.Button, msg -> controllerInputManager.updateButtonData((Button) msg));
+        handlers.put(DataType.Count, msg -> inventoryManager.updateCount((com.otabi.jcodroneedu.protocol.settings.Count) msg));
+        handlers.put(DataType.Address, msg -> {
+            com.otabi.jcodroneedu.protocol.linkmanager.Address addr = (com.otabi.jcodroneedu.protocol.linkmanager.Address) msg;
+            linkManager.setAddress(addr);
+            // Note: Address handler needs device type from header - handled in handleMessage
+        });
         // ... add handlers for all other message types here ...
     }
 
@@ -309,6 +323,13 @@ public class Receiver {
             Consumer<Serializable> handler = handlers.get(header.getDataType());
             if (handler != null) {
                 handler.accept(message);
+                
+                // Special handling for Address messages - need device type from header
+                if (header.getDataType() == DataType.Address) {
+                    com.otabi.jcodroneedu.protocol.linkmanager.Address addr = 
+                        (com.otabi.jcodroneedu.protocol.linkmanager.Address) message;
+                    inventoryManager.updateAddress(addr, header.getFrom());
+                }
             } else {
                 log.debug("No handler registered for DataType: {}", header.getDataType());
             }

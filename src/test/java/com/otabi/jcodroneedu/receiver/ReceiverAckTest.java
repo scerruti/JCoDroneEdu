@@ -3,6 +3,8 @@ package com.otabi.jcodroneedu.receiver;
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneStatus;
 import com.otabi.jcodroneedu.LinkManager;
+import com.otabi.jcodroneedu.InventoryManager;
+import com.otabi.jcodroneedu.ControllerInputManager;
 import com.otabi.jcodroneedu.protocol.DataType;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +21,10 @@ public class ReceiverAckTest {
         Drone dummyDrone = null;
         DroneStatus droneStatus = new DroneStatus();
         LinkManager linkManager = new LinkManager();
+        InventoryManager inventoryManager = new InventoryManager();
+        ControllerInputManager controllerInputManager = new ControllerInputManager();
 
-        Receiver receiver = new Receiver(dummyDrone, droneStatus, linkManager);
+        Receiver receiver = new Receiver(dummyDrone, droneStatus, linkManager, inventoryManager, controllerInputManager);
 
         // Should not throw and should be handled gracefully
         assertDoesNotThrow(() -> receiver.onAckReceived(null));
@@ -31,8 +35,10 @@ public class ReceiverAckTest {
         Drone dummyDrone = null;
         DroneStatus droneStatus = new DroneStatus();
         LinkManager linkManager = new LinkManager();
+        InventoryManager inventoryManager = new InventoryManager();
+        ControllerInputManager controllerInputManager = new ControllerInputManager();
 
-        Receiver receiver = new Receiver(dummyDrone, droneStatus, linkManager);
+        Receiver receiver = new Receiver(dummyDrone, droneStatus, linkManager, inventoryManager, controllerInputManager);
 
         // Arrange: expect an ACK for DataType.State
         receiver.expectAck(DataType.State);
