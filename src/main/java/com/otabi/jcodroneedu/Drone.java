@@ -5,6 +5,8 @@ package com.otabi.jcodroneedu;
 import com.google.common.util.concurrent.RateLimiter;
 import com.otabi.jcodroneedu.autonomous.AutonomousMethod;
 import com.otabi.jcodroneedu.autonomous.AutonomousMethodRegistry;
+import com.otabi.jcodroneedu.buzzer.BuzzerSequence;
+import com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistry;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
@@ -21,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -4974,6 +4977,322 @@ public class Drone implements AutoCloseable {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    // ============================================================================
+    // Combined LED + Buzzer Methods
+    // ============================================================================
+
+    /**
+     * Pings the drone using buzzer and LED to help locate it visually and audibly.
+     * 
+     * <p>This is a "find my drone" feature that makes the drone easy to locate in a crowded
+     * space or if it's lost. The drone will blink its LED in a double-blink pattern and
+     * play three buzzer beeps. If RGB values are not specified, a random color is used
+     * to make it more noticeable.</p>
+     * 
+     * <h3>🎯 How it Works:</h3>
+     * <ol>
+     *   <li>Sets LED to double-blink mode with specified or random color</li>
+     *   <li>Plays three buzzer beeps (200ms each)</li>
+     *   <li>Sets LED to solid color at full brightness</li>
+     * </ol>
+     * 
+     * <h3>💡 Educational Use (L0304):</h3>
+     * <pre>{@code
+     * // Find drone with random color
+     * drone.pair();
+     * drone.ping();  // Random bright color + beeps
+     * 
+     * // Find drone with specific color
+     * drone.ping(255, 0, 0);  // Red
+     * 
+     * // Use in a search scenario
+     * System.out.println("Locating drone...");
+     * drone.ping(0, 255, 0);  // Green = found!
+     * 
+     * // Multiple drones - different colors
+     * drone1.ping(255, 0, 0);    // Red drone
+     * drone2.ping(0, 0, 255);    // Blue drone
+     * drone3.ping(255, 255, 0);  // Yellow drone
+     * }</pre>
+     * 
+     * <h3>🔍 Use Cases:</h3>
+     * <ul>
+     *   <li><strong>Lost Drone:</strong> Locate drone in a cluttered area</li>
+     *   <li><strong>Drone Identification:</strong> Identify which drone is which in multi-drone setups</li>
+     *   <li><strong>Status Indication:</strong> Signal readiness or completion</li>
+     *   <li><strong>Debugging:</strong> Confirm program is running on the correct drone</li>
+     * </ul>
+     * 
+     * <p><strong>⚠️ Note:</strong> If any RGB value is null or not provided, ALL colors
+     * will be randomly generated to create a unique, easily visible color.</p>
+     * 
+     * @param red Red component (0-255), or null for random
+     * @param green Green component (0-255), or null for random
+     * @param blue Blue component (0-255), or null for random
+     * @educational
+     * @pythonEquivalent ping(r, g, b)
+     */
+    public void ping(Integer red, Integer green, Integer blue) {
+        // Generate random color if any component is not specified
+        if (red == null || green == null || blue == null) {
+            Random random = new Random();
+            red = random.nextInt(256);
+            green = random.nextInt(256);
+            blue = random.nextInt(256);
+        }
+        
+        // Set double-blink LED mode (speed 7 for moderate blink rate)
+        setDroneLEDMode(red, green, blue, "double_blink", 7);
+        
+        // Play three buzzer beeps (200ms each, 200ms pause between)
+        for (int i = 0; i < 3; i++) {
+            drone_buzzer(1000, 200);  // 1000 Hz for 200ms
+            
+            // Pause between beeps (except after last one)
+            if (i < 2) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        
+        // Set to solid color at full brightness
+        setDroneLED(red, green, blue, 255);
+    }
+
+    /**
+     * Pings the drone using buzzer and LED with a random color.
+     * Convenience overload for the most common use case.
+     * 
+     * @educational
+     * @pythonEquivalent ping()
+     */
+    public void ping() {
+        ping(null, null, null);
+    }
+
+    // ============================================================================
+    // Buzzer Sequence Methods - Predefined Sound Patterns
+    // ============================================================================
+
+    /**
+     * Plays a predefined buzzer sequence on the drone.
+     * 
+     * <p>This method provides access to built-in sound patterns ("success", "warning", "error")
+     * and any custom sequences registered via {@link #registerBuzzerSequence(String, BuzzerSequence)}.
+     * It matches the Python API's drone_buzzer_sequence(kind) functionality.</p>
+     * 
+     * <h3>🎵 Built-in Sequences:</h3>
+     * <ul>
+     *   <li><strong>"success"</strong> - Two ascending tones (1600 Hz → 2200 Hz)</li>
+     *   <li><strong>"warning"</strong> - Three 800 Hz beeps with pauses</li>
+     *   <li><strong>"error"</strong> - Three short 150 Hz beeps</li>
+     * </ul>
+     * 
+     * <h3>💡 Educational Use (L0301):</h3>
+     * <pre>{@code
+     * // Use built-in sequences for feedback
+     * drone.takeoff();
+     * 
+     * if (drone.getFrontRange() < 30) {
+     *     drone.droneBuzzerSequence("warning");  // Object detected
+     *     drone.land();
+     * } else {
+     *     drone.moveForward(50, 2.0);
+     *     drone.droneBuzzerSequence("success");  // Mission complete
+     * }
+     * 
+     * // Use custom sequence
+     * BuzzerSequence fanfare = new BuzzerSequence.Builder()
+     *     .addNote(523, 200)  // C
+     *     .addNote(659, 200)  // E
+     *     .addNote(784, 400)  // G
+     *     .build("fanfare");
+     * 
+     * drone.registerBuzzerSequence("fanfare", fanfare);
+     * drone.droneBuzzerSequence("fanfare");
+     * }</pre>
+     * 
+     * @param sequenceName The name of the sequence to play ("success", "warning", "error", or custom)
+     * @throws IllegalArgumentException if sequence name is not registered
+     * @see #registerBuzzerSequence(String, BuzzerSequence)
+     * @see #controllerBuzzerSequence(String)
+     * @educational
+     * @pythonEquivalent drone_buzzer_sequence(kind)
+     */
+    public void droneBuzzerSequence(String sequenceName) {
+        BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();
+        BuzzerSequence sequence = registry.get(sequenceName);
+        
+        if (sequence == null) {
+            throw new IllegalArgumentException(
+                "Unknown buzzer sequence: '" + sequenceName + "'. " +
+                "Available sequences: " + registry.list());
+        }
+        
+        playSequence(sequence, DeviceType.Drone);
+    }
+
+    /**
+     * Plays a predefined buzzer sequence on the controller.
+     * 
+     * <p>This method provides access to built-in sound patterns ("success", "warning", "error")
+     * and any custom sequences registered via {@link #registerBuzzerSequence(String, BuzzerSequence)}.
+     * It matches the Python API's controller_buzzer_sequence(kind) functionality.</p>
+     * 
+     * <h3>🎵 Built-in Sequences:</h3>
+     * <ul>
+     *   <li><strong>"success"</strong> - Two ascending tones (1600 Hz → 2200 Hz)</li>
+     *   <li><strong>"warning"</strong> - Three 800 Hz beeps with pauses</li>
+     *   <li><strong>"error"</strong> - Three short 150 Hz beeps</li>
+     * </ul>
+     * 
+     * <h3>💡 Educational Use (L0302):</h3>
+     * <pre>{@code
+     * // Provide local feedback without drone
+     * drone.pair();
+     * 
+     * System.out.println("Testing controller...");
+     * drone.controllerBuzzerSequence("success");
+     * 
+     * System.out.println("Press button to continue...");
+     * // Wait for button press
+     * drone.controllerBuzzerSequence("warning");
+     * 
+     * // Custom notification sound
+     * BuzzerSequence doorbell = new BuzzerSequence.Builder()
+     *     .addNote(659, 300)  // E
+     *     .addPause(100)
+     *     .addNote(523, 300)  // C
+     *     .build("doorbell");
+     * 
+     * drone.registerBuzzerSequence("doorbell", doorbell);
+     * drone.controllerBuzzerSequence("doorbell");
+     * }</pre>
+     * 
+     * @param sequenceName The name of the sequence to play ("success", "warning", "error", or custom)
+     * @throws IllegalArgumentException if sequence name is not registered
+     * @see #registerBuzzerSequence(String, BuzzerSequence)
+     * @see #droneBuzzerSequence(String)
+     * @educational
+     * @pythonEquivalent controller_buzzer_sequence(kind)
+     */
+    public void controllerBuzzerSequence(String sequenceName) {
+        BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();
+        BuzzerSequence sequence = registry.get(sequenceName);
+        
+        if (sequence == null) {
+            throw new IllegalArgumentException(
+                "Unknown buzzer sequence: '" + sequenceName + "'. " +
+                "Available sequences: " + registry.list());
+        }
+        
+        playSequence(sequence, DeviceType.Controller);
+    }
+
+    /**
+     * Registers a custom buzzer sequence for later use.
+     * 
+     * <p>This allows students to create and register their own sound patterns that can then
+     * be played using {@link #droneBuzzerSequence(String)} or {@link #controllerBuzzerSequence(String)}.
+     * Registered sequences persist for the lifetime of the Drone object.</p>
+     * 
+     * <h3>🎓 Educational Value (L0303):</h3>
+     * Students learn:
+     * <ul>
+     *   <li>Composition - building complex behaviors from simple parts</li>
+     *   <li>Registration pattern - storing objects for later retrieval</li>
+     *   <li>Reusability - define once, use many times</li>
+     * </ul>
+     * 
+     * <h3>💡 Usage Example:</h3>
+     * <pre>{@code
+     * // Create a custom alarm sequence
+     * BuzzerSequence alarm = new BuzzerSequence.Builder()
+     *     .addNote(1000, 100)
+     *     .addPause(50)
+     *     .addNote(1000, 100)
+     *     .addPause(50)
+     *     .addNote(1000, 100)
+     *     .addPause(200)
+     *     .addNote(1500, 300)
+     *     .build("alarm");
+     * 
+     * // Register it
+     * drone.registerBuzzerSequence("alarm", alarm);
+     * 
+     * // Use it multiple times
+     * drone.takeoff();
+     * for (int i = 0; i < 3; i++) {
+     *     drone.droneBuzzerSequence("alarm");
+     *     drone.hover(1.0);
+     * }
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>⚠️ Note:</strong> If a sequence with the given name already exists
+     * (including built-ins like "success"), it will be replaced. This allows overriding
+     * default sequences if desired.</p>
+     * 
+     * @param name The name to register the sequence under
+     * @param sequence The buzzer sequence to register
+     * @throws IllegalArgumentException if name is null/empty or sequence is null
+     * @see BuzzerSequence.Builder
+     * @see #droneBuzzerSequence(String)
+     * @see #controllerBuzzerSequence(String)
+     * @educational
+     */
+    public void registerBuzzerSequence(String name, BuzzerSequence sequence) {
+        BuzzerSequenceRegistry.getInstance().register(name, sequence);
+    }
+
+    /**
+     * Helper method to play a buzzer sequence on the specified device.
+     * 
+     * @param sequence The sequence to play
+     * @param device The target device (Drone or Controller)
+     */
+    private void playSequence(BuzzerSequence sequence, DeviceType device) {
+        // Add initial delay like Python version (200ms)
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+        
+        // Play each note in the sequence
+        for (BuzzerSequence.BuzzerNote note : sequence.getNotes()) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+            
+            // Play the note (or silence if frequency is 0)
+            if (note.frequency > 0) {
+                Buzzer buzzer = new Buzzer(BuzzerMode.HZ, note.frequency, note.durationMs);
+                
+                Header header = new Header();
+                header.setDataType(DataType.Buzzer);
+                header.setLength(buzzer.getSize());
+                header.setFrom(DeviceType.Base);
+                header.setTo(device);
+                
+                transfer(header, buzzer);
+            }
+            
+            // Wait for note duration + delay
+            try {
+                Thread.sleep(note.durationMs + note.delayAfterMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
     }
 

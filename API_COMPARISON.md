@@ -24,7 +24,7 @@
 - **Flight Commands**: 100% complete ✅ (avoid_wall, keep_distance NOW IMPLEMENTED)
 - **Flight Variables**: 100% complete (move, set_pitch/roll/yaw/throttle)
 - **LED Control**: 100% complete
-- **Sound/Buzzer**: ~90% complete (missing: controller_buzzer_sequence, ping)
+- **Sound/Buzzer**: 100% complete ✅ (controller_buzzer_sequence, ping NOW IMPLEMENTED + extensible!)
 - **Range Sensors**: 100% complete
 - **Optical Flow**: 100% complete
 - **Gyroscope/IMU**: 100% complete (including deprecated getters)
@@ -34,7 +34,7 @@
 - **Controller Input**: 100% complete
 - **Screen/Display**: ~20% complete (controller canvas methods mostly missing)
 
-📊 **Overall Completion: ~83% of documented Python API** (up from ~80%)
+📊 **Overall Completion: ~87% of documented Python API** (up from ~83%!)
 
 ## Methods in Python Docs but NOT in Java
 
@@ -95,19 +95,19 @@ All implemented:
 - ✅ `set_controller_LED_mode()` → `setControllerLEDMode()`
 - ✅ `set_drone_LED_mode()` → `setDroneLEDMode()`
 
-### Sounds/Buzzer (90% - Missing 2 methods)
-Implemented:
-- ✅ `controller_buzzer()` → `controllerBuzzer()`
-- ✅ `drone_buzzer()` → `droneBuzzer()`
-- ✅ `start_controller_buzzer()` → `startControllerBuzzer()`
-- ✅ `start_drone_buzzer()` → `startDroneBuzzer()`
-- ✅ `stop_controller_buzzer()` → `stopControllerBuzzer()`
-- ✅ `stop_drone_buzzer()` → `stopDroneBuzzer()`
-- ✅ `drone_buzzer_sequence()` → `droneBuzzerSequence()`
+### Sounds/Buzzer (100% ✅)
+All implemented:
+- ✅ `controller_buzzer()` → `controller_buzzer()`
+- ✅ `drone_buzzer()` → `drone_buzzer()`
+- ✅ `start_controller_buzzer()` → `start_controller_buzzer()`
+- ✅ `start_drone_buzzer()` → `start_drone_buzzer()`
+- ✅ `stop_controller_buzzer()` → `stop_controller_buzzer()`
+- ✅ `stop_drone_buzzer()` → `stop_drone_buzzer()`
+- ✅ `drone_buzzer_sequence(kind)` → `droneBuzzerSequence(String)` + extensible registry
+- ✅ `controller_buzzer_sequence(kind)` → `controllerBuzzerSequence(String)` + extensible registry
+- ✅ `ping(r, g, b)` → `ping(Integer, Integer, Integer)` + `ping()` overload
 
-Missing:
-- ❌ `controller_buzzer_sequence(sequence)` - Predefined sound sequences
-- ❌ `ping()` - Random color LED blink + beep (find drone feature)
+**Bonus:** Java adds `registerBuzzerSequence(String, BuzzerSequence)` for custom sequences!
 
 ### Range Sensors (100% ✅)
 All implemented:
