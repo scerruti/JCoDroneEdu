@@ -28,13 +28,13 @@
 - **Range Sensors**: 100% complete
 - **Optical Flow**: 100% complete
 - **Gyroscope/IMU**: 100% complete (including deprecated getters)
-- **Pressure Sensors**: ~90% complete (missing: height_from_pressure tweaks)
+- **Pressure Sensors**: 100% complete ✅ (height_from_pressure NOW VERIFIED!)
 - **Color Sensors**: ~40% complete (missing: classifier, calibration methods)
 - **State Data**: ~80% complete (missing: get_error_data details)
 - **Controller Input**: 100% complete
 - **Screen/Display**: ~20% complete (controller canvas methods mostly missing)
 
-📊 **Overall Completion: ~87% of documented Python API** (up from ~83%!)
+📊 **Overall Completion: ~88% of documented Python API** (up from ~87%!)
 
 ## Methods in Python Docs but NOT in Java
 
@@ -133,16 +133,14 @@ All implemented (including deprecated methods):
 - ✅ `reset_gyro()` → `resetGyro()`
 - ✅ `reset_sensor()` → Deprecated in Python, supported via `resetGyro()`
 
-### Pressure Sensors (90% - Missing 1 method)
-Implemented:
+### Pressure Sensors (100% ✅)
+All implemented:
 - ✅ `get_drone_temperature()` → `getBarometerTemperature()` + calibrated methods
 - ✅ `get_temperature()` → Deprecated, use `getBarometerTemperature()`
 - ✅ `get_elevation()` → `getElevation()`, `getCorrectedElevation()`, `getUncorrectedElevation()`
 - ✅ `get_pressure()` → `getPressure()`
 - ✅ `set_initial_pressure()` → `setInitialPressure()`
-
-Missing:
-- ⚠️ `height_from_pressure(b, m)` - Available as `getHeightFromPressure()` but may need parameter adjustment
+- ✅ `height_from_pressure(b, m)` → `getHeightFromPressure(double b, double m)` + `getHeightFromPressure()` overload
 
 ### Color Sensors (40% - Missing 6 methods)
 Implemented:
