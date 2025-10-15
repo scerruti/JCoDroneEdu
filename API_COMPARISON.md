@@ -66,10 +66,6 @@ Missing:
 - ❌ `avoid_wall(timeout, distance)` - AI/autonomous navigation
 - ❌ `keep_distance(timeout, distance)` - AI/autonomous navigation
 
-Missing:
-- ❌ `avoid_wall(timeout, distance)` - AI/autonomous navigation
-- ❌ `keep_distance(timeout, distance)` - AI/autonomous navigation
-
 ### Flight Sequences (100% ✅)
 All implemented:
 - ✅ `circle()` → `circle()`
