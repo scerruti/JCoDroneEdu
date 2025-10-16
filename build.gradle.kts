@@ -384,6 +384,105 @@ tasks.test {
     jvmArgs("-Dnet.bytebuddy.experimental=true")
 }
 
+// Make Javadoc generation tolerant of custom tags used for documentation (educational notes)
+tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
+    // Do not fail the build on Javadoc errors in CI
+    // Use setter to avoid accessing a private property from Kotlin
+    this.setFailOnError(false)
+    // Disable strict doclint introduced in newer JDKs by passing -Xdoclint:none
+    val stdOptions = options as org.gradle.external.javadoc.StandardJavadocDocletOptions
+    stdOptions.addStringOption("-Xdoclint:none", "")
+}
+
+// --------------------------
+// Release artifact tasks
+// --------------------------
+// sourcesJar
+val sourcesJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+// javadocJar
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+    val javadocTask = tasks.named("javadoc")
+    // Use destinationDir for compatibility across Gradle versions
+    from(javadocTask.map { (it as org.gradle.api.tasks.javadoc.Javadoc).destinationDir })
+    dependsOn("javadoc")
+}
+
+// Configure the javadoc task to tolerate project custom tags/HTML and not fail the build
+tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
+    // Do not fail the build on Javadoc errors in CI
+    this.setFailOnError(false)
+
+    // Try to configure StandardJavadocDocletOptions when available
+    try {
+        val stdOptions = options as? org.gradle.external.javadoc.StandardJavadocDocletOptions
+        if (stdOptions != null) {
+            stdOptions.addStringOption("tag", "educational:a:")
+            stdOptions.addStringOption("tag", "pythonEquivalent:a:")
+            stdOptions.addStringOption("tag", "apiNote:a:")
+            stdOptions.addStringOption("tag", "example:a:")
+
+            // Disable doclint (suppress strict HTML/structure checks)
+            // addStringOption will prepend a dash, so pass the option name without a leading '-'
+            stdOptions.addStringOption("Xdoclint:none", "")
+
+            // Prefer HTML5 output when supported
+            stdOptions.addBooleanOption("html5", true)
+        }
+    } catch (e: Exception) {
+        logger.warn("Could not configure advanced javadoc options: ${e.message}")
+    }
+}
+
+// studentJar: core library only (no test helpers)
+val studentJar by tasks.registering(Jar::class) {
+    archiveBaseName.set("JCoDroneEdu")
+    archiveAppendix.set("")
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("student")
+    from(sourceSets.main.get().output)
+}
+
+// teacherJar: includes test helpers and teacher resources (packaged into a -teacher.jar)
+val teacherJar by tasks.registering(Jar::class) {
+    archiveBaseName.set("JCoDroneEdu")
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("teacher")
+    // Include main classes
+    from(sourceSets.main.get().output)
+    // Include test-support classes from test source sets to provide DroneTest, MockDrone, etc.
+    from(sourceSets.getByName("test").output)
+    // Include teacher docs if present
+    from("TEACHER_COPILOT_GUIDE.md") { into("docs") }
+}
+
+// Ensure publications include artifacts needed for Maven/Release
+publishing {
+    publications {
+        create<MavenPublication>("student") {
+            from(components["java"])
+            artifact(sourcesJar.get())
+            artifact(javadocJar.get())
+            artifact(studentJar.get())
+            artifactId = "codrone-edu-java"
+            groupId = "edu.codrone"
+            version = project.version.toString()
+        }
+        // Teacher publication is not published to Maven Central; keep for local packaging and GitHub release
+        create<MavenPublication>("teacher") {
+            from(components["java"])
+            artifact(teacherJar.get())
+            artifactId = "codrone-edu-java-teacher"
+            groupId = "edu.codrone"
+            version = project.version.toString()
+        }
+    }
+}
+
 // =============================================================================
 // Python CoDrone EDU Library Management Tasks
 // =============================================================================
