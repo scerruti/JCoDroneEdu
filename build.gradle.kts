@@ -1,5 +1,6 @@
 import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
+import java.util.Base64
 
 plugins {
     id("java-library")
@@ -495,7 +496,7 @@ publishing {
             artifact(javadocJar.get())
             artifact(studentJar.get())
             artifactId = "codrone-edu-java"
-            groupId = "edu.codrone"
+            groupId = project.group.toString()
             version = project.version.toString()
         }
         // Teacher publication is not published to Maven Central; keep for local packaging and GitHub release
@@ -503,9 +504,47 @@ publishing {
             from(components["java"])
             artifact(teacherJar.get())
             artifactId = "codrone-edu-java-teacher"
-            groupId = "edu.codrone"
+            groupId = project.group.toString()
             version = project.version.toString()
         }
+    }
+
+    // Configure OSSRH repository at root so root publish tasks are created
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.findProperty("ossrhUsername") as String? ?: ""
+                password = project.findProperty("ossrhPassword") as String? ?: ""
+            }
+        }
+    }
+}
+
+// Configure in-memory PGP signing for CI when SIGNING_KEY / SIGNING_PASSWORD are provided
+// Uses base64-encoded armored key or raw armored key in SIGNING_KEY secret.
+val signingKeyEnv = System.getenv("SIGNING_KEY")
+val signingPasswordEnv = System.getenv("SIGNING_PASSWORD")
+if (!signingKeyEnv.isNullOrBlank()) {
+    // Try to detect base64 (contains no newlines) and decode if so
+    val signingKeyText = try {
+        if (!signingKeyEnv.contains("-----BEGIN PGP PRIVATE KEY BLOCK-----") && !signingKeyEnv.contains("\n")) {
+            String(Base64.getDecoder().decode(signingKeyEnv))
+        } else signingKeyEnv
+    } catch (e: Exception) {
+        signingKeyEnv
+    }
+
+    // Configure signing plugin to use in-memory keys
+    try {
+        val signingExt = extensions.getByName("signing") as org.gradle.plugins.signing.SigningExtension
+        signingExt.useInMemoryPgpKeys(signingKeyText, signingPasswordEnv)
+        // Sign publications we publish
+        signingExt.sign(publishing.publications["student"])
+        signingExt.sign(publishing.publications["teacher"])
+    } catch (e: Exception) {
+        logger.warn("Could not configure in-memory signing: ${e.message}")
     }
 }
 
