@@ -209,7 +209,11 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
+          UP_USER="${OSSRH_USERNAME}"
+          UP_PASS="${OSSRH_PASSWORD}"
+          
+
           ./gradlew publishStudentPublicationToOSSRHRepository \
             -Pversion=${{ steps.get_version.outputs.VERSION }} \
-            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
-            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}
+            -PossrhUsername="$UP_USER" \
+            -PossrhPassword="$UP_PASS"
