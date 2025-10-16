@@ -18,6 +18,18 @@ tasks.register<JavaExec>("runSmokeTest") {
     // Pass args using: ./gradlew runSmokeTest --args='/dev/cu.usbserial-XXXX'
 }
 
+// -----------------------------------------------------------------
+// Run Flight Smoke Test - gated, requires explicit confirmation flags
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runFlightSmokeTest") {
+    group = "verification"
+    description = "Runs the guarded FlightSmokeTest (requires --allow-flight and --confirm=YES to actually fly)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.tests.FlightSmokeTest")
+    // Pass args using: ./gradlew runFlightSmokeTest --args='--allow-flight --confirm=YES'
+    standardInput = System.`in`
+}
+
 // ------------------------------------------------------------
 // Run Conservative Flight - gated example (requires --allow-flight)
 // ------------------------------------------------------------
