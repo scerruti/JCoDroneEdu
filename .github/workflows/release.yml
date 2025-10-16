@@ -80,6 +80,26 @@ jobs:
         fi
         echo "Building teacher artifact for version: $VERSION"
         ./gradlew -Pversion=$VERSION teacherJar
+
+    - name: Find built artifacts
+      id: find_artifacts
+      run: |
+        echo "Searching repository for built artifacts (robust to nested project layout)"
+        # Search recursively for the first matching artifact under the repo
+        STUDENT=$(find . -type f -name "*student.jar" | head -n 1 || true)
+        TEACHER=$(find . -type f -name "*teacher.jar" | head -n 1 || true)
+        JAVADOC=$(find . -type f -name "*javadoc.jar" | head -n 1 || true)
+        SOURCES=$(find . -type f -name "*sources.jar" | head -n 1 || true)
+
+        echo "found student=${STUDENT}"
+        echo "found teacher=${TEACHER}"
+        echo "found javadoc=${JAVADOC}"
+        echo "found sources=${SOURCES}"
+
+        echo "student=${STUDENT}" >> $GITHUB_OUTPUT
+        echo "teacher=${TEACHER}" >> $GITHUB_OUTPUT
+        echo "javadoc=${JAVADOC}" >> $GITHUB_OUTPUT
+        echo "sources=${SOURCES}" >> $GITHUB_OUTPUT
     
     - name: Get version
       id: get_version
@@ -135,7 +155,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/JCoDroneEdu-${{ steps.get_version.outputs.VERSION }}-student.jar
+        asset_path: ${{ steps.find_artifacts.outputs.student || format('./build/libs/JCoDroneEdu-{0}-student.jar', steps.get_version.outputs.VERSION) }}
         asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-student.jar
         asset_content_type: application/java-archive
     
@@ -145,7 +165,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/JCoDroneEdu-${{ steps.get_version.outputs.VERSION }}-teacher.jar
+        asset_path: ${{ steps.find_artifacts.outputs.teacher || format('./build/libs/JCoDroneEdu-{0}-teacher.jar', steps.get_version.outputs.VERSION) }}
         asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-teacher.jar
         asset_content_type: application/java-archive
     
@@ -155,7 +175,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/JCoDroneEdu-${{ steps.get_version.outputs.VERSION }}-javadoc.jar
+        asset_path: ${{ steps.find_artifacts.outputs.javadoc || format('./build/libs/JCoDroneEdu-{0}-javadoc.jar', steps.get_version.outputs.VERSION) }}
         asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-javadoc.jar
         asset_content_type: application/java-archive
     
@@ -165,7 +185,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./build/libs/JCoDroneEdu-${{ steps.get_version.outputs.VERSION }}-sources.jar
+        asset_path: ${{ steps.find_artifacts.outputs.sources || format('./build/libs/JCoDroneEdu-{0}-sources.jar', steps.get_version.outputs.VERSION) }}
         asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-sources.jar
         asset_content_type: application/java-archive
     

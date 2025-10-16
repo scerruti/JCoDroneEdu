@@ -341,7 +341,23 @@ tasks.register<JavaExec>("runErrorMonitoringFly") {
 }
 
 group = "com.otabi"
-version = "1.0.0"
+
+// Determine project version from (1) -Pversion= passed via Gradle invocation,
+// (2) RELEASE_VERSION environment variable (used by CI), or (3) fallback literal.
+// Gradle always exposes a 'version' property which may be 'unspecified' by default.
+// Prefer a user-provided -Pversion=... (but ignore the default 'unspecified'),
+// then an environment RELEASE_VERSION, then fall back to the literal.
+val explicitVersionFromProp = project.findProperty("version")?.toString()
+val explicitVersionEnv = System.getenv("RELEASE_VERSION")
+
+val resolvedVersion = when {
+    explicitVersionFromProp != null && explicitVersionFromProp.isNotBlank() && explicitVersionFromProp != "unspecified" -> explicitVersionFromProp
+    explicitVersionEnv != null && explicitVersionEnv.isNotBlank() -> explicitVersionEnv
+    else -> "1.0.0"
+}
+
+version = resolvedVersion
+logger.lifecycle("Project version set to: $version")
 
 repositories {
     mavenCentral()
@@ -427,8 +443,15 @@ tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
             stdOptions.addStringOption("tag", "example:a:")
 
             // Disable doclint (suppress strict HTML/structure checks)
-            // addStringOption will prepend a dash, so pass the option name without a leading '-'
-            stdOptions.addStringOption("Xdoclint:none", "")
+            // StandardJavadocDocletOptions expects option names without a leading dash.
+            // To disable doclint use the Xdoclint option without passing an extra colon/flag value.
+            // Some JDKs don't accept the form with a leading `--` so avoid that.
+            try {
+                stdOptions.addStringOption("Xdoclint", "none")
+            } catch (e: Exception) {
+                // Fall back to leaving doclint as-is; javadoc task is non-fatal so build will continue.
+                logger.warn("Could not set Xdoclint option on this JDK: ${e.message}")
+            }
 
             // Prefer HTML5 output when supported
             stdOptions.addBooleanOption("html5", true)
