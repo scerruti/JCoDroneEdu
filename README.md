@@ -1,60 +1,16 @@
 # CoDrone EDU Java API
 
-🎓 **Educational Java API for CoDrone EDU** - A comprehensive programming interface designed specifically for robotics education with full Python API parity, extensive sensor support, LED control, flight patterns, and AP Computer Science A compliance.
+A concise, classroom-focused Java library for programming the CoDrone EDU hardware. This repository contains the Java API (package `com.otabi.jcodroneedu`), example programs, documentation, and build tooling used to produce student and teacher JARs.
+
+## Summary
+
+CoDrone EDU Java is intended for educators and students. It exposes a simple, well-documented API to control the drone (flight, sensors, LEDs, buzzer), includes classroom-ready examples, and provides teacher utilities in a separate teacher JAR. The project aims for behavioral parity with the reference Python API while adapting to Java idioms and safety.
 
 ---
 
 ## 🎯 Project Vision
 
 The CoDrone EDU Java API aims to provide educators and students with a robust, classroom-ready programming interface that matches the functionality and ease of use of the official Python API while leveraging Java's educational benefits for AP Computer Science A and university-level courses.
-
-## ✨ Planned Features
-
-### 🚁 **Core Flight Control**
-- **Movement Commands**: `go()`, distance-based movement (`moveForward()`, `moveBackward()`, etc.)
-- **Advanced Navigation**: Absolute positioning, custom flight patterns
-- **Educational Patterns**: Squares, triangles, spirals, and custom choreography
-
-### 🌈 **LED & Visual Control**
-- **Drone LEDs**: Full RGB color control with educational color mixing
-- **Controller LEDs**: Synchronized lighting effects
-- **Pattern Modes**: Solid colors, blinking, rainbow effects, and custom sequences
-
-### 📡 **Comprehensive Sensor Suite**
-- **Motion Sensors**: Accelerometer, gyroscope, angle detection
-- **Distance Sensors**: Range finding (front, back, left, right, top, bottom)
-- **Color Sensors**: RGB detection, HSV data, front/back sensor access
-- **Environmental**: Battery monitoring, flight state tracking
-
-### 🎓 **Educational Integration**
-- **AP CSA Compliance**: Aligned with College Board curriculum standards
-- **Progressive Complexity**: From basic commands to advanced robotics concepts
-- **Python Compatibility**: Familiar method names for students transitioning between languages
-- **Comprehensive Documentation**: Educational context, example projects, and best practices
-
-## 🏗️ Current Development Status
-
-### ✅ **Completed Components**
-- Core flight control (`go()` method and movement patterns)
-- Distance-based movement methods with unit support
-- Complete LED control system (drone and controller)
-- Essential sensor access (motion, range, battery)
-- Color sensor implementation with Python API parity
-- Flight pattern library with inheritance demonstration
-- Comprehensive test suites (134+ test cases)
-
-### 🚧 **In Development**
-- Audio feedback and buzzer control
-- Controller input handling
-- Advanced sensor integration (pressure, temperature)
-- Reset and calibration methods
-- Documentation and example projects
-
-### 📋 **Planned Enhancements**
-- Position tracking and navigation
-- Swarm programming capabilities
-- Advanced autonomous flight modes
-- Integration with educational platforms
 
 ## 🧪 Testing & Quality Assurance
 
@@ -66,7 +22,7 @@ The project maintains high code quality standards with:
 
 ## 📚 Educational Use Cases
 
-Once released, this API will support:
+This API will support:
 
 ### **K-12 STEM Education**
 - Introduction to programming concepts through drone control
@@ -76,56 +32,87 @@ Once released, this API will support:
 ### **AP Computer Science A**
 - Object-oriented programming with real hardware
 - Array and data structure manipulation with sensor data
-- Algorithm development for autonomous navigation
 
-### **University Robotics Courses**
-- Advanced sensor fusion and data processing
-- Multi-threaded programming for real-time control
-- Software engineering practices in embedded systems
+# CoDrone EDU Java API
 
-## 🤝 Contributing
+🎓 Educational Java API for CoDrone EDU — a classroom-focused Java library for teaching drone programming, aligned with common K–12 and AP Computer Science A learning objectives.
 
-This project is not yet ready for external contributions. Once the core API is stabilized, we will welcome:
-- Bug reports and feature requests
-- Educational example projects
-- Documentation improvements
-- Testing and validation
+## Quick overview
+CoDrone EDU Java provides a simple, well-documented interface to fly and program CoDrone EDU hardware from Java. The library exposes core flight control, basic sensors, LED control, and curated student examples so classrooms and instructors can teach programming and robotics with hands-on activities.
 
-## 📄 License
+Artifacts produced by the build:
+- Student JAR (for classroom/student use)
+- Teacher JAR (includes teacher/testing utilities)
+- Sources JAR and Javadoc JAR
 
-License information will be provided upon initial release.
+## Development status (classroom-ready)
+The CoDrone EDU Java API is classroom-ready for student use. Core flight controls, sensor access, LED control, and the student examples are implemented and tested. Teacher utilities are included in the teacher edition JAR. We continue to refine advanced features and documentation; check the release notes for details.
 
-## 📞 Contact
+## Release: v1.0.16 — Classroom release (student edition)
+This release focuses on providing a stable Java experience for classroom use.
 
-For questions about the project timeline or educational applications, please contact the development team through the repository issues.
+Highlights:
+- Core flight controls: user-friendly movement commands for classroom exercises.
+- Sensors: accelerometer, gyroscope, and distance sensors exposed with simple APIs for lab work.
+- LED control: full support for drone and controller LEDs, example patterns, and guided activities.
+- Student examples: curated example projects suitable for K–12 and AP Computer Science lessons.
+- Packaging: Student and Teacher JARs plus Javadoc and sources are produced by the build; teacher utilities are provided as a separate teacher JAR.
 
----
+Notes:
+- Teacher edition includes additional testing and classroom utilities — find it in the GitHub Release assets.
+- Advanced topics such as swarm programming and autonomous research features are planned for future releases.
 
-**Note**: This README will be updated regularly as development progresses. Star this repository to stay informed about release announcements and major milestones.
+## Why use the Java API
+- Designed for educators: simple, consistent APIs and examples aligned to classroom exercises.
+- AP CSA-friendly: encourages object-oriented thinking and standard Java programming patterns.
+- Portable: packaged JARs, sources, and Javadoc make it easy to integrate into existing Java curricula.
 
-## Sensor scaling (canonical)
-
-The project uses a canonical set of conversions for motion sensor data to avoid ambiguity across
-examples, tests, and the public API. These constants live in `DroneSystem.SensorScales`.
-
-- Accelerometer raw units: encoded as signed 16-bit integers where
-	raw = m/s^2 * 10. Convert to m/s^2 by multiplying raw * 0.1 (or use
-	`DroneSystem.SensorScales.ACCEL_RAW_TO_MS2`).
-- To convert to G (approx): divide m/s^2 by 9.80665 (or use
-	`DroneSystem.SensorScales.ACCEL_RAW_TO_G`).
-- Angles: raw protocol values are already in degrees — no centi-degree scaling.
-
-Please use the constants above for any conversion rather than hard-coded divisors
-so the behavior stays consistent across the codebase.
-
-## Changelog
-
-See `CHANGELOG.md` for a human-readable history of notable changes and merged PRs.
-
-## Running tests
-
-Run the unit test suite locally before connecting hardware. See `TESTING_GUIDE.md` for details.
-
-```bash
-./gradlew test
+## Getting started (student)
+1. Download the student JAR from the latest GitHub Release (look for `codrone-edu-java-<version>-student.jar`) or add the library to your project using the artifact published to Maven Central when available.
+2. Example dependency (Maven; adjust group/artifact/version as needed):
+```xml
+<dependency>
+  <groupId>edu.codrone</groupId>
+  <artifactId>codrone-edu-java</artifactId>
+  <version>1.0.16</version>
+</dependency>
 ```
+3. See the `src/main/java/com/otabi/jcodroneedu/examples` directory for hands-on sample programs and lesson starters.
+
+## Teacher edition
+The teacher edition JAR includes extra utilities for instructors such as testing helpers and test harnesses used in classroom assessments. The teacher JAR is distributed via the Release assets for instructors and course maintainers.
+
+## Documentation & examples
+- API docs (Javadoc) are produced with each release and included in release assets.
+- Example programs are in `src/main/java/com/otabi/jcodroneedu/examples`.
+- Implementation notes and design documents are in the `docs/` and `reference/` directories.
+
+## Testing & quality
+- We run automated tests as part of the build pipeline and maintain a suite of unit tests focused on classroom behaviors.
+- Before adopting the library for production curricula, instructors should run the examples and tests in their environment to verify behavior with their hardware.
+
+## Installing and building locally (developer convenience)
+To build artifacts locally:
+```bash
+# build everything, run tests, and create student/teacher/sources/javadoc jars
+./gradlew build studentJar teacherJar sourcesJar javadocJar
+```
+To produce a local Maven publish (dry run):
+```bash
+./gradlew publishStudentPublicationToMavenLocal -Pversion=1.0.16
+```
+
+## Contributing
+We welcome contributions once the core API is stabilized. For now:
+- Open issues for bugs or feature requests.
+- Contribute educational examples or documentation improvements.
+- If you'd like to help with teacher tooling or advanced features, open an issue and we’ll coordinate.
+
+## License
+This project is available under the MIT License. See the `LICENSE` file in the repository for details.
+
+## Changelog & releases
+See `CHANGELOG.md` for past release notes. The most recent release is v1.0.16 — check the GitHub Releases page for packaged artifacts (student JAR, teacher JAR, sources, javadoc).
+
+## Contact & support
+For timeline questions, classroom integration, or bug reports, open an issue on this repository. For private instructor access to teacher tooling, check the release assets or contact the maintainers through the project issues.
