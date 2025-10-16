@@ -415,12 +415,16 @@ tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
 // --------------------------
 // sourcesJar
 val sourcesJar by tasks.registering(Jar::class) {
+    archiveBaseName.set("codrone-edu-java")
+    archiveVersion.set(project.version.toString())
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }
 
 // javadocJar
 val javadocJar by tasks.registering(Jar::class) {
+    archiveBaseName.set("codrone-edu-java")
+    archiveVersion.set(project.version.toString())
     archiveClassifier.set("javadoc")
     val javadocTask = tasks.named("javadoc")
     // Use destinationDir for compatibility across Gradle versions
@@ -463,8 +467,7 @@ tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
 
 // studentJar: core library only (no test helpers)
 val studentJar by tasks.registering(Jar::class) {
-    archiveBaseName.set("JCoDroneEdu")
-    archiveAppendix.set("")
+    archiveBaseName.set("codrone-edu-java")
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("student")
     from(sourceSets.main.get().output)
@@ -472,7 +475,7 @@ val studentJar by tasks.registering(Jar::class) {
 
 // teacherJar: includes test helpers and teacher resources (packaged into a -teacher.jar)
 val teacherJar by tasks.registering(Jar::class) {
-    archiveBaseName.set("JCoDroneEdu")
+    archiveBaseName.set("codrone-edu-java")
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("teacher")
     // Include main classes
