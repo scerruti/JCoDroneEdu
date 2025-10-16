@@ -332,7 +332,7 @@ tasks.register<JavaExec>("runErrorMonitoringFly") {
 }
 
 group = "com.otabi"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()

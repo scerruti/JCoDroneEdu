@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.0.0 - 2025-10-15
+
+- Add expanded smoke tests and examples: non-flying SmokeTest, controller display and buzzer tests, QuickLEDTest, and a guarded FlightSmokeTest (indoor-safe turning-only) with Gradle tasks `runSmokeTest`, `runControllerDisplayExample`, `runBuzzerTest`, `runQuickLEDTest`, and `runFlightSmokeTest`.
+
 ## Unreleased
 
 - Normalize sensor scaling: centralize scales and update displays, tests, and docs (#1)
