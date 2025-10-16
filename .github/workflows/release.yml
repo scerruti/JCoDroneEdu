@@ -60,10 +60,26 @@ jobs:
       run: ./gradlew build test
     
     - name: Build student release
-      run: ./gradlew studentJar javadocJar sourcesJar
+      run: |
+        if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+        else
+          VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')
+        fi
+        echo "Building artifacts for version: $VERSION"
+        ./gradlew -Pversion=$VERSION studentJar javadocJar sourcesJar
     
     - name: Build teacher release
-      run: ./gradlew teacherJar
+      run: |
+        if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+        else
+          VERSION=$(./gradlew properties -q | grep "version:" | awk '{print $2}')
+        fi
+        echo "Building teacher artifact for version: $VERSION"
+        ./gradlew -Pversion=$VERSION teacherJar
     
     - name: Get version
       id: get_version
