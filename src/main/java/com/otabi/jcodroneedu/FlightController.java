@@ -539,7 +539,7 @@ public class FlightController {
      * 
      * @param distance The distance to move backward
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveBackward(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -557,17 +557,17 @@ public class FlightController {
     }
     
     /**
-     * Move backward with default units (cm) and speed (1.0 m/s).
+     * Move backward with default units (cm) and speed (0.5 m/s).
      */
     public void moveBackward(double distance) {
-        moveBackward(distance, "cm", 1.0);
+        moveBackward(distance, "cm", 0.5);
     }
     
     /**
-     * Move backward with specified units and default speed (1.0 m/s).
+     * Move backward with specified units and default speed (0.5 m/s).
      */
     public void moveBackward(double distance, String units) {
-        moveBackward(distance, units, 1.0);
+        moveBackward(distance, units, 0.5);
     }
     
     /**
@@ -578,7 +578,7 @@ public class FlightController {
      * 
      * @param distance The distance to move left
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveLeft(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -596,17 +596,17 @@ public class FlightController {
     }
     
     /**
-     * Move left with default units (cm) and speed (1.0 m/s).
+     * Move left with default units (cm) and speed (0.5 m/s).
      */
     public void moveLeft(double distance) {
-        moveLeft(distance, "cm", 1.0);
+        moveLeft(distance, "cm", 0.5);
     }
     
     /**
-     * Move left with specified units and default speed (1.0 m/s).
+     * Move left with specified units and default speed (0.5 m/s).
      */
     public void moveLeft(double distance, String units) {
-        moveLeft(distance, units, 1.0);
+        moveLeft(distance, units, 0.5);
     }
     
     /**
@@ -617,7 +617,7 @@ public class FlightController {
      * 
      * @param distance The distance to move right
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveRight(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -635,17 +635,17 @@ public class FlightController {
     }
     
     /**
-     * Move right with default units (cm) and speed (1.0 m/s).
+     * Move right with default units (cm) and speed (0.5 m/s).
      */
     public void moveRight(double distance) {
-        moveRight(distance, "cm", 1.0);
+        moveRight(distance, "cm", 0.5);
     }
     
     /**
-     * Move right with specified units and default speed (1.0 m/s).
+     * Move right with specified units and default speed (0.5 m/s).
      */
     public void moveRight(double distance, String units) {
-        moveRight(distance, units, 1.0);
+        moveRight(distance, units, 0.5);
     }
     
     /**
@@ -1314,7 +1314,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getX(), unit);
+            double posValue = convertMeter(positionData.getX(), unit);
             log.debug("X position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1350,7 +1350,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getY(), unit);
+            double posValue = convertMeter(positionData.getY(), unit);
             log.debug("Y position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1386,7 +1386,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getZ(), unit);
+            double posValue = convertMeter(positionData.getZ(), unit);
             log.debug("Z position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1700,6 +1700,22 @@ public class FlightController {
             default:
                 log.warn("Unknown unit '{}', defaulting to cm", unit);
                 return millimeter / 10.0;
+        }
+    }
+
+    private double convertMeter(double meter, String unit) {
+        switch (unit.toLowerCase()) {
+            case "m":
+                return meter;
+            case "cm":
+                return meter * 100.0;
+            case "mm":
+                return meter * 1000.0;
+            case "in":
+                return meter * 39.3701;
+            default:
+                log.warn("Unknown unit '{}', defaulting to cm", unit);
+                return meter * 100.0;
         }
     }
 }

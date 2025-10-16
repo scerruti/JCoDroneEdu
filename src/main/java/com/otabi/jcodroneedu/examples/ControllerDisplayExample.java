@@ -30,9 +30,13 @@ public class ControllerDisplayExample {
         try (Drone drone = new Drone()) {
             System.out.println("=== CoDrone EDU Controller Display Demo ===\n");
             
-            // Note: Display commands work without pairing - they only affect the controller
+            // Connect to the controller
+            System.out.println("Connecting to drone controller...");
+            drone.pair();
+            System.out.println("Connected!\n");
+            
             System.out.println("1. Clearing the display screen...");
-            drone.controller_clear_screen();
+            drone.controllerClearScreen();
             sleep(1000);
             
             System.out.println("2. Drawing basic shapes...");
@@ -60,7 +64,7 @@ public class ControllerDisplayExample {
             sleep(3000);
             
             // Clear screen when done
-            drone.controller_clear_screen();
+            drone.controllerClearScreen();
             System.out.println("\n=== Demo Complete ===");
             System.out.println("Display functionality verified successfully!");
             
@@ -75,27 +79,27 @@ public class ControllerDisplayExample {
      */
     private static void demonstrateBasicShapes(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Draw some points
-        drone.controller_draw_point(10, 10);
-        drone.controller_draw_point(15, 10);
-        drone.controller_draw_point(20, 10);
+        drone.controllerDrawPoint(10, 10);
+        drone.controllerDrawPoint(15, 10);
+        drone.controllerDrawPoint(20, 10);
         
         // Draw lines
-        drone.controller_draw_line(30, 5, 50, 15);
-        drone.controller_draw_line(30, 15, 50, 5);
+        drone.controllerDrawLine(30, 5, 50, 15);
+        drone.controllerDrawLine(30, 15, 50, 5);
         
         // Draw rectangles
-        drone.controller_draw_rectangle(60, 5, 20, 15); // Outline
-        drone.controller_draw_rectangle(85, 5, 15, 15, DisplayPixel.BLACK, true, DisplayLine.SOLID); // Filled
-        
+        drone.controllerDrawRectangle(60, 5, 20, 15); // Outline
+        drone.controllerDrawRectangle(85, 5, 15, 15, DisplayPixel.BLACK, true, DisplayLine.SOLID); // Filled
+
         // Draw circles
-        drone.controller_draw_circle(15, 35, 8, DisplayPixel.BLACK, false); // Outline
-        drone.controller_draw_circle(40, 35, 8, DisplayPixel.BLACK, true);  // Filled
+        drone.controllerDrawCircle(15, 35, 8, DisplayPixel.BLACK, false); // Outline
+        drone.controllerDrawCircle(40, 35, 8, DisplayPixel.BLACK, true);  // Filled
         
         // Draw text label
-        drone.controller_draw_string(5, 50, "Basic Shapes", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 50, "Basic Shapes", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
     }
     
     /**
@@ -103,20 +107,20 @@ public class ControllerDisplayExample {
      */
     private static void demonstrateTextDisplay(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Small font text
-        drone.controller_draw_string(5, 5, "Small Font Text");
-        drone.controller_draw_string(5, 15, "5x8 Characters");
+        drone.controllerDrawString(5, 5, "Small Font Text");
+        drone.controllerDrawString(5, 15, "5x8 Characters");
         
         // Large font text
-        drone.controller_draw_string(5, 30, "Large Font", DisplayFont.LIBERATION_MONO_10X16, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 30, "Large Font", DisplayFont.LIBERATION_MONO_10X16, DisplayPixel.BLACK);
         
         // Text with different pixel types
-        drone.controller_draw_string(5, 50, "Regular", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 50, "Regular", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
         
         // Create a border around the screen
-        drone.controller_draw_rectangle(0, 0, 127, 63);
+        drone.controllerDrawRectangle(0, 0, 127, 63);
     }
     
     /**
@@ -124,22 +128,22 @@ public class ControllerDisplayExample {
      */
     private static void demonstrateLineStyles(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Draw lines with different styles
-        drone.controller_draw_line(10, 10, 110, 10, DisplayPixel.BLACK, DisplayLine.SOLID);
-        drone.controller_draw_string(5, 2, "Solid");
+        drone.controllerDrawLine(10, 10, 110, 10, DisplayPixel.BLACK, DisplayLine.SOLID);
+        drone.controllerDrawString(5, 2, "Solid");
         
-        drone.controller_draw_line(10, 20, 110, 20, DisplayPixel.BLACK, DisplayLine.DOTTED);
-        drone.controller_draw_string(5, 12, "Dotted");
+        drone.controllerDrawLine(10, 20, 110, 20, DisplayPixel.BLACK, DisplayLine.DOTTED);
+        drone.controllerDrawString(5, 12, "Dotted");
         
-        drone.controller_draw_line(10, 30, 110, 30, DisplayPixel.BLACK, DisplayLine.DASHED);
-        drone.controller_draw_string(5, 22, "Dashed");
+        drone.controllerDrawLine(10, 30, 110, 30, DisplayPixel.BLACK, DisplayLine.DASHED);
+        drone.controllerDrawString(5, 22, "Dashed");
         
         // Draw rectangles with different line styles
-        drone.controller_draw_rectangle(10, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.SOLID);
-        drone.controller_draw_rectangle(50, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.DOTTED);
-        drone.controller_draw_rectangle(90, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.DASHED);
+        drone.controllerDrawRectangle(10, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.SOLID);
+        drone.controllerDrawRectangle(50, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.DOTTED);
+        drone.controllerDrawRectangle(90, 40, 30, 15, DisplayPixel.BLACK, false, DisplayLine.DASHED);
     }
     
     /**
@@ -147,26 +151,26 @@ public class ControllerDisplayExample {
      */
     private static void demonstratePattern(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Create a grid pattern
         for (int x = 10; x < 120; x += 20) {
-            drone.controller_draw_line(x, 5, x, 55);
+            drone.controllerDrawLine(x, 5, x, 55);
         }
         
         for (int y = 5; y < 60; y += 10) {
-            drone.controller_draw_line(10, y, 110, y);
+            drone.controllerDrawLine(10, y, 110, y);
         }
         
         // Add some circles at intersections
         for (int x = 10; x < 120; x += 40) {
             for (int y = 15; y < 50; y += 20) {
-                drone.controller_draw_circle(x, y, 3, DisplayPixel.BLACK, true);
+                drone.controllerDrawCircle(x, y, 3, DisplayPixel.BLACK, true);
             }
         }
         
         // Add title
-        drone.controller_draw_string(25, 58, "Grid Pattern");
+        drone.controllerDrawString(25, 58, "Grid Pattern");
     }
     
     /**
@@ -174,17 +178,17 @@ public class ControllerDisplayExample {
      */
     private static void demonstrateInversion(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Draw some content
-        drone.controller_draw_rectangle(20, 10, 80, 40, DisplayPixel.BLACK, true, DisplayLine.SOLID);
-        drone.controller_draw_string(30, 25, "Original", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.WHITE);
+        drone.controllerDrawRectangle(20, 10, 80, 40, DisplayPixel.BLACK, true, DisplayLine.SOLID);
+        drone.controllerDrawString(30, 25, "Original", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.WHITE);
         
         sleep(1000);
         
         // Invert a portion
-        drone.controller_invert_area(40, 20, 40, 20);
-        drone.controller_draw_string(10, 55, "Inverted Area");
+        drone.controllerInvertArea(40, 20, 40, 20);
+        drone.controllerDrawString(10, 55, "Inverted Area");
     }
     
     /**
@@ -192,29 +196,29 @@ public class ControllerDisplayExample {
      */
     private static void demonstrateDashboard(Drone drone) {
         // Clear screen first
-        drone.controller_clear_screen();
+        drone.controllerClearScreen();
         
         // Title bar
-        drone.controller_draw_rectangle(0, 0, 127, 12, DisplayPixel.BLACK, true, DisplayLine.SOLID);
-        drone.controller_draw_string(30, 2, "CoDrone Status", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.WHITE);
+        drone.controllerDrawRectangle(0, 0, 127, 12, DisplayPixel.BLACK, true, DisplayLine.SOLID);
+        drone.controllerDrawString(30, 2, "CoDrone Status", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.WHITE);
         
         // Status indicators
-        drone.controller_draw_string(5, 18, "Battery: [", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 18, "Battery: [", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
         
         // Battery indicator (simple bars)
         for (int i = 0; i < 8; i++) {
-            drone.controller_draw_rectangle(53 + (i * 6), 20, 4, 6, DisplayPixel.BLACK, true, DisplayLine.SOLID);
+            drone.controllerDrawRectangle(53 + (i * 6), 20, 4, 6, DisplayPixel.BLACK, true, DisplayLine.SOLID);
         }
-        drone.controller_draw_string(103, 18, "]");
+        drone.controllerDrawString(103, 18, "]");
         
         // Connection status
-        drone.controller_draw_string(5, 30, "Connection: OK", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 30, "Connection: OK", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
         
         // Flight mode
-        drone.controller_draw_string(5, 42, "Mode: Ready", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+        drone.controllerDrawString(5, 42, "Mode: Ready", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
         
         // Border
-        drone.controller_draw_rectangle(0, 0, 127, 63);
+        drone.controllerDrawRectangle(0, 0, 127, 63);
     }
     
     /**

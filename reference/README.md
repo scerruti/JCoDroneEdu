@@ -42,3 +42,40 @@ python-codrone-edu/
 3. **Create** `version.txt` with the library version number
 4. **Update** the method tracking document
 5. **Review** for new methods or signature changes
+
+---
+
+## Alternate UI Designs
+
+### `alternate-sensor-dashboard-ui.html`
+**Created:** October 15, 2025  
+**Purpose:** Reference design for a modern web-based sensor dashboard UI
+
+**Description:**  
+HTML snippet from an alternate (possibly web-based) sensor visualization interface. This represents a more modern, graphical approach to displaying drone sensor data compared to our current Swing-based implementation.
+
+**Key Features:**
+- **Accelerometer:** Visual SVG icon with X/Y/Z axis values
+- **Gyroscope:** 
+  - Roll: Semi-circular range indicator (cyan/teal)
+  - Yaw: Rotating arrow/compass (blue)
+  - Pitch: Semi-circular range indicator (red/pink)
+- **Range Sensors:** Horizontal slider visualizations (0-200cm)
+- **Color Sensors:** HSV values displayed separately + color name + circular swatch
+- **Additional Sensors:** Pressure (kPa) and Temperature (°C)
+- **Position Display:** X/Y coordinates in cm
+
+**Design Characteristics:**
+- Dark theme with bright accent colors
+- CSS modules for scoped styling
+- Inline SVG graphics for icons
+- Color-coded visualizations (cyan=roll, blue=yaw, red=pitch)
+- More graphical/visual than our Swing panels
+
+**Potential Applications:**
+- Reference for improving current Swing UI
+- Ideas for future JavaFX or web-based version
+- Color scheme inspiration
+- Layout patterns for sensor grouping
+
+**File Location:** `/reference/alternate-sensor-dashboard-ui.html`

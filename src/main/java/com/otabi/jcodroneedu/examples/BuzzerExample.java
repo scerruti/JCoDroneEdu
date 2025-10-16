@@ -1,7 +1,6 @@
 package com.otabi.jcodroneedu.examples;
 
 import com.otabi.jcodroneedu.Drone;
-import com.otabi.jcodroneedu.protocol.buzzer.Note;
 
 /**
  * Educational example showing how to use the CoDrone EDU buzzer API

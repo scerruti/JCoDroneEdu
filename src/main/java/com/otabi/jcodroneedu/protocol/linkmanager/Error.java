@@ -45,4 +45,18 @@ public class Error implements Serializable
         buffer.putInt(errorFlagsForSensor);
         buffer.putInt(errorFlagsForState);
     }
+
+    // --- Getters ---
+
+    public long getSystemTime() {
+        return systemTime;
+    }
+
+    public int getErrorFlagsForSensor() {
+        return errorFlagsForSensor;
+    }
+
+    public int getErrorFlagsForState() {
+        return errorFlagsForState;
+    }
 }

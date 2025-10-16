@@ -14,29 +14,28 @@
 
 ## Progress Update (October 2025)
 
-✅ **Major API Additions (recent commits):**
+✅ **Major API Additions:**
 - Inventory data access (InformationData, CountData, AddressData, CpuIdData)
 - Controller input composite objects (ButtonData, JoystickData)
 - Three-tier API pattern for better Java ergonomics while maintaining Python compatibility
 - Error state monitoring (get_error_data with sensor and state error flags)
-- Controller display: protocol primitives implemented on `Drone` (low-level draw commands). NOTE: retained-mode `ControllerCanvas` class was removed from the working tree; the repository no longer provides a first-class canvas object.
 
 🎯 **API Completeness (Based on Official Documentation):**
 - **Connection/Setup**: 100% complete (pair, close)
-- **Flight Commands**: 100% complete ✅ (avoid_wall, keep_distance implemented)
+- **Flight Commands**: 100% complete ✅ (avoid_wall, keep_distance NOW IMPLEMENTED)
 - **Flight Variables**: 100% complete (move, set_pitch/roll/yaw/throttle)
 - **LED Control**: 100% complete
-- **Sound/Buzzer**: 100% complete ✅ (controller_buzzer_sequence, ping implemented + extensible!)
+- **Sound/Buzzer**: 100% complete ✅ (controller_buzzer_sequence, ping NOW IMPLEMENTED + extensible!)
 - **Range Sensors**: 100% complete
 - **Optical Flow**: 100% complete
 - **Gyroscope/IMU**: 100% complete (including deprecated getters)
-- **Pressure Sensors**: 100% complete ✅ (height_from_pressure verified)
+- **Pressure Sensors**: 100% complete ✅ (height_from_pressure NOW VERIFIED!)
 - **Color Sensors**: ~40% complete (missing: classifier, calibration methods)
-- **State Data**: 100% complete ✅ (get_error_data implemented)
+- **State Data**: 100% complete ✅ (get_error_data NOW IMPLEMENTED!)
 - **Controller Input**: 100% complete
--- **Screen/Display**: ~30% complete — low-level protocol drawing primitives exist on `Drone` (points, lines, rectangles, circles, strings, clear/invert areas), but a retained-mode canvas helper is not present and higher-level image helpers are missing. This reduces practical parity for image and complex-shape workflows.
+- **Screen/Display**: ~20% complete (controller canvas methods mostly missing)
 
-📊 **Overall Completion: ~92% of documented Python API** (reduced to reflect removal of retained canvas helpers)
+📊 **Overall Completion: ~89% of documented Python API** (up from ~88%!)
 
 ## Methods in Python Docs but NOT in Java
 
@@ -176,53 +175,27 @@ All implemented with three-tier API:
 - ✅ `get_right_joystick_x/y()` → `getRightJoystickX/Y()`
 - ✅ Button pressed methods (all buttons: L1, L2, R1, R2, arrows, H, P, S, power)
 
-### Controller Display/Screen (current status & problems)
+### Controller Display/Screen (20% - Missing 11 methods)
+Implemented:
+- ✅ `controller_clear_screen()` → `controllerClearScreen()` (⚠️ unavailable for JROTC edition)
+- ✅ `controller_draw_line()` → `controllerDrawLine()`
+- ✅ `controller_draw_rectangle()` → `controllerDrawRectangle()`
+- ✅ `controller_draw_string()` → `controllerDrawString()`
 
-Current state:
-- Implemented on `Drone`: low-level protocol primitives for controller drawing (examples: `controllerClearScreen`, `controllerDrawPoint`, `controllerDrawLine`, `controllerDrawRectangle`, `controllerDrawCircle`, `controllerDrawString`, `controllerClearArea`, `controllerInvertArea`). These map directly to discrete display packets.
-- NOT present: a retained-mode `ControllerCanvas` helper class (it was removed from the working tree). The repository therefore lacks the convenience canvas object that previously let developers compose complex graphics locally and then transmit the result in one operation.
-- Partial protocol placeholder: `DataType` includes `DisplayDrawImage` and an empty `DisplayDrawImage.java` file exists — indicating an intended image transfer path that has not been implemented.
+Missing (⚠️ Most unavailable for JROTC edition):
+- ❌ `controller_create_canvas()` - Create image object for drawing
+- ❌ `controller_draw_arc()` - Draw arc on canvas
+- ❌ `controller_draw_canvas()` - Render canvas to screen
+- ❌ `controller_draw_chord()` - Draw chord on canvas
+- ❌ `controller_draw_ellipse()` - Draw ellipse on canvas
+- ❌ `controller_draw_image()` - Draw image on screen
+- ❌ `controller_draw_polygon()` - Draw polygon on canvas
+- ❌ `controller_draw_square()` - Draw square on canvas
+- ❌ `controller_draw_string_align()` - Draw aligned text
+- ❌ `controller_preview_canvas()` - Preview canvas in window
+- ❌ `get_image_data(image_file)` - Load and resize image (⚠️ unavailable for Python for Robolink)
 
-Practical problems caused by the current state:
-
-1. Fragmented API surface and poor parity with Python
-   - The Python API exposes many convenience functions and an image/canvas object. The project now exposes only low-level primitives on `Drone`, which forces users to either:
-     - issue many individual draw commands to the controller (inefficient and verbose), or
-     - re-implement a retained canvas locally in their app code (duplicated effort).
-   - Result: migration from Python examples is noisy and error-prone.
-
-2. Performance and protocol inefficiency
-   - Without a proper image-transfer protocol implementation, any retained-canvas-like behavior would require sending thousands of individual draw-point commands (current `ControllerCanvas.send()` approach used previously). That is slow and chatty over the link.
-   - The `DisplayDrawImage` protocol slot exists but is not implemented; until it's implemented, efficient bulk transfer of monochrome bitmaps is unavailable.
-
-3. Missing convenience helpers
-   - High-level helpers commonly found in Python (drawArc, drawChord, drawEllipse, drawPolygon, drawStringAlign, drawImage) are absent. While Java's Graphics2D provides primitives to compose these, the lack of an included retained-canvas class or Drone wrappers means end-users must write boilerplate.
-
-4. UX and safety issues (preview & headless)
-   - Any GUI preview utilities (previously provided by `ControllerCanvas.preview()`) are not present in the working tree. If added back, they must be guarded for headless environments.
-
-5. Testing and example drift
-   - Examples and tests that assumed `ControllerCanvas` exists will now fail or be misleading. The example `ControllerDisplayExample` and `ControllerDisplayTest` appear to exercise `Drone` primitives, but higher-level examples for composing images are missing.
-
-6. Documentation mismatch
-   - `API_COMPARISON.md` and other docs historically referred to a retained `ControllerCanvas`. Those references must be updated (this document is being updated to reflect the removal). The docs should also clearly call out the missing image transfer implementation.
-
-Recommended remediation (prioritized):
-
-1. Short-term (fast, low-risk)
-   - Update docs and examples to clearly show the current usage: use `Drone` primitives or instruct users to create their own canvas using `BufferedImage` + `Graphics2D`, then send pixel-by-pixel using `controllerDrawPoint` (document performance caveats).
-   - Add convenience helper wrappers on `Drone` that accept a caller-provided retained image object (e.g., `controllerDrawCanvas(BufferedImage image)` or `controllerDrawCanvas(ControllerImage image)`) which simply delegate to a standard send algorithm. Keep these thin and well-documented.
-
-2. Medium-term (recommended)
-   - Reintroduce a small retained helper (either `ControllerCanvas` or `ControllerImage`) inside the repo with the minimal API: `getGraphics2D()`, `send()`, `preview()` (guarded), and a set of convenience draw helpers. Implement `send()` using an efficient image-transfer protocol if possible (see next item).
-   - Implement `DisplayDrawImage` protocol payload and `controllerDrawImage()` on `Drone` to support efficient bulk transfer of monochrome bitmaps. This allows `send()` to transfer a full bitmap in one or a small number of frames instead of per-pixel commands.
-
-3. Long-term
-   - Provide higher-level drawing wrappers (arc/chord/polygon/align) implemented on the retained canvas. Add comprehensive examples and tests.
-
-Notes about tradeoffs:
-- Reintroducing `ControllerCanvas` is the fastest way to restore a friendly API surface; implementing `DisplayDrawImage` yields the best performance but requires careful protocol design and receiver-side support.
-- If receiver firmware does not support a bulk image command, accept the per-pixel fallback but document the latency and add optional throttling/aggregation helpers.
+Note: Many controller canvas methods are unavailable for JROTC edition hardware.
 
 ## Deprecated Python Methods (Documented but Deprecated)
 

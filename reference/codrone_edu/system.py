@@ -346,7 +346,20 @@ class CardColorIndex(Enum):
 
     EndOfType       = 0x09
 
+class ColorCard(str, Enum):
 
+    Unknown = 'Unknown'
+
+    White = 'white'
+    Red = 'red'
+    Yellow = 'yellow'
+    Green = 'green'
+    LightBlue = 'light blue'
+    Blue = 'blue'
+    Purple = 'purple'
+    Black = 'black'
+
+    EndofType = 'EndofType'
 
 class Card(Enum):
     
@@ -356,72 +369,72 @@ class Card(Enum):
     WhiteRed        = 0x12
     WhiteYellow     = 0x13
     WhiteGreen      = 0x14
-    WhiteCyan       = 0x15
+    WhiteLightBlue  = 0x15
     WhiteBlue       = 0x16
-    WhiteMagenta    = 0x17
+    WhitePurple     = 0x17
     WhiteBlack      = 0x18
 
     RedWhite        = 0x21
     RedRed          = 0x22
     RedYellow       = 0x23
     RedGreen        = 0x24
-    RedCyan         = 0x25
+    RedLightBlue    = 0x25
     RedBlue         = 0x26
-    RedMagenta      = 0x27
+    RedPurple       = 0x27
     RedBlack        = 0x28
 
     YellowWhite     = 0x31
     YellowRed       = 0x32
     YellowYellow    = 0x33
     YellowGreen     = 0x34
-    YellowCyan      = 0x35
+    YellowLightBlue = 0x35
     YellowBlue      = 0x36
-    YellowMagenta   = 0x37
+    YellowPurple    = 0x37
     YellowBlack     = 0x38
 
     GreenWhite      = 0x41
     GreenRed        = 0x42
     GreenYellow     = 0x43
     GreenGreen      = 0x44
-    GreenCyan       = 0x45
+    GreenLightBlue  = 0x45
     GreenBlue       = 0x46
-    GreenMagenta    = 0x47
+    GreenPurple     = 0x47
     GreenBlack      = 0x48
 
-    CyanWhite       = 0x51
-    CyanRed         = 0x52
-    CyanYellow      = 0x53
-    CyanGreen       = 0x54
-    CyanCyan        = 0x55
-    CyanBlue        = 0x56
-    CyanMagenta     = 0x57
-    CyanBlack       = 0x58
+    LightBlueWhite     = 0x51
+    LightBlueRed       = 0x52
+    LightBlueYellow    = 0x53
+    LightBlueGreen     = 0x54
+    LightBlueLightBlue = 0x55
+    LightBlueBlue      = 0x56
+    LightBluePurple    = 0x57
+    LightBlueBlack     = 0x58
 
     BlueWhite       = 0x61
     BlueRed         = 0x62
     BlueYellow      = 0x63
     BlueGreen       = 0x64
-    BlueCyan        = 0x65
+    BlueLightBlue   = 0x65
     BlueBlue        = 0x66
-    BlueMagenta     = 0x67
+    BluePurple      = 0x67
     BlueBlack       = 0x68
 
-    MagentaWhite    = 0x71
-    MagentaRed      = 0x72
-    MagentaYellow   = 0x73
-    MagentaGreen    = 0x74
-    MagentaCyan     = 0x75
-    MagentaBlue     = 0x76
-    MagentaMagenta  = 0x77
-    MagentaBlack    = 0x78
+    PurpleWhite    = 0x71
+    PurpleRed      = 0x72
+    PurpleYellow   = 0x73
+    PurpleGreen    = 0x74
+    PurpleLightBlue= 0x75
+    PurpleBlue     = 0x76
+    PurplePurple   = 0x77
+    PurpleBlack    = 0x78
 
     BlackWhite      = 0x81
     BlackRed        = 0x82
     BlackYellow     = 0x83
     BlackGreen      = 0x84
-    BlackCyan       = 0x85
+    BlackLightBlue  = 0x85
     BlackBlue       = 0x86
-    BlackMagenta    = 0x87
+    BlackPurple     = 0x87
     BlackBlack      = 0x88
 
 

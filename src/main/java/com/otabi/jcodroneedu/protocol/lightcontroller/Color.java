@@ -17,7 +17,8 @@ public class Color implements Serializable
 
     public Color(byte r, byte g, byte b)
     {
-        if (!(isValidUnsignedByte(r) && isValidUnsignedByte(g) && isValidUnsignedByte(b)))
+        // Interpret the incoming signed Java bytes as unsigned values in 0..255
+        if (!(isValidUnsignedByte(r & 0xFF) && isValidUnsignedByte(g & 0xFF) && isValidUnsignedByte(b & 0xFF)))
         {
             throw new IllegalArgumentException("Colors must be in the range of 0 to 255.");
         }

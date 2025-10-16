@@ -69,34 +69,31 @@ public class ExamplePrograms {
      */
     public static void intermediateDemo() {
         try {
-            // Create drone with basic pattern capabilities
-            BasicPatternDrone basic = new BasicPatternDrone();
-            
-            // Create drone with advanced pattern capabilities  
-            AdvancedPatternDrone advanced = new AdvancedPatternDrone();
-            
-            // Take off
-            basic.takeoff();
-            
-            // Start with basic patterns
-            System.out.println("Phase 1: Basic patterns...");
-            basic.square(40, 45);
-            basic.hover(1.0);
-            // Use advanced circle method from AdvancedPatternDrone
-            advanced.circle(30, 1, 3.0);  // speed, direction, duration
-            basic.hover(1.0);
-            
-            // Move to advanced patterns
-            System.out.println("Phase 2: Advanced patterns...");
-            advanced.figure8(60, 25);
-            advanced.hover(1.5);
-            advanced.spiral(40, 80, 30);
-            
-            // Finish with basic landing sequence
-            System.out.println("Phase 3: Landing sequence...");
-            basic.hover(2.0);
-            basic.land();
-            basic.close();
+            // Create drones with pattern capabilities and ensure resources are closed
+            try (BasicPatternDrone basic = new BasicPatternDrone();
+                 AdvancedPatternDrone advanced = new AdvancedPatternDrone()) {
+                // Take off
+                basic.takeoff();
+
+                // Start with basic patterns
+                System.out.println("Phase 1: Basic patterns...");
+                basic.square(40, 45);
+                basic.hover(1.0);
+                // Use advanced circle method from AdvancedPatternDrone
+                advanced.circle(30, 1, 3.0);  // speed, direction, duration
+                basic.hover(1.0);
+
+                // Move to advanced patterns
+                System.out.println("Phase 2: Advanced patterns...");
+                advanced.figure8(60, 25);
+                advanced.hover(1.5);
+                advanced.spiral(40, 80, 30);
+
+                // Finish with basic landing sequence
+                System.out.println("Phase 3: Landing sequence...");
+                basic.hover(2.0);
+                basic.land();
+            }
             
         } catch (Exception e) {
             System.err.println("Error in intermediate demo: " + e.getMessage());
@@ -115,12 +112,11 @@ public class ExamplePrograms {
      */
     public static void advancedDemo() {
         try {
-            // Create drone with full pattern capabilities
-            BasicPatternDrone basic = new BasicPatternDrone();
-            AdvancedPatternDrone advanced = new AdvancedPatternDrone();
-            
-            // Take off
-            basic.takeoff();
+            // Create drones with full pattern capabilities and ensure they are closed
+            try (BasicPatternDrone basic = new BasicPatternDrone();
+                 AdvancedPatternDrone advanced = new AdvancedPatternDrone()) {
+                // Take off
+                basic.takeoff();
             
             // Complex flight routine
             System.out.println("Starting advanced flight routine...");
@@ -143,11 +139,10 @@ public class ExamplePrograms {
             advanced.spiral(40, 80, 3, 40);   // Complex spiral pattern
             basic.hover(2.0);
             
-            // Safe landing
-            System.out.println("Landing sequence...");
-            basic.land();
-            basic.close();
-            
+                // Safe landing
+                System.out.println("Landing sequence...");
+                basic.land();
+            }
         } catch (Exception e) {
             System.err.println("Error in advanced demo: " + e.getMessage());
             e.printStackTrace();

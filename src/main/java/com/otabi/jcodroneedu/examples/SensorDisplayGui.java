@@ -25,14 +25,10 @@ public class SensorDisplayGui {
     private final JLabel accelLabel = new JLabel("N/A", SwingConstants.CENTER);
     private final JLabel gyroLabel = new JLabel("N/A", SwingConstants.CENTER);
     private final JLabel angleLabel = new JLabel("N/A", SwingConstants.CENTER);
-    private final JProgressBar rollBar = new JProgressBar(-180, 180);
-    private final JProgressBar pitchBar = new JProgressBar(-180, 180);
+    private final AngleBarComponent rollBar = new AngleBarComponent("Roll");
+    private final AngleBarComponent pitchBar = new AngleBarComponent("Pitch");
     private final ArrowComponent headingArrow = new ArrowComponent();
-    private final JProgressBar leftRange = new JProgressBar(0, 500); // mm
     private final JProgressBar frontRange = new JProgressBar(0, 500);
-    private final JProgressBar rightRange = new JProgressBar(0, 500);
-    private final JProgressBar rearRange = new JProgressBar(0, 500);
-    private final JProgressBar topRange = new JProgressBar(0, 500);
     private final JProgressBar bottomRange = new JProgressBar(0, 500);
     private final JLabel altitudeLabel = new JLabel("N/A", SwingConstants.CENTER);
     private final JLabel positionLabel = new JLabel("N/A", SwingConstants.CENTER);
@@ -96,53 +92,53 @@ public class SensorDisplayGui {
     c.insets = new Insets(6, 6, 6, 6);
 
     // Top row: Battery and Color
-    c.gridx = 0; c.gridy = 0; c.weightx = 0.6; c.weighty = 0.0;
+    c.gridx = 0; c.gridy = 0; c.weightx = 0.6; c.weighty = 0.15;
     center.add(wrapWithTitledPanel("Battery", batteryLabel, 24f), c);
 
-    c.gridx = 1; c.gridy = 0; c.weightx = 0.4;
+    c.gridx = 1; c.gridy = 0; c.weightx = 0.4; c.weighty = 0.15;
     colorSwatch.setPreferredSize(new Dimension(120, 60));
+    colorSwatch.setMinimumSize(new Dimension(80, 40));
     colorSwatch.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
     center.add(wrapWithTitledPanel("Card Color", (JComponent) colorSwatch), c);
 
     // Middle row: Motion and Angles
-    c.gridx = 0; c.gridy = 1; c.gridwidth = 2; c.weighty = 0.0;
-    JPanel motionPanel = new JPanel(new GridLayout(1, 3));
-    motionPanel.add(wrapWithTitledPanel("Accel (m/s^2, g)", accelLabel, 14f));
+    c.gridx = 0; c.gridy = 1; c.gridwidth = 2; c.weightx = 1.0; c.weighty = 0.15;
+    JPanel motionPanel = new JPanel(new GridLayout(1, 3, 6, 6));
+    motionPanel.add(wrapWithTitledPanel("Accel (g)", accelLabel, 14f));
     motionPanel.add(wrapWithTitledPanel("Gyro (deg/s)", gyroLabel, 14f));
     motionPanel.add(wrapWithTitledPanel("Angle (deg)", angleLabel, 14f));
     center.add(motionPanel, c);
 
     // Attitude visualization: roll/pitch bars and heading arrow
-    c.gridx = 0; c.gridy = 2; c.gridwidth = 2; c.weighty = 0.0;
+    c.gridx = 0; c.gridy = 2; c.gridwidth = 2; c.weightx = 1.0; c.weighty = 0.2;
     JPanel attitudePanel = new JPanel(new GridLayout(1, 3, 6, 6));
-    rollBar.setStringPainted(true);
-    pitchBar.setStringPainted(true);
     attitudePanel.add(wrapWithTitledPanel("Roll (deg)", rollBar));
     attitudePanel.add(wrapWithTitledPanel("Heading", headingArrow));
     attitudePanel.add(wrapWithTitledPanel("Pitch (deg)", pitchBar));
     center.add(attitudePanel, c);
 
-    // Range sensors grid
-    c.gridx = 0; c.gridy = 3; c.gridwidth = 2; c.weighty = 0.0;
-    JPanel ranges = new JPanel(new GridLayout(3, 2, 6, 6));
-    ranges.add(wrapWithTitledPanel("Left (mm)", leftRange));
+    // Range sensors (only front and bottom are available)
+    c.gridx = 0; c.gridy = 3; c.gridwidth = 2; c.weightx = 1.0; c.weighty = 0.35;
+    JPanel ranges = new JPanel(new GridLayout(1, 2, 6, 6));
+    frontRange.setStringPainted(true);
+    bottomRange.setStringPainted(true);
     ranges.add(wrapWithTitledPanel("Front (mm)", frontRange));
-    ranges.add(wrapWithTitledPanel("Right (mm)", rightRange));
-    ranges.add(wrapWithTitledPanel("Rear (mm)", rearRange));
-    ranges.add(wrapWithTitledPanel("Top (mm)", topRange));
     ranges.add(wrapWithTitledPanel("Bottom (mm)", bottomRange));
     center.add(ranges, c);
 
     // Bottom row: Altitude and Position
-    c.gridx = 0; c.gridy = 3; c.gridwidth = 2; c.weighty = 0.0;
-    JPanel bottom = new JPanel(new GridLayout(1, 2));
-    bottom.add(wrapWithTitledPanel("Altitude / Pressure / Temp", altitudeLabel, 12f));
-    bottom.add(wrapWithTitledPanel("Position (m)", positionLabel, 12f));
+    c.gridx = 0; c.gridy = 4; c.gridwidth = 2; c.weightx = 1.0; c.weighty = 0.15;
+    JPanel bottom = new JPanel(new GridLayout(1, 2, 6, 6));
+    altitudeLabel.setFont(altitudeLabel.getFont().deriveFont(11f));
+    positionLabel.setFont(positionLabel.getFont().deriveFont(11f));
+    bottom.add(wrapWithTitledPanel("Altitude / Pressure / Temp", altitudeLabel));
+    bottom.add(wrapWithTitledPanel("Position (m)", positionLabel));
     center.add(bottom, c);
 
     frame.add(center, BorderLayout.CENTER);
 
-    frame.setSize(800, 600);
+    frame.setSize(900, 700);
+    frame.setMinimumSize(new Dimension(800, 600));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
@@ -178,7 +174,7 @@ public class SensorDisplayGui {
             // Motion
             Motion motion = status.getMotion();
             final String accelText;
-            final String gyroText = motion != null ? String.format("Gyro: %.1f, %.1f, %.1f", (double)motion.getGyroRoll(), (double)motion.getGyroPitch(), (double)motion.getGyroYaw()) : "Gyro: N/A";
+            final String gyroText = motion != null ? String.format("%.1f, %.1f, %.1f", (double)motion.getGyroRoll(), (double)motion.getGyroPitch(), (double)motion.getGyroYaw()) : "N/A";
             final String angleText;
             if (motion != null) {
                 double ax_ms2 = motion.getAccelX() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
@@ -187,11 +183,11 @@ public class SensorDisplayGui {
                 double ax_g = ax_ms2 / 9.80665;
                 double ay_g = ay_ms2 / 9.80665;
                 double az_g = az_ms2 / 9.80665;
-                accelText = String.format("m/s^2: %.2f, %.2f, %.2f | g: %.3f, %.3f, %.3f", ax_ms2, ay_ms2, az_ms2, ax_g, ay_g, az_g);
-                angleText = String.format("Angle: %.1f, %.1f, %.1f", motion.getAngleRoll() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG, motion.getAnglePitch() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG, motion.getAngleYaw() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG);
+                accelText = String.format("%.2f, %.2f, %.2f g", ax_g, ay_g, az_g);
+                angleText = String.format("%.1f, %.1f, %.1f", motion.getAngleRoll() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG, motion.getAnglePitch() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG, motion.getAngleYaw() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG);
             } else {
-                accelText = "Accel: N/A";
-                angleText = "Angle: N/A";
+                accelText = "N/A";
+                angleText = "N/A";
             }
 
             // Range
@@ -199,11 +195,11 @@ public class SensorDisplayGui {
 
             // Altitude
             Altitude alt = status.getAltitude();
-            final String altText = alt != null ? String.format("Alt: %.2fm Pressure: %.2fhPa Temp: %.2f°C RangeHeight: %.2fcm", alt.getAltitude(), alt.getPressure(), alt.getTemperature(), alt.getRangeHeight()) : "Altitude: N/A";
+            final String altText = alt != null ? String.format("<html>Alt: %.2fm<br>Press: %.1fhPa<br>Temp: %.1f°C</html>", alt.getAltitude(), alt.getPressure() / 100.0, alt.getTemperature()) : "N/A";
 
-            // Position
+            // Position (values are already in meters as floats)
             Position pos = status.getPosition();
-            final String posText = pos != null ? String.format("X: %.2fm  Y: %.2fm  Z: %.2fm", pos.getX() / 1000.0, pos.getY() / 1000.0, pos.getZ() / 1000.0) : "Position: N/A";
+            final String posText = pos != null ? String.format("<html>X: %.2fm<br>Y: %.2fm<br>Z: %.2fm</html>", pos.getX(), pos.getY(), pos.getZ()) : "N/A";
 
             // Card color
             CardColor cardColor = status.getCardColor();
@@ -212,16 +208,12 @@ public class SensorDisplayGui {
                 // compact labels
                 batteryLabel.setText(batteryText.replace("Battery: ", ""));
                 accelLabel.setText(accelText);
-                gyroLabel.setText(gyroText.replace("Gyro: ", ""));
-                angleLabel.setText(angleText.replace("Angle: ", ""));
+                gyroLabel.setText(gyroText);
+                angleLabel.setText(angleText);
 
                 // Update range progress bars (values are in mm)
                 if (range != null) {
-                    leftRange.setValue(range.getLeft()); leftRange.setString(String.format("%d mm", range.getLeft()));
                     frontRange.setValue(range.getFront()); frontRange.setString(String.format("%d mm", range.getFront()));
-                    rightRange.setValue(range.getRight()); rightRange.setString(String.format("%d mm", range.getRight()));
-                    rearRange.setValue(range.getRear()); rearRange.setString(String.format("%d mm", range.getRear()));
-                    topRange.setValue(range.getTop()); topRange.setString(String.format("%d mm", range.getTop()));
                     bottomRange.setValue(range.getBottom()); bottomRange.setString(String.format("%d mm", range.getBottom()));
                 }
 
@@ -230,10 +222,8 @@ public class SensorDisplayGui {
                     int roll = motion.getAngleRoll();
                     int pitch = motion.getAnglePitch();
                     int yaw = motion.getAngleYaw();
-                    rollBar.setValue(roll);
-                    rollBar.setString(String.format("%d°", roll));
-                    pitchBar.setValue(pitch);
-                    pitchBar.setString(String.format("%d°", pitch));
+                    rollBar.setAngle(roll);
+                    pitchBar.setAngle(pitch);
                     headingArrow.setHeading(yaw);
                 }
 
@@ -352,6 +342,66 @@ public class SensorDisplayGui {
                 arrow.addPoint(-6, -arrowLen + 18);
 
                 g2.fill(arrow);
+
+            } finally {
+                g2.dispose();
+            }
+        }
+    }
+
+    // Component to visualize angle (roll or pitch) as a rotating bar
+    private static class AngleBarComponent extends JComponent {
+        private volatile int angle = 0; // degrees
+        private final String label;
+
+        public AngleBarComponent(String label) {
+            this.label = label;
+            setPreferredSize(new Dimension(150, 40));
+            setMinimumSize(new Dimension(100, 30));
+        }
+
+        public void setAngle(int degrees) {
+            this.angle = degrees;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                int w = getWidth();
+                int h = getHeight();
+                int cx = w / 2;
+                int cy = h / 2;
+
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // White background
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, w, h);
+
+                // Draw reference line (horizontal at 0 degrees)
+                g2.setColor(Color.LIGHT_GRAY);
+                g2.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[]{5, 5}, 0));
+                g2.drawLine(10, cy, w - 10, cy);
+
+                // Draw rotating bar
+                g2.setColor(Color.BLUE);
+                g2.setStroke(new BasicStroke(4));
+                g2.translate(cx, cy);
+                g2.rotate(Math.toRadians(angle)); // Positive angle rotates clockwise
+                int barLen = Math.min(w, h * 4) / 2 - 20;
+                g2.drawLine(-barLen, 0, barLen, 0);
+
+                // Draw angle text
+                g2.setColor(Color.BLACK);
+                g2.setFont(new Font("SansSerif", Font.BOLD, 11));
+                String text = label + ": " + angle + "°";
+                FontMetrics fm = g2.getFontMetrics();
+                int textWidth = fm.stringWidth(text);
+                g2.rotate(-Math.toRadians(angle)); // Rotate back for text
+                g2.drawString(text, -textWidth / 2, cy - 5);
 
             } finally {
                 g2.dispose();

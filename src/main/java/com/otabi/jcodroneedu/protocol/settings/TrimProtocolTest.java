@@ -83,10 +83,9 @@ public class TrimProtocolTest {
             throw new AssertionError(message + " - Expected: " + expected + ", Actual: " + actual);
         }
     }
-    
-    private static void assertEquals(Object expected, Object actual, String message) {
-        if (!expected.equals(actual)) {
-            throw new AssertionError(message + " - Expected: " + expected + ", Actual: " + actual);
-        }
-    }
+
+    // Note: The Object-based assertEquals overload was removed because it is not
+    // used in this standalone test runner and triggered unused-method diagnostics
+    // in IDEs. Keep the simple primitive helper above for the short/int comparisons
+    // used by these tests.
 }

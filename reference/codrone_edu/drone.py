@@ -44,6 +44,7 @@ from codrone_edu.storage import *
 from codrone_edu.receiver import *
 from codrone_edu.system import *
 from codrone_edu.crc import *
+from codrone_edu.errors import *
 # from pynput import keyboard
 import signal
 
@@ -195,7 +196,7 @@ class Drone:
         self.flow_data = [0, 0, 0]
         self.range_data = [0, 0, 0]
         self.joystick_data = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.color_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.color_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.trim_data = [0, 0, 0, 0, 0]
         self.waypoint_data = []
         self.previous_land = [0, 0, 0] # x-position, y-position, z-angle
@@ -287,6 +288,7 @@ class Drone:
         await self.get_information_data()
         await self.get_count_data()
         await self.get_cpu_id_data()
+        await self.get_lostconnection_data()
 
     def initialize_data(self):
         return asyncio.create_task(self._initialize_data())
@@ -568,9 +570,9 @@ class Drone:
             value = atm
         else:
             if sys.platform != 'emscripten':
-                print(Fore.RED+"Error: Not a valid unit." + Style.RESET_ALL)
+                print(Fore.YELLOW+"Warning: Not a valid unit. Using 'Pa' (Pascals) as unit" + Style.RESET_ALL)
             else:
-                print("Error: Not a valid unit.", color="error")
+                print("Warning: Not a valid unit. Using 'Pa' (Pascals) as unit", color="warning")
             value = pascals
         value = round(value, 2)
         return value
@@ -604,9 +606,9 @@ class Drone:
             value = miles
         else:
             if sys.platform != 'emscripten':
-                print(Fore.RED + "Error: Not a valid unit." + Style.RESET_ALL)
+                print(Fore.YELLOW + "Warning: Not a valid unit. Using 'm' (meters) as unit" + Style.RESET_ALL)
             else:
-                print("Error: Not a valid unit.", color="error")
+                print("Warning: Not a valid unit. Using 'm' (meters) as unit", color="warning")
             return round(value, 2)
         return value
 
@@ -756,9 +758,9 @@ class Drone:
 
         else:
             if sys.platform != 'emscripten':
-                print(Fore.RED + "Error: Not a valid unit." + Style.RESET_ALL)
+                print(Fore.YELLOW + "Warning: Not a valid unit. Using 'm' (meters) as unit." + Style.RESET_ALL)
             else:
-                print("Error: Not a valid unit.", color="error")
+                print("Warning: Not a valid unit. Using 'm' (meters) as unit", color="warning")
             return round(meter, 3)
 
 
@@ -784,9 +786,9 @@ class Drone:
 
         else:
             if sys.platform != 'emscripten':
-                print(Fore.RED + "Error: Not a valid unit." + Style.RESET_ALL)
+                print(Fore.YELLOW + "Warning: Not a valid unit. Using 'mm' (millimeters) as unit" + Style.RESET_ALL)
             else:
-                print("Error: Not a valid unit.", color="error")
+                print("Warning: Not a valid unit. Using 'mm' (millimeters) as unit", color="warning")
             return round(millimeter, 3)
 
 
@@ -822,19 +824,51 @@ class Drone:
     async def _get_bottom_range_emscripten(self, unit="cm"):
         return self.convert_millimeter((await self.get_range_data())[2], unit)
 
+    def _hsv_to_rgb(self, h, s, v):
+        s /= 100
+        v /= 100
+        if not (0 <= h < 360): h = h % 360  # wrap hue
+        if not (0 <= s <= 1 and 0 <= v <= 1):
+            raise ValueError("s and v must be in [0, 100]")
+
+        c = v * s  # chroma
+        x = c * (1 - abs((h / 60) % 2 - 1))
+        m = v - c
+
+        if h < 60:
+            rp, gp, bp = c, x, 0
+        elif h < 120:
+            rp, gp, bp = x, c, 0
+        elif h < 180:
+            rp, gp, bp = 0, c, x
+        elif h < 240:
+            rp, gp, bp = 0, x, c
+        elif h < 300:
+            rp, gp, bp = x, 0, c
+        else:
+            rp, gp, bp = c, 0, x
+
+        r = int((rp + m) * 255)
+        g = int((gp + m) * 255)
+        b = int((bp + m) * 255)
+
+        return r, g, b
+
     def update_color_data(self, drone_type):
         '''
         Reads the current sent over Hue, Saturation, Value, Luminosity
         values from the color sensors.
         There are 2 color sensors one in the front and one in the rear.
         Both positioned at the bottom of the drone
+        Also reads the RGB values from the color sensors.
 
         front sensor: H,S,V,L
-        read sensor : H,S,V,L
+        rear sensor : H,S,V,L
         Color       : color1, color2
         Card        : color_card
+        front sensor: R,G,B
+        rear sensor: R,G,B
         '''
-
         self.color_data[0] = time.time() - self.timeStartProgram
         self.color_data[1] = drone_type.hsvl[0][0]
         self.color_data[2] = drone_type.hsvl[0][1]
@@ -847,6 +881,14 @@ class Drone:
         self.color_data[9] = drone_type.color[0]
         self.color_data[10] = drone_type.color[1]
         self.color_data[11] = drone_type.card
+        (self.color_data[12],
+        self.color_data[13],
+        self.color_data[14]) = self._hsv_to_rgb(drone_type.hsvl[0][0], drone_type.hsvl[0][1], drone_type.hsvl[0][2])
+        (self.color_data[15],
+         self.color_data[16],
+         self.color_data[17]) = self._hsv_to_rgb(drone_type.hsvl[1][0], drone_type.hsvl[1][1], drone_type.hsvl[1][2])
+
+
 
     def get_color_data(self, delay=0.01):
         if sys.platform != 'emscripten' and not self._swarm:
@@ -1643,76 +1685,75 @@ class Drone:
             return asyncio.create_task(self._go_emscripten(direction, power, duration))
 
     def _go_desktop(self, direction, power=50, duration=1):
-         try:
-             self.set_roll(0)
-             self.set_pitch(0)
-             self.set_yaw(0)
-             self.set_throttle(0)
+         self.set_roll(0)
+         self.set_pitch(0)
+         self.set_yaw(0)
+         self.set_throttle(0)
 
-             direction = direction.lower()
-             if power > 100:
-                 power = 100
-             elif power < 0:
-                 power = 0
+         direction = direction.lower()
+         if power > 100:
+             power = 100
+         elif power < 0:
+             power = 0
 
-             if direction == "forward":
-                 self.set_pitch(power)
-                 self.move(duration)
-             elif direction == "backward":
-                 self.set_pitch(power * -1)
-                 self.move(duration)
-             elif direction == "right":
-                 self.set_roll(power)
-                 self.move(duration)
-             elif direction == "left":
-                 self.set_roll(power * -1)
-                 self.move(duration)
-             elif direction == "up":
-                 self.set_throttle(power)
-                 self.move(duration)
-             elif direction == "down":
-                 self.set_throttle(power * -1)
-                 self.move(duration)
-             self.hover(1)
-         except:
+         if direction == "forward":
+             self.set_pitch(power)
+             self.move(duration)
+         elif direction == "backward":
+             self.set_pitch(power * -1)
+             self.move(duration)
+         elif direction == "right":
+             self.set_roll(power)
+             self.move(duration)
+         elif direction == "left":
+             self.set_roll(power * -1)
+             self.move(duration)
+         elif direction == "up":
+             self.set_throttle(power)
+             self.move(duration)
+         elif direction == "down":
+             self.set_throttle(power * -1)
+             self.move(duration)
+         else:
              print(Fore.YELLOW + "Warning: Invalid arguments. Please check your parameters." + Style.RESET_ALL)
              return
+         self.hover(0.8)
 
     async def _go_emscripten(self, direction, power=50, duration=1):
-         try:
-             self.set_roll(0)
-             self.set_pitch(0)
-             self.set_yaw(0)
-             self.set_throttle(0)
+         self.set_roll(0)
+         self.set_pitch(0)
+         self.set_yaw(0)
+         self.set_throttle(0)
 
-             direction = direction.lower()
-             if power > 100:
-                 power = 100
-             elif power < 0:
-                 power = 0
+         direction = direction.lower()
+         if power > 100:
+             power = 100
+         elif power < 0:
+             power = 0
 
-             if direction == "forward":
-                 self.set_pitch(power)
-                 await self.move(duration)
-             elif direction == "backward":
-                 self.set_pitch(power * -1)
-                 await self.move(duration)
-             elif direction == "right":
-                 self.set_roll(power)
-                 await self.move(duration)
-             elif direction == "left":
-                 self.set_roll(power * -1)
-                 await self.move(duration)
-             elif direction == "up":
-                 self.set_throttle(power)
-                 await self.move(duration)
-             elif direction == "down":
-                 self.set_throttle(power * -1)
-                 await self.move(duration)
-             await self.hover(0.5)
-         except:
-             print("Warning: Invalid arguments. Please check your parameters.", color="yellow")
+         if direction == "forward":
+             self.set_pitch(power)
+             await self.move(duration)
+         elif direction == "backward":
+             self.set_pitch(power * -1)
+             await self.move(duration)
+         elif direction == "right":
+             self.set_roll(power)
+             await self.move(duration)
+         elif direction == "left":
+             self.set_roll(power * -1)
+             await self.move(duration)
+         elif direction == "up":
+             self.set_throttle(power)
+             await self.move(duration)
+         elif direction == "down":
+             self.set_throttle(power * -1)
+             await self.move(duration)
+         else:
+             print("Warning: Invalid arguments. Please check your parameters.", color="warning")
              return
+         await self.hover(0.8)
+
 
     #def go(self, roll, pitch, yaw, throttle, duration):
     #    """
@@ -2014,7 +2055,7 @@ class Drone:
         self.lostconnection_data[1] = lostconnection
 
     def get_lostconnection_data(self, delay=0.05):
-        if sys.platform != 'emscripten':
+        if sys.platform != 'emscripten' and not self._swarm:
             return self._get_lostconnection_data_desktop(delay)
         else:
             return asyncio.create_task(self._get_lostconnection_data_emscripten(delay))
@@ -2220,6 +2261,11 @@ class Drone:
         await self._serialport.connect()
         await self._receiving_emscripten()
 
+    async def _reopen_emscripten(self):
+        reconnected = await self._serialport.reconnectToPort()
+        if reconnected:
+            await self._receiving_emscripten()
+
     async def _open_success_emscripten(self):
         # Force link mode
         await self.sendControlleLinkMode()
@@ -2405,7 +2451,6 @@ class Drone:
         return header.dataType
 
     def _runHandler(self, header, dataArray):
-
         # General data processing
         if self._parser.d[header.dataType] is not None:
             self._storageHeader.d[header.dataType] = header
@@ -3292,7 +3337,7 @@ class Drone:
         else:
             return asyncio.create_task(self._move_forward_emscripten(distance, units, speed))
 
-    def _move_forward_desktop(self, distance, units="cm", speed=1.0):
+    def _move_forward_desktop(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3322,7 +3367,7 @@ class Drone:
         delay = distance_meters / speed
         time.sleep(delay + 1.0)
 
-    async def _move_forward_emscripten(self, distance, units="cm", speed=1.0):
+    async def _move_forward_emscripten(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3351,7 +3396,7 @@ class Drone:
         delay = distance_meters / speed
         await asyncio.sleep(delay + 1.0)
 
-    def move_backward(self, distance, units="cm", speed=1.0):
+    def move_backward(self, distance, units="cm", speed=0.5):
         """
         :param distance: the numerical value of the value to move
         :param units: can either be in inches, centimeters, meters, feet.
@@ -3363,7 +3408,7 @@ class Drone:
         else:
             return asyncio.create_task(self._move_backward_emscripten(distance, units, speed))
     
-    def _move_backward_desktop(self, distance, units="cm", speed=1.0):
+    def _move_backward_desktop(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3393,7 +3438,7 @@ class Drone:
         delay = distance_meters / speed
         time.sleep(delay + 1.0)
 
-    async def _move_backward_emscripten(self, distance, units="cm", speed=1.0):
+    async def _move_backward_emscripten(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3422,7 +3467,7 @@ class Drone:
         delay = distance_meters / speed
         await asyncio.sleep(delay + 1.0)
 
-    def move_left(self, distance, units="cm", speed=1.0):
+    def move_left(self, distance, units="cm", speed=0.5):
         """
         :param distance: the numerical value of the value to move
         :param units: can either be in inches, centimeters, meters, feet.
@@ -3434,7 +3479,7 @@ class Drone:
         else:
             return asyncio.create_task(self._move_left_emscripten(distance, units, speed))
     
-    def _move_left_desktop(self, distance, units="cm", speed=1.0):
+    def _move_left_desktop(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3463,7 +3508,7 @@ class Drone:
         delay = distance_meters / speed
         time.sleep(delay + 1.0)
 
-    async def _move_left_emscripten(self, distance, units="cm", speed=1.0):
+    async def _move_left_emscripten(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3492,7 +3537,7 @@ class Drone:
         delay = distance_meters / speed
         await asyncio.sleep(delay + 1.0)
 
-    def move_right(self, distance, units="cm", speed=1.0):
+    def move_right(self, distance, units="cm", speed=0.5):
         """
         :param distance: the numerical value of the value to move
         :param units: can either be in inches, centimeters, meters, feet.
@@ -3504,7 +3549,7 @@ class Drone:
         else:
             return asyncio.create_task(self._move_right_emscripten(distance, units, speed))
     
-    def _move_right_desktop(self, distance, units="cm", speed=1.0):
+    def _move_right_desktop(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3533,7 +3578,7 @@ class Drone:
         delay = distance_meters / speed
         time.sleep(delay + 1.0)
 
-    async def _move_right_emscripten(self, distance, units="cm", speed=1.0):
+    async def _move_right_emscripten(self, distance, units="cm", speed=0.5):
         if units == "cm":
             distance_meters = distance / 100
         elif units == "ft":
@@ -3975,19 +4020,15 @@ class Drone:
         self.hover(0.01)
         init_time = time.time()
         time_elapsed = time.time() - init_time
-        init_angle = self.get_angle_z()
-        desired_angle = degree
+        desired_angle = degree # could be any value (ex. -720, -360, 0, 360, 720, etc.)
+        abs_desired_angle = ((desired_angle + 180) % 360) - 180 # converts desired_angle to be within [-180,180)
 
-        if desired_angle >= 180:
-            desired_angle = 180
-        elif desired_angle <= -180:
-            desired_angle = -180
 
         while time_elapsed < timeout:
             time_elapsed = time.time() - init_time
             current_angle = self.get_angle_z()
-            # find the distance to the desired angle
-            degree_diff = desired_angle - current_angle
+            degree_diff = abs_desired_angle - current_angle
+
 
             # save the first distance turning in one direction
             degree_dist_1 = abs(degree_diff)
@@ -4002,6 +4043,9 @@ class Drone:
             # now save the second distance going
             # the opposite direction turning
             degree_dist_2 = 360 - degree_dist_1
+
+            if degree_dist_1 == 0 or degree_dist_2 == 0:
+                break
 
             # find which one is the shorter path
             if degree_dist_1 <= degree_dist_2:
@@ -4020,7 +4064,6 @@ class Drone:
                 time.sleep(0.005)
                 # print( error_percent, " ,", current_angle," ,", sign," ,", degree_dist_1,
                 #      " ,", degree_dist_2, " ,", speed, " ,", time.time(), " ,", desired_angle)
-
 
             elif degree_dist_2 < degree_dist_1:
                 error_percent = int(degree_dist_2 / 360 * 100)
@@ -4044,19 +4087,13 @@ class Drone:
         await self.hover(0.01)
         init_time = time.time()
         time_elapsed = time.time() - init_time
-        init_angle = await self.get_angle_z()
-        desired_angle = degree
-
-        if desired_angle >= 180:
-            desired_angle = 180
-        elif desired_angle <= -180:
-            desired_angle = -180
+        desired_angle = degree  # could be any value (ex. -720, -360, 0, 360, 720, etc.)
+        abs_desired_angle = ((desired_angle + 180) % 360) - 180  # converts desired_angle to be within [-180,180)
 
         while time_elapsed < timeout:
             time_elapsed = time.time() - init_time
             current_angle = await self.get_angle_z()
-            # find the distance to the desired angle
-            degree_diff = desired_angle - current_angle
+            degree_diff = abs_desired_angle - current_angle
 
             # save the first distance turning in one direction
             degree_dist_1 = abs(degree_diff)
@@ -4071,6 +4108,9 @@ class Drone:
             # now save the second distance going
             # the opposite direction turning
             degree_dist_2 = 360 - degree_dist_1
+
+            if degree_dist_1 == 0 or degree_dist_2 == 0:
+                break
 
             # find which one is the shorter path
             if degree_dist_1 <= degree_dist_2:
@@ -4090,7 +4130,6 @@ class Drone:
                 # print( error_percent, " ,", current_angle," ,", sign," ,", degree_dist_1,
                 #      " ,", degree_dist_2, " ,", speed, " ,", time.time(), " ,", desired_angle)
 
-
             elif degree_dist_2 < degree_dist_1:
                 error_percent = int(degree_dist_2 / 360 * 100)
                 error_percent = int(error_percent * p_value)
@@ -4108,81 +4147,141 @@ class Drone:
         # stop any movement just in case
         await self.hover(0.05)
 
-    def turn_left(self, degree=90, timeout=3):
+    def turn_direction(self, degree=90, timeout=3, p_value=10):
         if sys.platform != 'emscripten' and not self._swarm:
-            return self._turn_left_desktop(degree, timeout)
+            return self._turn_direction_desktop(degree, timeout, p_value)
         else:
-            return asyncio.create_task(self._turn_left_emscripten(degree, timeout))
-    
-    def _turn_left_desktop(self, degree=90, timeout=3):
-        # make sure it is an int and a positive value
-        degree = int(abs(degree))
-        # cap the max value to turn to 180
-        if degree >= 180:
-            degree = 179
+            return asyncio.create_task(self._turn_direction_emscripten(degree, timeout, p_value))
 
-        current_degree = self.get_angle_z()
-        # positive degrees are to the left
-        des_degree = degree + current_degree
-        if des_degree > 180:
-            new_degree = -(360 - des_degree)
-            self.turn_degree(new_degree, timeout=timeout)
-        else:
-            self.turn_degree(des_degree, timeout=timeout)
+    def _turn_direction_desktop(self, degree=90, timeout=3, p_value=10):
+        self.hover(0.1)
 
-    async def _turn_left_emscripten(self, degree=90, timeout=3):
-        # make sure it is an int and a positive value
-        degree = int(abs(degree))
-        # cap the max value to turn to 180
-        if degree >= 180:
-            degree = 179
+        degree = int(degree)
+        degree_dist = abs(degree)
 
-        current_degree = await self.get_angle_z()
-        # positive degrees are to the left
-        des_degree = degree + current_degree
-        if des_degree > 180:
-            new_degree = -(360 - des_degree)
-            await self.turn_degree(new_degree, timeout=timeout)
-        else:
-            await self.turn_degree(des_degree, timeout=timeout)
+        sign = degree // degree_dist # determines left or right
 
-    def turn_right(self, degree=90, timeout=3):
+        # degree_dist = [0,360]
+        if degree_dist > 360:
+            degree_dist = 360
+
+        if degree_dist > 180:
+            timeout *= 2
+
+        # [-180, 180]
+        init_degree = self.get_angle_z()
+        prev_degree = init_degree
+
+        init_time = time.time()
+        time_elapsed = time.time() - init_time
+
+        while time_elapsed < timeout:
+            time_elapsed = time.time() - init_time
+            current_degree = self.get_angle_z()
+
+            degree_dist -= abs(((current_degree - prev_degree + 180) % 360) - 180)
+            if degree_dist <= 0:
+                self.hover(0.1)
+                break
+
+            error_percent = int(degree_dist / 360 * 100)
+            error_percent = int(error_percent * p_value)
+            # cap the value between 5% and 100%
+            error_percent = max(5, min(error_percent, 100))
+            # now we can use the sign to determine the turning direction
+            speed = int(error_percent)
+            self.sendControl(0, 0, sign * speed, 0)
+            time.sleep(0.005)
+            prev_degree = current_degree
+
+        self.hover(0.8)
+
+    async def _turn_direction_emscripten(self, degree=90, timeout=3, p_value=10):
+        await self.hover(0.1)
+
+        degree = int(degree)
+        degree_dist = abs(degree)
+
+        sign = degree // degree_dist # determines left or right
+
+        # degree_dist = [0,360]
+        if degree_dist > 360:
+            degree_dist = 360
+
+        if degree_dist > 180:
+            timeout *= 2
+
+        # [-180, 180]
+        init_degree = await self.get_angle_z()
+        prev_degree = init_degree
+
+        init_time = time.time()
+        time_elapsed = time.time() - init_time
+
+        while time_elapsed < timeout:
+            time_elapsed = time.time() - init_time
+            current_degree = await self.get_angle_z()
+
+            degree_dist -= abs(((current_degree - prev_degree + 180) % 360) - 180)
+            if degree_dist <= 0:
+                await self.hover(0.1)
+                break
+
+            error_percent = int(degree_dist / 360 * 100)
+            error_percent = int(error_percent * p_value)
+            # cap the value between 5% and 100%
+            error_percent = max(5, min(error_percent, 100))
+            # now we can use the sign to determine the turning direction
+            speed = int(error_percent)
+            await self.sendControl(0, 0, sign * speed, 0)
+            await asyncio.sleep(0.005)
+            prev_degree = current_degree
+
+        await self.hover(0.8)
+
+    def turn_left(self, degree=90):
         if sys.platform != 'emscripten' and not self._swarm:
-            return self._turn_right_desktop(degree, timeout)
+            return self._turn_left_desktop(degree)
         else:
-            return asyncio.create_task(self._turn_right_emscripten(degree, timeout))
+            return asyncio.create_task(self._turn_left_emscripten(degree))
     
-    def _turn_right_desktop(self, degree=90, timeout=3):
-        # make sure it is an int and a positive value
+    def _turn_left_desktop(self, degree=90):
         degree = int(abs(degree))
-        # cap the max value to turn to 180
-        if degree >= 180:
-            degree = 179
 
-        current_degree = self.get_angle_z()
-        # positive degrees are to the left
-        des_degree = current_degree - degree
-        if des_degree < -180:
-            new_degree = (360 - des_degree)
-            self.turn_degree(new_degree, timeout=timeout)
+        if degree > 360:
+            degree = 360
+
+        self.turn_direction(degree)
+
+    async def _turn_left_emscripten(self, degree=90):
+        degree = int(abs(degree))
+
+        if degree > 360:
+            degree = 360
+
+        await self.turn_direction(degree)
+
+    def turn_right(self, degree=90):
+        if sys.platform != 'emscripten' and not self._swarm:
+            return self._turn_right_desktop(degree)
         else:
-            self.turn_degree(des_degree, timeout=timeout)
+            return asyncio.create_task(self._turn_right_emscripten(degree))
     
-    async def _turn_right_emscripten(self, degree=90, timeout=3):
-        # make sure it is an int and a positive value
+    def _turn_right_desktop(self, degree=90):
         degree = int(abs(degree))
-        # cap the max value to turn to 180
-        if degree >= 180:
-            degree = 179
 
-        current_degree = await self.get_angle_z()
-        # positive degrees are to the left
-        des_degree = current_degree - degree
-        if des_degree < -180:
-            new_degree = (360 - des_degree)
-            await self.turn_degree(new_degree, timeout=timeout)
-        else:
-            await self.turn_degree(des_degree, timeout=timeout)
+        if degree > 360:
+            degree = 360
+
+        self.turn_direction(-degree)
+
+    async def _turn_right_emscripten(self, degree=90):
+        degree=int(abs(degree))
+
+        if degree > 360:
+            degree = 360
+
+        await self.turn_direction(-degree)
 
     # Flight Sequences Start
     def avoid_wall(self, timeout=2, distance=70):
@@ -4601,12 +4700,12 @@ class Drone:
     
     def _circle_desktop(self, speed=75, direction=1):
         # TODO Fix this later with gyro
-        self.sendControl(0, speed, direction * speed, 0)
+        self.sendControl(0, speed, -direction * speed, 0)
         time.sleep(5)
 
     async def _circle_emscripten(self, speed=75, direction=1):
         # TODO Fix this later with gyro
-        await self.sendControl(0, speed, direction * speed, 0)
+        await self.sendControl(0, speed, -direction * speed, 0)
         await asyncio.sleep(5)
 
     def circle_turn(self, speed=30, seconds=1, direction=1):
@@ -4692,7 +4791,6 @@ class Drone:
         Used to send commands to the drone.
         The option must contain either a value value
          of each format or a numeric value.
-        https://dev.byrobot.co.kr/documents/kr/products/e_drone/library/python/e_drone/04_protocol/#CommandType
         :param commandType: CommandType	command type
         :param option: 	ModeControlFlight	option
                         FlightEvent
@@ -4721,6 +4819,102 @@ class Drone:
         return self.transfer(header, data)
 
     # Sounds
+
+    def drone_buzzer_sequence(self, kind):
+        if sys.platform != 'emscripten' and not self._swarm:
+            return self._drone_buzzer_sequence_desktop(kind)
+        else:
+            return asyncio.create_task(self._drone_buzzer_sequence_emscripten(kind))
+
+    def _drone_buzzer_sequence_desktop(self, kind):
+        time.sleep(0.2)
+        if kind == "success":
+            self.drone_buzzer(1600, 120)
+            time.sleep(0.05)
+            self.drone_buzzer(2200, 120)
+        elif kind == "warning":
+            self.drone_buzzer(800, 120)
+            time.sleep(0.06)
+            self.drone_buzzer(800, 120)
+            time.sleep(0.18)
+            self.drone_buzzer(800, 220)
+        elif kind == "error":
+            self.drone_buzzer(150, 180)
+            time.sleep(0.05)
+            self.drone_buzzer(150, 180)
+            time.sleep(0.05)
+            self.drone_buzzer(150, 180)
+        else:
+            print(Fore.YELLOW + "Warning: Invalid buzzer sequence." + Style.RESET_ALL)
+
+    async def _drone_buzzer_sequence_emscripten(self, kind):
+        await asyncio.sleep(0.2)
+        if kind == "success":
+            await self.drone_buzzer(1600, 120)
+            await asyncio.sleep(0.05)
+            await self.drone_buzzer(2200, 120)
+        elif kind == "warning":
+            await self.drone_buzzer(800, 120)
+            await asyncio.sleep(0.06)
+            await self.drone_buzzer(800, 120)
+            await asyncio.sleep(0.18)
+            await self.drone_buzzer(800, 220)
+        elif kind == "error":
+            await self.drone_buzzer(150, 180)
+            await asyncio.sleep(0.05)
+            await self.drone_buzzer(150, 180)
+            await asyncio.sleep(0.05)
+            await self.drone_buzzer(150, 180)
+        else:
+            print("Warning: Invalid buzzer sequence.", color="warning")
+
+    def controller_buzzer_sequence(self, kind):
+        if sys.platform != 'emscripten' and not self._swarm:
+            return self._controller_buzzer_sequence_desktop(kind)
+        else:
+            return asyncio.create_task(self._controller_buzzer_sequence_emscripten(kind))
+
+    def _controller_buzzer_sequence_desktop(self, kind):
+        time.sleep(0.2)
+        if kind == "success":
+            self.controller_buzzer(1600, 120)
+            time.sleep(0.05)
+            self.controller_buzzer(2200, 120)
+        elif kind == "warning":
+            self.controller_buzzer(800, 120)
+            time.sleep(0.06)
+            self.controller_buzzer(800, 120)
+            time.sleep(0.18)
+            self.controller_buzzer(800, 220)
+        elif kind == "error":
+            self.controller_buzzer(150, 180)
+            time.sleep(0.05)
+            self.controller_buzzer(150, 180)
+            time.sleep(0.05)
+            self.controller_buzzer(150, 180)
+        else:
+            print(Fore.YELLOW + "Warning: Invalid buzzer sequence." + Style.RESET_ALL)
+
+    async def _controller_buzzer_sequence_emscripten(self, kind):
+        await asyncio.sleep(0.2)
+        if kind == "success":
+            await self.controller_buzzer(1600, 120)
+            await asyncio.sleep(0.05)
+            await self.controller_buzzer(2200, 120)
+        elif kind == "warning":
+            await self.controller_buzzer(800, 120)
+            await asyncio.sleep(0.06)
+            await self.controller_buzzer(800, 120)
+            await asyncio.sleep(0.18)
+            await self.controller_buzzer(800, 220)
+        elif kind == "error":
+            await self.controller_buzzer(150, 180)
+            await asyncio.sleep(0.05)
+            await self.controller_buzzer(150, 180)
+            await asyncio.sleep(0.05)
+            await self.controller_buzzer(150, 180)
+        else:
+            print("Warning: Invalid buzzer sequence.", color="warning")
 
     def start_drone_buzzer(self, note):
         """
@@ -4999,6 +5193,55 @@ class Drone:
         await self.sendBuzzerMute(10) # 10ms
 
     # Lights
+    def ping(self, r=None, g=None, b=None):
+        """
+        Pings the drone using the buzzer and LED. If at least one RGB value is not defined, a random color will be
+        assigned to the drone.
+
+        :param r: integer from 0-255.
+        :param g: integer from 0-255.
+        :param b: integer from 0-255.
+        :return: None
+        """
+        if sys.platform != 'emscripten' and not self._swarm:
+            return self._ping_desktop(r, g, b)
+        else:
+            return asyncio.create_task(self._ping_emscripten(r, g, b))
+
+
+    def _ping_desktop(self, r=None, g=None, b=None):
+
+        if (r is None) or (g is None) or (b is None):
+            from random import randint
+            r = randint(0, 255)
+            g = randint(0, 255)
+            b = randint(0, 255)
+
+        self.set_drone_LED_mode(r, g, b,"double_blink",7)
+
+        for i in range(3):
+            self.drone_buzzer(Note.C6, 200)
+            self.drone_buzzer(Note.C6, 200)
+            time.sleep(0.3)
+
+        self.set_drone_LED(r, g, b, brightness=255)
+
+    async def _ping_emscripten(self, r=None, g=None, b=None):
+
+        if (r is None) or (g is None) or (b is None):
+            from random import randint
+            r = randint(0, 255)
+            g = randint(0, 255)
+            b = randint(0, 255)
+
+        await self.set_drone_LED_mode(r, g, b, "double_blink", 7)
+
+        for i in range(3):
+            await self.drone_buzzer(Note.C6, 200)
+            await self.drone_buzzer(Note.C6, 200)
+            await asyncio.sleep(0.3)
+
+        await self.set_drone_LED(r, g, b, brightness=255)
 
     def set_drone_LED(self, r, g, b, brightness):
         """
@@ -6006,94 +6249,127 @@ class Drone:
         data.color.b = b
 
         return self.transfer(header, data)
-
     # Light End
 
     # Color Start
 
-    def get_colors(self):
+    def get_colors(self, kind="name"):
         """
         Access the color data using the default ByRobot
         color prediction
         Returns a list of strings
         """
         if sys.platform != 'emscripten' and not self._swarm:
-            return self._get_colors_desktop()
+            return self._get_colors_desktop(kind)
         else:
-            return asyncio.create_task(self._get_colors_emscripten())
+            return asyncio.create_task(self._get_colors_emscripten(kind))
 
-    def _get_colors_desktop(self):
+    def _get_colors_desktop(self, kind="name"):
         color_data = self.get_color_data()
+        front_color = None
+        back_color = None
 
-        try:
-            front_color = color_data[9].name.lower()
-            if front_color == "cyan":
-                front_color = "light blue"
-            elif front_color == "magenta":
-                front_color = "purple"
-            
-        except AttributeError:
-            front_color = 'Unknown'
-        try:
-            back_color = color_data[10].name.lower()
-            if back_color == "cyan":
-                back_color = "light blue"
-            elif back_color == "magenta":
-                back_color = "purple"
+        kind = kind.lower()
 
-        except AttributeError:
-            back_color = 'Unknown'
+        if kind == "name":
+            try:
+                front_color = color_data[9].name.lower()
+                if front_color == "lightblue":
+                    front_color = "light blue"
+
+            except AttributeError:
+                front_color = 'Unknown'
+            try:
+                back_color = color_data[10].name.lower()
+                if back_color == "lightblue":
+                    back_color = "light blue"
+
+            except AttributeError:
+                back_color = 'Unknown'
+
+        elif kind == "hsv":
+            front_color = color_data[1:4]
+            back_color = color_data[5:8]
+
+        elif kind == "hsl":
+            front_color = color_data[1:3] + [color_data[4]]
+            back_color = color_data[5:7] + [color_data[8]]
+
+        elif kind == "rgb":
+            front_color = color_data[12:15]
+            back_color = color_data[15:]
+
+        else:
+            print(Fore.YELLOW + "Warning: Invalid value for kind. Valid values are 'name', 'hsv', 'hsl', or 'rgb'." + Style.RESET_ALL)
+
         colors = [front_color, back_color]
         return colors
     
-    async def _get_colors_emscripten(self):
+    async def _get_colors_emscripten(self, kind="name"):
         color_data = await self.get_color_data()
+        front_color = None
+        back_color = None
 
-        try:
-            front_color = color_data[9].name.lower()
-            if front_color == "cyan":
-                front_color = "light blue"
-            elif front_color == "magenta":
-                front_color = "purple"
+        kind = kind.lower()
 
-        except AttributeError:
-            front_color = 'Unknown'
-        try:
-            back_color = color_data[10].name.lower()
-            if back_color == "cyan":
-                back_color = "light blue"
-            elif back_color == "magenta":
-                back_color = "purple"
+        if kind == "name":
+            try:
+                front_color = color_data[9].name.lower()
+                if front_color == "lightblue":
+                    front_color = "light blue"
 
-        except AttributeError:
-            back_color = 'Unknown'
+            except AttributeError:
+                front_color = 'Unknown'
+            try:
+                back_color = color_data[10].name.lower()
+                if back_color == "lightblue":
+                    back_color = "light blue"
+
+            except AttributeError:
+                back_color = 'Unknown'
+
+        elif kind == "hsv":
+            front_color = color_data[1:4]
+            back_color = color_data[5:8]
+
+        elif kind == "hsl":
+            front_color = color_data[1:3] + [color_data[4]]
+            back_color = color_data[5:7] + [color_data[8]]
+
+        elif kind == "rgb":
+            front_color = color_data[12:15]
+            back_color = color_data[15:]
+
+        else:
+            print("Warning: Invalid value for kind. Valid values are 'name', 'hsv', 'hsl', or 'rgb'.", color="warning")
+
         colors = [front_color, back_color]
         return colors
 
     # this functions returns a string (red, blue, magenta..)
-    def get_front_color(self):
+    def get_front_color(self, kind="name"):
         if sys.platform != 'emscripten' and not self._swarm:
-            return self._get_front_color_desktop()
+            return self._get_front_color_desktop(kind)
         else:
-            return asyncio.create_task(self._get_front_color_emscripten())
+            return asyncio.create_task(self._get_front_color_emscripten(kind))
 
-    def _get_front_color_desktop(self):
-        return self.get_colors()[0]
+    def _get_front_color_desktop(self, kind="name"):
+        return self.get_colors(kind)[0]
 
-    async def _get_front_color_emscripten(self):
-        return (await self.get_colors())[0]
+    async def _get_front_color_emscripten(self, kind="name"):
+        return (await self.get_colors(kind))[0]
 
-    def get_back_color(self):
+    def get_back_color(self, kind="name"):
         if sys.platform != 'emscripten' and not self._swarm:
-            return self._get_back_color_desktop()
+            return self._get_back_color_desktop(kind)
         else:
-            return asyncio.create_task(self._get_back_color_emscripten())
+            return asyncio.create_task(self._get_back_color_emscripten(kind))
 
-    def _get_back_color_desktop(self):
-        return self.get_colors()[1]
+    def _get_back_color_desktop(self, kind="name"):
+        return self.get_colors(kind)[1]
       
-    async def _get_back_color_emscripten(self):
-        return (await self.get_colors())[1]
+    async def _get_back_color_emscripten(self, kind="name"):
+        return (await self.get_colors(kind))[1]
 
     def detect_colors(self, color_data):
         try:
@@ -6106,11 +6382,12 @@ class Drone:
             if sys.platform != 'emscripten':
                 predict_colors_error += " Call load_color_data() or populate color data and try again."
                 self.disconnect()
-                raise Exception(predict_colors_error)
+
+                raise DetectColorError(predict_colors_error)
             else:
                 predict_colors_error += " Load or populate color data and try again."
 
-                raise Exception(predict_colors_error)
+                raise DetectColorError(predict_colors_error)
 
     def predict_colors(self, color_data):
         return self.detect_colors(color_data)
@@ -6140,12 +6417,11 @@ class Drone:
                 if sys.platform != 'emscripten':
                     dataset_not_exist_error += 'Load valid dataset or use new_color_data() to create dataset.'
                     self.disconnect()
-                    raise Exception(dataset_not_exist_error)
+                    raise LoadColorsetError(dataset_not_exist_error)
                 else:
                     # TODO: MIGHT NEED TO CHANGE IF PFR DOES DO DESKTOP COLOR CALIBRATION
                     dataset_not_exist_error += 'Create or load dataset in your workspace.'
-
-                    raise Exception(dataset_not_exist_error)
+                    raise LoadColorsetError(dataset_not_exist_error)
 
             else:
                 folder = os.listdir(path)
@@ -6155,12 +6431,12 @@ class Drone:
                     if sys.platform != 'emscripten':
                         dataset_empty_error += 'Use new_color_data() method to add color data.'
                         self.disconnect()
-                        raise Exception(dataset_empty_error)
+                        raise LoadColorsetError(dataset_empty_error)
                     else:
                         # TODO: MIGHT NEED TO CHANGE IF PFR DOES DO DESKTOP COLOR CALIBRATION
                         dataset_empty_error += 'Add at least 2 colors into dataset.'
 
-                        raise Exception(dataset_empty_error)
+                        raise LoadColorsetError(dataset_empty_error)
 
         all_data = []
         all_labels = []
@@ -6191,28 +6467,30 @@ class Drone:
             if sys.platform != 'emscripten':
                 minimum_labels_error += " use load_color_data()."
                 self.disconnect()
-                raise Exception(minimum_labels_error)
+                raise LoadColorsetError(minimum_labels_error)
             else:
                 minimum_labels_error += " successfully load color data."
 
-                raise Exception(minimum_labels_error)
+                raise LoadColorsetError(minimum_labels_error)
 
         if sizes_different:
             sizes_different_error = "Cannot load color data."
             sizes_different_samples_error = ""
-            for sizes in samp_size_list:
-                sizes_different_samples_error += "samples " + str(sizes[0]) + " filename " + str(sizes[1]) + "\n"
 
             if sys.platform != 'emscripten':
+                for sizes in samp_size_list:
+                    sizes_different_samples_error += str(sizes[1]) + ": " + str(sizes[0]) + " samples" + "\n"
                 sizes_different_error +=  " Files do not have the same number of samples.\n"
                 sizes_different_error += sizes_different_samples_error
                 self.disconnect()
-                raise Exception(sizes_different_error)
+                raise LoadColorsetError(sizes_different_error)
             else:
+                for sizes in samp_size_list:
+                    sizes_different_samples_error += str(sizes[1])[:-4] + ": " + str(sizes[0]) + " samples" + "\n"
                 sizes_different_error += " Colors do not have the same number of samples.\n"
                 sizes_different_error += sizes_different_samples_error
 
-                raise Exception(sizes_different_error)
+                raise LoadColorsetError(sizes_different_error)
 
         x = []  # Hue
         y = []  # Saturation
@@ -6246,6 +6524,120 @@ class Drone:
         print("Successfully loaded \"" + dataset + "\" dataset.")
         return all_data
 
+    def load_color_data_without_print(self, dataset=None):
+        # TODO Check first if all text tiles in the dataset have the same number of data points 0.6
+
+        if dataset is None:  # path to default data inside of cde lib
+            lib_dir = os.path.dirname(os.path.abspath(__file__))
+            path = lib_dir + "/data/"
+
+        else:
+            path = os.path.join(self.parent_dir, dataset)  # user defined data
+
+            if not os.path.isdir(path):
+                dataset_not_exist_error = f'Cannot load color data. Dataset "{dataset}" does not exist.\n'
+                if sys.platform != 'emscripten':
+                    dataset_not_exist_error += 'Load valid dataset or use new_color_data() to create dataset.'
+                    self.disconnect()
+                    raise LoadColorsetError(dataset_not_exist_error)
+                else:
+                    # TODO: MIGHT NEED TO CHANGE IF PFR DOES DO DESKTOP COLOR CALIBRATION
+                    dataset_not_exist_error += 'Create or load dataset in your workspace.'
+                    raise LoadColorsetError(dataset_not_exist_error)
+
+            else:
+                folder = os.listdir(path)
+
+                if len(folder) == 0:
+                    dataset_empty_error = f'Cannot load color data. Dataset "{dataset}" is empty.\n'
+                    if sys.platform != 'emscripten':
+                        dataset_empty_error += 'Use new_color_data() method to add color data.'
+                        self.disconnect()
+                        raise LoadColorsetError(dataset_empty_error)
+                    else:
+                        # TODO: MIGHT NEED TO CHANGE IF PFR DOES DO DESKTOP COLOR CALIBRATION
+                        dataset_empty_error += 'Add at least 2 colors into dataset.'
+
+                        raise LoadColorsetError(dataset_empty_error)
+
+        all_data = []
+        all_labels = []
+        sample_size = None
+        prev_sample_size = None
+        samp_size_list = []
+        sizes_different = False
+
+        for filename in os.listdir(path):
+            data = np.loadtxt(path + '/' + filename) # grab the data from the file
+            all_data.append(data) # append the data to the list
+
+            sample_size = len(data) # number of samples (lines) in the file
+            samp_size_list.append([sample_size, filename])
+
+            if prev_sample_size is None:
+                prev_sample_size = sample_size
+
+            if prev_sample_size != sample_size:
+                sizes_different = True
+
+            prev_sample_size = sample_size
+            all_labels.append(filename.strip('.txt')) # append the label to the list
+
+        if len(all_labels) < 2:
+            minimum_labels_error = "Cannot load color data. Dataset must have at least 2 colors to"
+
+            if sys.platform != 'emscripten':
+                minimum_labels_error += " use load_color_data()."
+                self.disconnect()
+                raise LoadColorsetError(minimum_labels_error)
+            else:
+                minimum_labels_error += " successfully load color data."
+
+                raise LoadColorsetError(minimum_labels_error)
+
+        if sizes_different:
+            sizes_different_error = "Cannot load color data."
+            sizes_different_samples_error = ""
+
+            if sys.platform != 'emscripten':
+                for sizes in samp_size_list:
+                    sizes_different_samples_error += str(sizes[1]) + ": " + str(sizes[0]) + " samples" + "\n"
+                sizes_different_error +=  " Files do not have the same number of samples.\n"
+                sizes_different_error += sizes_different_samples_error
+                self.disconnect()
+                raise LoadColorsetError(sizes_different_error)
+            else:
+                for sizes in samp_size_list:
+                    sizes_different_samples_error += str(sizes[1])[:-4] + ": " + str(sizes[0]) + " samples" + "\n"
+                sizes_different_error += " Colors do not have the same number of samples.\n"
+                sizes_different_error += sizes_different_samples_error
+
+                raise LoadColorsetError(sizes_different_error)
+
+        x = []  # Hue
+        y = []  # Saturation
+        z = []  # Value
+        w = []  # Luminosity
+        labels_list = []
+
+        for color in range(len(all_labels)): # for each color index, ex. for "red" color = 0
+
+            for i in range(samp_size_list[color][0]):   # iterate the number of samples per label
+                labels_list.append(all_labels[color])
+                # use data from both sensors front
+                x.append(all_data[color][i][1])  # Hue
+                y.append(all_data[color][i][2])  # Saturation
+                z.append(all_data[color][i][3])  # Value
+                w.append(all_data[color][i][4])  # Luminosity
+
+        x_data = []
+        for i in range(len(x)):
+            x_data.append([x[i], y[i], z[i], w[i]])
+        y_data = labels_list
+        self.knn.fit(x_data, y_data)
+
+        return all_data
+
     def print_num_data(self, label, dataset):
         folder = dataset
         parent_dir = os.getcwd() if sys.platform != 'emscripten' else '/home/web_user/data/'
@@ -6254,14 +6646,16 @@ class Drone:
         file_exists = os.path.exists(filename)
 
         if not file_exists:
-            file_not_exist_error = "Cannot count data."
+            file_not_found_error = "Cannot count data."
             if sys.platform != 'emscripten':
-                file_not_exist_error += f" File does not exist. Use new_color_data() to add '{label}' color data into your dataset."
+                file_not_found_error += f" File does not exist. Use new_color_data() to add '{label}' color data into your dataset."
+                self.disconnect()
+                raise FileNotFoundError(file_not_found_error)
             else:
-                file_not_exist_error += f" Color does not exist. Add '{label}' color data into your dataset."
+                file_not_found_error += f" Color does not exist. Add '{label}' color data into your dataset."
+                color_not_found_error = file_not_found_error
 
-                raise Exception(file_not_exist_error)
-            return
+                raise ColorNotFoundError(color_not_found_error)
 
         data = np.loadtxt(filename)
         return len(data)
@@ -6283,16 +6677,29 @@ class Drone:
         filename = path + '/' + label + '.txt'
         file_exists = os.path.exists(filename)
 
-        if not os.path.isdir(path) or not file_exists:
-            file_folder_not_exist_error = "Cannot append data."
+        if not os.path.isdir(path):
+            folder_not_found_error = "Cannot append data."
             if sys.platform != 'emscripten':
-                file_folder_not_exist_error += " Folder and file do not exist. Use new_color_data()."
-
-                raise Exception(file_folder_not_exist_error)
+                folder_not_found_error += " Folder does not exist. Use new_color_data()."
+                self.disconnect()
+                raise FolderNotFoundError(folder_not_found_error)
             else:
-                file_folder_not_exist_error += f" Dataset or color does not exist. Create/Load dataset or add '{label}' color data into your dataset."
+                folder_not_found_error += f" Color dataset does not exist. Create/Load color dataset."
+                colorset_not_found_error = folder_not_found_error
 
-                raise Exception(file_folder_not_exist_error)
+                raise ColorsetNotFoundError(colorset_not_found_error)
+
+        if not file_exists:
+            file_not_found_error = "Cannot append data."
+            if sys.platform != 'emscripten':
+                file_not_found_error += " File does not exist. Use new_color_data()."
+                self.disconnect()
+                raise FileNotFoundError(file_not_found_error)
+            else:
+                file_not_found_error += f" Color does not exist. Add '{label}' color data into your dataset."
+                color_not_found_error = file_not_found_error
+
+                raise ColorNotFoundError(color_not_found_error)
 
         print("Appending data to " + label + "...")
 
@@ -6543,7 +6950,8 @@ class Drone:
             self._canvas = PIL.Image.new("RGB", (127, 63), color=color)
             image = PIL.Image.new("RGB", (127, 63), color=color)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
         return image
     
     async def _controller_create_canvas_emscripten(self, color="white"):
@@ -6562,7 +6970,7 @@ class Drone:
             self._canvas = PIL.Image.new("RGB", (127, 63), color=color)
             image = PIL.Image.new("RGB", (127, 63), color=color)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
         return image
 
 
@@ -6607,9 +7015,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw image canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_canvas_desktop(image)
@@ -6642,9 +7049,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw line on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw line on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw line on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_line_desktop(x1, y1, x2, y2, image, color, pixel_width)
@@ -6658,7 +7064,8 @@ class Drone:
             draw.line([(x1, int(y1 * 0.80)), (x2, int(y2 * 0.80))], fill=color, width=pixel_width)
             preview_draw.line([(x1, y1), (x2, y2)], fill=color, width=pixel_width)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
             
     async def _controller_draw_line_emscripten(self, x1, y1, x2, y2, image, color, pixel_width):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -6675,7 +7082,7 @@ class Drone:
             draw.line([(x1, int(y1 * 0.80)), (x2, int(y2 * 0.80))], fill=color, width=pixel_width)
             preview_draw.line([(x1, y1), (x2, y2)], fill=color, width=pixel_width)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_rectangle(self, x, y, width, height, image, color="black", fill_in=None, pixel_width=1):
 
@@ -6699,9 +7106,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw rectangle on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw rectangle on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw rectangle on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_rectangle_desktop(x, y, width, height, image, color, fill_in, pixel_width)
@@ -6716,7 +7122,8 @@ class Drone:
             preview_draw.rectangle([x, y, x + width, y + height], fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_rectangle_emscripten(self, x, y, width, height, image, color, fill_in, pixel_width):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -6734,7 +7141,7 @@ class Drone:
             preview_draw.rectangle([x, y, x + width, y + height], fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_square(self, x, y, width, image, color="black", fill_in=None, pixel_width=1):
         """
@@ -6756,9 +7163,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw square on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw square on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw square on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_square_desktop(x, y, width, image, color, fill_in, pixel_width)
@@ -6774,7 +7180,8 @@ class Drone:
             preview_draw.rectangle([x, y, x + width, y + width], fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_square_emscripten(self, x, y, width, image, color, fill_in, pixel_width):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -6793,7 +7200,7 @@ class Drone:
             preview_draw.rectangle([x, y, x + width, y + width], fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_point(self, x, y, image, color="black"):
         """
@@ -6806,9 +7213,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw point on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw point on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw point on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_point_desktop(x, y, image, color)
@@ -6822,7 +7228,8 @@ class Drone:
             draw.point([x, int(y * 0.8)], fill=color)
             preview_draw.point([x, y], fill=color)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_point_emscripten(self, x, y, image, color):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -6839,7 +7246,7 @@ class Drone:
             draw.point([x, int(y * 0.8)], fill=color)
             preview_draw.point([x, y], fill=color)
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_clear_screen(self, pixel=DisplayPixel.White):
         """
@@ -6880,9 +7287,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw polygon on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw polygon on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw polygon on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_polygon_desktop(point_list, image, color, fill_in, pixel_width)
@@ -6905,9 +7311,11 @@ class Drone:
                 preview_draw.polygon(point_list, fill=fill_in, width=pixel_width, outline=color)
 
             else:
-                raise Exception("Invalid color. Color value must be 'white' or 'black'")
+                self.disconnect()
+                raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
         else:
-            raise Exception(f"Could not draw the list: {point_list}.\nUse a list in the format: list [ (x1,y1), (x2, y2),..., (xn, yn) ]")
+            self.disconnect()
+            raise InvalidPointListError(f"Could not draw the list: {point_list}.\nUse a list in the format: list [ (x1,y1), (x2, y2),..., (xn, yn) ]")
 
 
     async def _controller_draw_polygon_emscripten(self, point_list, image, color, fill_in, pixel_width):
@@ -6934,9 +7342,9 @@ class Drone:
                 preview_draw.polygon(point_list, fill=fill_in, width=pixel_width, outline=color)
 
             else:
-                raise Exception("Invalid color. Color value must be 'white' or 'black'")
+                raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
         else:
-            raise Exception(f"Could not draw the list: {point_list}.\nUse a list in the format: list [ (x1,y1), (x2, y2),..., (xn, yn) ]")
+            raise InvalidPointListError(f"Could not draw the list: {point_list}.\nUse a list in the format: list [ (x1,y1), (x2, y2),..., (xn, yn) ]")
 
     def controller_draw_ellipse(self, ellipse_list, image, color="black", fill_in=None, pixel_width=1):
         """
@@ -6949,12 +7357,11 @@ class Drone:
         :param pixel_width: width of pixel outline.
         :return: nothing
         """
-        print(not isinstance(image, PIL.Image.Image))
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw ellipse on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw ellipse on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw ellipse on canvas. Use controller_create_canvas() to create a canvas.")
+
         if sys.platform != 'emscripten':
             return self._controller_draw_ellipse_desktop(ellipse_list, image, color, fill_in, pixel_width)
         else:
@@ -6975,7 +7382,8 @@ class Drone:
             preview_draw.ellipse(ellipse_list, fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_ellipse_emscripten(self, ellipse_list, image, color, fill_in=None, pixel_width=1):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -7000,7 +7408,7 @@ class Drone:
             preview_draw.ellipse(ellipse_list, fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_arc(self, arc_list, start_angle, end_angle, image, color="black", pixel_width=1):
         """
@@ -7016,9 +7424,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw arc on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw arc on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw arc on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_arc_desktop(arc_list, start_angle, end_angle, image, color, pixel_width)
@@ -7040,7 +7447,8 @@ class Drone:
             preview_draw.arc(arc_list, start_angle, end_angle, fill=color, width=pixel_width)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
             
     async def _controller_draw_arc_emscripten(self, arc_list, start_angle, end_angle, image, color, pixel_width):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -7065,7 +7473,7 @@ class Drone:
             preview_draw.arc(arc_list, start_angle, end_angle, fill=color, width=pixel_width)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_chord(self, chord_list, start_angle, end_angle, image, color="black", fill_in=None, pixel_width=1):
         """
@@ -7082,9 +7490,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw chord on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw chord on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw chord on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_chord_desktop(chord_list, start_angle, end_angle, image, color, fill_in, pixel_width)
@@ -7106,7 +7513,8 @@ class Drone:
             preview_draw.chord(chord_list, start_angle, end_angle, fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_chord_emscripten(self, chord_list, start_angle, end_angle, image, color, fill_in, pixel_width):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -7131,7 +7539,7 @@ class Drone:
             preview_draw.chord(chord_list, start_angle, end_angle, fill=fill_in, width=pixel_width, outline=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_string(self, x, y, string, image, color="black"):
         """
@@ -7145,9 +7553,8 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw string on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw string on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw string on canvas. Use controller_create_canvas() to create a canvas.")
 
         if sys.platform != 'emscripten':
             return self._controller_draw_string_desktop(x, y, string, image, color)
@@ -7162,7 +7569,8 @@ class Drone:
             preview_draw.text((x, y), text=string, fill=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_string_emscripten(self, x, y, string, image, color):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -7180,7 +7588,7 @@ class Drone:
             preview_draw.text((x, y), text=string, fill=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_string_align(self, x_start, x_end, y, string, image, color="black", alignment="left"):
         """
@@ -7197,9 +7605,9 @@ class Drone:
         """
         if not isinstance(image, PIL.Image.Image):
             if sys.platform != 'emscripten':
-                raise Exception("Unable to draw string on image canvas. Use controller_create_canvas() to create a canvas.")
-            else:
-                raise Exception("Unable to draw string on image canvas. Use controller_create_canvas() to create a canvas.")
+                self.disconnect()
+            raise InvalidImageError("Unable to draw string on canvas. Use controller_create_canvas() to create a canvas.")
+
         if sys.platform != 'emscripten':
             return self._controller_draw_string_align_desktop(x_start, x_end, y, string, image, color, alignment)
         else:
@@ -7208,7 +7616,8 @@ class Drone:
 
     def _controller_draw_string_align_desktop(self, x_start, x_end, y, string, image, color, alignment):
         if x_end < x_start:
-            raise Exception(Fore.RED + "x_end must be larger than x_start." + Style.RESET_ALL)
+            self.disconnect()
+            raise InvalidAlignmentError("x_end must be larger than x_start.")
 
         draw = PIL.ImageDraw.Draw(image)
         preview_draw = PIL.ImageDraw.Draw(self._canvas)
@@ -7226,14 +7635,16 @@ class Drone:
             text_start = x_end - string_length
 
         else:
-            raise Exception(Fore.RED + "Invalid alignment value. Please use 'left', 'center', 'right'." + Style.RESET_ALL)
+            self.disconnect()
+            raise InvalidAlignmentError("Invalid alignment value. Use 'left', 'center', or 'right'.")
 
         if color == "black" or color == "white":
             draw.text((text_start, int(y * 0.8)), text=string, fill=color)
             preview_draw.text((text_start, y), text=string, fill=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            self.disconnect()
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     async def _controller_draw_string_align_emscripten(self, x_start, x_end, y, string, image, color, alignment):
         if (await self.get_information_data())[0] == ModelNumber.Drone_12_Drone_P1:
@@ -7245,7 +7656,7 @@ class Drone:
             return
         
         if x_end < x_start:
-            raise Exception("x_end must be larger than x_start.")
+            raise InvalidAlignmentError("x_end must be larger than x_start.")
 
         draw = PIL.ImageDraw.Draw(image)
         preview_draw = PIL.ImageDraw.Draw(self._canvas)
@@ -7263,14 +7674,14 @@ class Drone:
             text_start = x_end - string_length
 
         else:
-            raise Exception("Invalid alignment value. Please use 'left', 'center', 'right'.")
+            raise InvalidAlignmentError("Invalid alignment value. Use 'left', 'center', or 'right'.")
 
         if color == "black" or color == "white":
             draw.text((text_start, int(y * 0.8)), text=string, fill=color)
             preview_draw.text((text_start, y), text=string, fill=color)
 
         else:
-            raise Exception("Invalid color. Color value must be 'white' or 'black'")
+            raise InvalidDrawColorError("Invalid color. Color value must be 'white' or 'black'")
 
     def controller_draw_image(self, pixel_list):
         """
@@ -7287,8 +7698,8 @@ class Drone:
         self.controller_clear_screen()
 
         if isinstance(pixel_list, list) is not True:
-            print(Fore.RED + "The pixel list passed into controller_draw_image() is not a list." + Style.RESET_ALL)
-            return None
+            self.disconnect()
+            raise InvalidPixelListError("The pixel list passed into controller_draw_image() is not a list.")
 
         num_elem = len(pixel_list[0])
         for k in range(64):
@@ -7334,8 +7745,7 @@ class Drone:
         await self.controller_clear_screen()
 
         if isinstance(pixel_list, list) is not True:
-            print("The pixel list passed into controller_draw_image() is not a list", color="error")
-            return None
+            raise InvalidPixelListError("The pixel list passed into controller_draw_image() is not a list.")
 
         num_elem = len(pixel_list[0])
         for k in range(64):

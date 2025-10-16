@@ -1,0 +1,206 @@
+# Task Division: Pre-Release Validation
+
+**Date:** October 15, 2025  
+**Goal:** Prepare JCoDroneEdu for v1.0 release with firmware 25.2.1
+
+---
+
+## 👤 YOUR TASKS (User - Hardware & Testing)
+
+### Phase 1: Firmware Update ⏰ **DO THIS FIRST**
+
+1. **Record Current State**
+   ```bash
+   # Run these BEFORE updating firmware:
+   ./gradlew runSmokeTest 2>&1 | tee logs/pre-firmware-smoke.txt
+   ./gradlew runAltitudePressureTest 2>&1 | tee logs/pre-firmware-altitude.txt
+   ```
+   - Note current firmware versions (should display at connection)
+   - Note altitude offset (expected ~109m)
+
+2. **Update Firmware**
+   - Go to: https://codrone.robolink.com/edu/updater/
+   - Update drone to 25.2.1
+   - Update controller to 25.2.1
+   - Power cycle both devices
+
+3. **Test After Update**
+   ```bash
+   # Run these AFTER updating firmware:
+   ./gradlew runSmokeTest 2>&1 | tee logs/post-firmware-smoke.txt
+   ./gradlew runAltitudePressureTest 2>&1 | tee logs/post-firmware-altitude.txt
+   ./gradlew runAutomaticElevationDemo 2>&1 | tee logs/post-firmware-elevation.txt
+   ```
+   - Note new firmware versions
+   - **CRITICAL:** Document new altitude offset (compare to 109m)
+   - Check for any new errors
+
+4. **Fill Out Checklist**
+   - Open `PRE_RELEASE_CHECKLIST.md`
+   - Check off Phase 1 items
+   - Fill in all the blank fields with your test results
+
+---
+
+## 🤖 COPILOT TASKS (Automated)
+
+### While You Update Firmware, I Will:
+
+#### Task 1: Create API Comparison Tool ✅ **DONE**
+- ✅ Created `./gradlew compareApis` task
+- ✅ Parses Python drone.py for all public methods
+- ✅ Parses Java Drone.java for all public methods
+- ✅ Generates `API_COMPARISON.md` report
+- ✅ Highlights missing methods important for inventory
+
+#### Task 2: Create Pre-Release Check Tool ✅ **DONE**
+- ✅ Created `./gradlew preReleaseCheck` task
+- ✅ Runs: test, build, compareApis
+- ✅ Displays checklist of manual steps
+- ✅ Shows next steps
+
+#### Task 3: Create Task List ✅ **DONE**
+- ✅ Created `PRE_RELEASE_CHECKLIST.md`
+- ✅ 8 phases with checkboxes
+- ✅ Form fields to fill in
+- ✅ Complete workflow guide
+
+### After You Update Firmware, I Will:
+
+#### Task 4: Analyze Test Results
+- Review your logs from logs/ directory
+- Identify any failures or anomalies
+- Suggest fixes if needed
+
+#### Task 5: Update Python Reference
+```bash
+# You'll run this, I'll analyze results:
+./gradlew updateReferenceCode
+```
+- Check if Python library version changed
+- Review any code changes
+
+#### Task 6: Generate API Comparison
+```bash
+# You'll run this:
+./gradlew compareApis
+```
+- Review generated `API_COMPARISON.md`
+- Identify critical missing methods
+- Recommend which to implement
+
+#### Task 7: Implement Missing Methods (If Needed)
+If API comparison shows important missing methods:
+- Implement `getInformationData()`
+- Implement `getCpuIdData()`  
+- Implement `getCountData()` and helpers
+- Create tests
+- Create demo example
+
+---
+
+## 📋 Immediate Next Steps
+
+### Right Now:
+1. **YOU:** Start updating drone firmware
+2. **COPILOT:** ✅ Already completed initial tasks
+
+### After Firmware Update (30 minutes later):
+1. **YOU:** Run the post-update tests
+2. **YOU:** Fill in PRE_RELEASE_CHECKLIST.md Phase 1
+3. **YOU:** Report results (especially altitude offset!)
+4. **COPILOT:** Analyze results
+5. **COPILOT:** Run API comparison
+6. **COPILOT:** Implement any missing critical methods
+
+### Tomorrow:
+1. **TOGETHER:** Review API differences
+2. **COPILOT:** Implement missing methods
+3. **YOU:** Test new methods with drone
+4. **TOGETHER:** Update documentation
+5. **TOGETHER:** Final verification
+
+---
+
+## 🎯 Success Criteria for Today
+
+### Your Success:
+- ✅ Firmware updated to 25.2.1 on both devices
+- ✅ Smoke test passes with new firmware
+- ✅ Altitude offset documented (critical!)
+- ✅ Phase 1 of checklist complete
+
+### Copilot Success:
+- ✅ Gradle tasks created and working
+- ✅ Checklist document ready
+- ✅ Strategy documented
+- ⏳ Ready to analyze your test results
+
+---
+
+## 📞 Communication Points
+
+### After Firmware Update, Tell Me:
+1. **Did the update succeed?**
+2. **What's the new altitude offset?** (was 109m, now: ???)
+3. **Did smoke test pass?**
+4. **Any new error messages?**
+5. **Any sensors not working?**
+
+### Then I'll Tell You:
+1. **API differences found**
+2. **Methods to implement**
+3. **Any firmware-related code changes needed**
+4. **Next steps**
+
+---
+
+## 🚀 Quick Command Reference
+
+```bash
+# Before firmware update:
+./gradlew runSmokeTest
+./gradlew runAltitudePressureTest
+
+# After firmware update:
+./gradlew runSmokeTest
+./gradlew runAltitudePressureTest  
+./gradlew runAutomaticElevationDemo
+
+# When I ask you to:
+./gradlew updateReferenceCode    # Update Python reference
+./gradlew compareApis             # Generate API comparison
+./gradlew preReleaseCheck         # Full pre-release check
+```
+
+---
+
+## 📄 Files to Watch
+
+- **PRE_RELEASE_CHECKLIST.md** - Your main checklist (check it off!)
+- **API_COMPARISON.md** - Will be generated by compareApis
+- **logs/** - Save your test outputs here
+- **reference/version.txt** - Python library version info
+
+---
+
+## ⏱️ Time Estimates
+
+| Task | Est. Time | Who |
+|------|-----------|-----|
+| Firmware update | 15-30 min | YOU |
+| Post-update testing | 10-15 min | YOU |
+| Fill checklist Phase 1 | 5-10 min | YOU |
+| **YOUR TOTAL** | **30-55 min** | |
+| | |
+| API comparison | 2 min | COPILOT |
+| Analyze results | 5-10 min | COPILOT |
+| Implement missing methods | 1-2 hours | COPILOT |
+| **COPILOT TOTAL** | **1-2 hours** | |
+
+**We'll reconvene after you complete firmware update and testing!** 🎉
+
+---
+
+**Status:** ✅ Copilot ready and waiting  
+**Your Turn:** Update firmware → Test → Report back!

@@ -41,4 +41,10 @@ public class Version implements Serializable
         this.minor = buffer.get();
         this.major = buffer.get();
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format("%d.%d.%d", major & 0xFF, minor & 0xFF, build & 0xFFFF);
+    }
 }

@@ -1,15 +1,11 @@
 package com.otabi.jcodroneedu.ml;
 
 import smile.classification.KNN;
-import smile.data.formula.Formula;
-import smile.data.vector.BaseVector;
-import smile.data.DataFrame;
-import smile.data.vector.IntVector;
+// Removed unused Smile imports and unused file I/O imports to reduce IDE warnings
 import smile.plot.swing.ScatterPlot;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+// Files/Paths not used; removed
 import java.util.*;
 
 /**

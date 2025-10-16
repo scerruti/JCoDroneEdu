@@ -12,6 +12,8 @@ import com.otabi.jcodroneedu.protocol.dronestatus.Flow;
 import com.otabi.jcodroneedu.protocol.dronestatus.RawFlow;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 import com.otabi.jcodroneedu.protocol.linkmanager.Information;
+import com.otabi.jcodroneedu.protocol.controllerinput.Joystick;
+import com.otabi.jcodroneedu.protocol.controllerinput.Button;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,8 +37,10 @@ public class Receiver {
     private static final long RECEIVE_TIMEOUT_MS = 600;
 
     // References to other drone components
+    private final Drone drone;
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
+    private final InventoryManager inventoryManager;
 
     // --- Acknowledgment Handling ---
     private final Map<DataType, CompletableFuture<Void>> pendingAcks = new ConcurrentHashMap<>();
@@ -56,9 +60,11 @@ public class Receiver {
     private int crc16received;
     private int crc16calculated;
 
-    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager) {
+    public Receiver(Drone drone, DroneStatus droneStatus, LinkManager linkManager, InventoryManager inventoryManager) {
+        this.drone = drone;
         this.droneStatus = droneStatus;
         this.linkManager = linkManager;
+        this.inventoryManager = inventoryManager;
         this.dataBuffer = ByteBuffer.allocate(MAX_PAYLOAD_SIZE);
         initializeHandlers();
         reset();
@@ -70,16 +76,29 @@ public class Receiver {
      */
     private void initializeHandlers() {
         handlers.put(DataType.State, msg -> droneStatus.setState((State) msg));
-        handlers.put(DataType.Information, msg -> linkManager.setInformation((Information) msg));
+        handlers.put(DataType.Information, msg -> {
+            Information info = (Information) msg;
+            linkManager.setInformation(info);
+            inventoryManager.updateInformation(info);
+        });
         handlers.put(DataType.Attitude, msg -> droneStatus.setAttitude((Attitude) msg));
         handlers.put(DataType.Position, msg -> droneStatus.setPosition((Position) msg));
         handlers.put(DataType.Altitude, msg -> droneStatus.setAltitude((Altitude) msg));
-    handlers.put(DataType.Motion, msg -> droneStatus.setMotion((Motion) msg));
-    handlers.put(DataType.Range, msg -> droneStatus.setRange((Range) msg));
+        handlers.put(DataType.Motion, msg -> droneStatus.setMotion((Motion) msg));
+        handlers.put(DataType.Range, msg -> droneStatus.setRange((Range) msg));
         handlers.put(DataType.CardColor, msg -> droneStatus.setCardColor((CardColor) msg));
         handlers.put(DataType.Trim, msg -> droneStatus.setTrim((com.otabi.jcodroneedu.protocol.settings.Trim) msg));
         handlers.put(DataType.RawFlow, msg -> droneStatus.setRawFlow((RawFlow) msg));
         handlers.put(DataType.Flow, msg -> droneStatus.setFlow((Flow) msg));
+        handlers.put(DataType.Joystick, msg -> drone.updateJoystickData((Joystick) msg));
+        handlers.put(DataType.Button, msg -> drone.updateButtonData((Button) msg));
+        handlers.put(DataType.Count, msg -> inventoryManager.updateCount((com.otabi.jcodroneedu.protocol.settings.Count) msg));
+        handlers.put(DataType.Error, msg -> linkManager.setError((com.otabi.jcodroneedu.protocol.linkmanager.Error) msg));
+        handlers.put(DataType.Address, msg -> {
+            com.otabi.jcodroneedu.protocol.linkmanager.Address addr = (com.otabi.jcodroneedu.protocol.linkmanager.Address) msg;
+            linkManager.setAddress(addr);
+            // Note: Address handler needs device type from header - handled in handleMessage
+        });
         // ... add handlers for all other message types here ...
     }
 
@@ -226,8 +245,9 @@ public class Receiver {
             } else {
                 String rhex = String.format("%04X", crc16received & 0xFFFF);
                 String chex = String.format("%04X", crc16calculated & 0xFFFF);
-                log.error("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
-                        header.getDataType(), rhex, chex);
+        // CRC mismatches are expected in tests that mutate packets; make this debug to avoid noisy test output
+        log.debug("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
+            header.getDataType(), rhex, chex);
                 return false;
             }
         }
@@ -256,6 +276,14 @@ public class Receiver {
                 return;
             }
 
+            // Defensive: if header length is zero, there is no payload to parse.
+            // Some message types (e.g., END-only Information frames) may legitimately
+            // carry no payload; attempting to parse will throw BufferUnderflowException.
+            if (header.getLength() == 0) {
+                log.debug("Zero-length payload for {} — skipping parse.", header.getDataType());
+                return;
+            }
+
             // Use the factory to create an empty instance of the correct message type.
             Serializable message = header.getDataType().createInstance();
             if (message == null) {
@@ -274,7 +302,7 @@ public class Receiver {
                     dup.get(arr);
                     StringBuilder sb = new StringBuilder();
                     for (byte b : arr) sb.append(String.format("%02X ", b));
-                    log.info("Motion payload bytes (len={}): {}", arr.length, sb.toString());
+                    log.debug("Motion payload bytes (len={}): {}", arr.length, sb.toString());
 
                     // Interpret as little-endian signed shorts for quick human-readable check
                     ByteBuffer peek = ByteBuffer.wrap(arr).order(ByteOrder.LITTLE_ENDIAN);
@@ -283,9 +311,9 @@ public class Receiver {
                         short v = peek.getShort();
                         vals.append(String.format("%d%s", (int) v, (i < 8 ? "," : "")));
                     }
-                    log.info("Motion payload as little-endian shorts: {}", vals.toString());
+                    log.debug("Motion payload as little-endian shorts: {}", vals.toString());
                 } catch (Exception e) {
-                    log.warn("Failed to dump Motion payload bytes: {}", e.getMessage());
+                    log.debug("Failed to dump Motion payload bytes: {}", e.getMessage());
                 }
             }
             message.parse(payloadBuffer);
@@ -294,6 +322,13 @@ public class Receiver {
             Consumer<Serializable> handler = handlers.get(header.getDataType());
             if (handler != null) {
                 handler.accept(message);
+                
+                // Special handling for Address messages - need device type from header
+                if (header.getDataType() == DataType.Address) {
+                    com.otabi.jcodroneedu.protocol.linkmanager.Address addr = 
+                        (com.otabi.jcodroneedu.protocol.linkmanager.Address) message;
+                    inventoryManager.updateAddress(addr, header.getFrom());
+                }
             } else {
                 log.debug("No handler registered for DataType: {}", header.getDataType());
             }

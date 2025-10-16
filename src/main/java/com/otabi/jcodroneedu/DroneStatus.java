@@ -3,6 +3,8 @@ package com.otabi.jcodroneedu;
 import com.otabi.jcodroneedu.protocol.dronestatus.*;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 import com.otabi.jcodroneedu.protocol.settings.Trim;
+import com.otabi.jcodroneedu.protocol.controllerinput.Joystick;
+import com.otabi.jcodroneedu.protocol.controllerinput.Button;
 
 public class DroneStatus
 {
@@ -17,6 +19,8 @@ public class DroneStatus
     private State state;
     private CardColor cardColor;
     private Trim trim;
+    private Joystick joystick;
+    private Button button;
 
     public Attitude getAttitude()
     {
@@ -128,4 +132,23 @@ public class DroneStatus
         this.trim = trim;
     }
 
+    public Joystick getJoystick()
+    {
+        return joystick;
+    }
+
+    public void setJoystick(Joystick joystick)
+    {
+        this.joystick = joystick;
+    }
+
+    public Button getButton()
+    {
+        return button;
+    }
+
+    public void setButton(Button button)
+    {
+        this.button = button;
+    }
 }

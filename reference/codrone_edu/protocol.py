@@ -3239,42 +3239,28 @@ class CardRaw(ISerializable):
 
     def __init__(self):
         self.rgbRaw     = [[0 for i in range(3)] for j in range(2)]
-        self.rgb        = [[0 for i in range(3)] for j in range(2)]     # 0 ~ 255
-        self.hsvl       = [[0 for i in range(4)] for j in range(2)]     # H: 0 ~ 360, S: 0 ~ 100, V: 0 ~ 100, L: 0 ~ 100
-        self.color      = [0 for i in range(2)]
-        self.card       = 0
 
 
     @classmethod
     def getSize(cls):
-        return (12 + 6 + 16 + 2 + 1)
+        return 12
 
 
     def toArray(self):
         #             12345678901234567890123
-        return pack('<hhhhhhBBBBBBhhhhhhhhBBB',
-                    self.rgbRaw[0][0], self.rgbRaw[0][1] , self.rgbRaw[0][2], self.rgbRaw[1][0], self.rgbRaw[1][1] , self.rgbRaw[1][2],
-                    self.rgb[0][0], self.rgb[0][1] , self.rgb[0][2], self.rgb[1][0], self.rgb[1][1] , self.rgb[1][2],
-                    self.hsvl[0][0], self.hsvl[0][1] , self.hsvl[0][2], self.hsvl[0][3], self.hsvl[1][0], self.hsvl[1][1] , self.hsvl[1][2], self.hsvl[1][3],
-                    self.color[0].value, self.color[1].value , self.card.value)
+        return pack('<hhhhhh',
+                    self.rgbRaw[0][0], self.rgbRaw[0][1] , self.rgbRaw[0][2], self.rgbRaw[1][0], self.rgbRaw[1][1] , self.rgbRaw[1][2])
 
 
     @classmethod
     def parse(cls, dataArray):
         data = CardRaw()
-        
         if len(dataArray) != cls.getSize():
             return None
         
-        (   data.rgbRaw[0][0], data.rgbRaw[0][1] , data.rgbRaw[0][2], data.rgbRaw[1][0], data.rgbRaw[1][1] , data.rgbRaw[1][2],
-            data.rgb[0][0], data.rgb[0][1] , data.rgb[0][2], data.rgb[1][0], data.rgb[1][1] , data.rgb[1][2],
-            data.hsvl[0][0], data.hsvl[0][1], data.hsvl[0][2], data.hsvl[0][3], data.hsvl[1][0], data.hsvl[1][1], data.hsvl[1][2], data.hsvl[1][3],
-            data.color[0], data.color[1] , data.card) = unpack('<hhhhhhhhhhhhhhhhhhBBBBBBhhhhhhBBB', dataArray)
+        (   data.rgbRaw[0][0], data.rgbRaw[0][1] , data.rgbRaw[0][2], data.rgbRaw[1][0], data.rgbRaw[1][1] ,
+            data.rgbRaw[1][2]) = unpack('<hhhhhh', dataArray)
 
-        data.color[0]   = CardColorIndex(data.color[0])
-        data.color[1]   = CardColorIndex(data.color[1])
-        data.card       = Card(data.card)
-        
         return data
 
 
@@ -3304,17 +3290,18 @@ class CardColor(ISerializable):
     @classmethod
     def parse(cls, dataArray):
         data = CardColor()
-        
+
         if len(dataArray) != cls.getSize():
             return None
         
         (   data.hsvl[0][0], data.hsvl[0][1], data.hsvl[0][2], data.hsvl[0][3], data.hsvl[1][0], data.hsvl[1][1], data.hsvl[1][2], data.hsvl[1][3],
             data.color[0], data.color[1] , data.card) = unpack('<hhhhhhhhBBB', dataArray)
 
-        data.color[0]   = CardColorIndex(data.color[0])
-        data.color[1]   = CardColorIndex(data.color[1])
+        colors = ('Unknown', 'white', 'red', 'yellow', 'green', 'light blue', 'blue', 'purple', 'black', 'EndofType')
+        data.color[0]   = ColorCard(colors[data.color[0]])
+        data.color[1]   = ColorCard(colors[data.color[1]])
         data.card       = Card(data.card)
-        
+
         return data
 
 

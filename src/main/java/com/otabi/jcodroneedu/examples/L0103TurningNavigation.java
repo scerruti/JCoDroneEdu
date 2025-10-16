@@ -26,9 +26,8 @@ public class L0103TurningNavigation {
     public static void main(String[] args) {
         System.out.println("=== L0103: Turning and Navigation ===");
         
-        try (Drone drone = new Drone()) {
-            // Connect to drone
-            drone.connect();
+        try (Drone drone = new Drone(true)) {
+            // Auto-connected via constructor
             System.out.println("✅ Connected to drone!");
             
             // Basic flight setup
@@ -53,8 +52,10 @@ public class L0103TurningNavigation {
             
         } catch (DroneNotFoundException e) {
             System.err.println("❌ Could not find drone. Make sure it's paired and turned on.");
+            throw new RuntimeException(e);
         } catch (Exception e) {
             System.err.println("❌ Error during flight: " + e.getMessage());
+            e.printStackTrace();
         }
         
         System.out.println("🎯 Turning lesson complete!");

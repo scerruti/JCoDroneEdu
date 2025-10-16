@@ -17,9 +17,7 @@ public class ControllerInputExample {
         // Note: This example shows the API calls but doesn't actually connect to hardware
         // In a real classroom scenario, students would have their controllers connected
         
-        try {
-            // Create drone instance (this would connect to hardware in real use)
-            Drone drone = new Drone();
+        try (Drone drone = new Drone()) {
             
             System.out.println("Example 1: Reading Controller Buttons");
             System.out.println("// Check if specific buttons are pressed");
@@ -133,8 +131,7 @@ public class ControllerInputExample {
             System.out.println("✅ Perfect for classroom engagement and user interaction!");
             System.out.println("✅ Students can create games, manual control, and responsive behaviors!");
             
-            // Close the drone connection (in real use)
-            drone.close();
+            // drone will be closed automatically by try-with-resources
             
         } catch (Exception e) {
             System.err.println("Error in controller input example: " + e.getMessage());

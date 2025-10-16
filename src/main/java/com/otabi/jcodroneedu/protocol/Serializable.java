@@ -1,6 +1,7 @@
 package com.otabi.jcodroneedu.protocol;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Defines the contract for all protocol message objects.
@@ -40,6 +41,7 @@ public interface Serializable {
     default byte[] toArray()
     {
         ByteBuffer buffer = ByteBuffer.allocate(getSize());
+        buffer.order(ByteOrder.LITTLE_ENDIAN);  // Set byte order to match drone protocol
         pack(buffer);
         return buffer.array();
     }
