@@ -86,6 +86,7 @@ public enum DataType {
     DisplayDrawRect((byte) 0x84, null, null),
     DisplayDrawCircle((byte) 0x85, null, null),
     DisplayDrawString((byte) 0x86, null, null),
+    DisplayDrawImage((byte) 0x88, null, null),
 
     // --- Card Reader (Received) ---
     CardClassify((byte) 0x90, CardClassify.class, CardClassify::new),
