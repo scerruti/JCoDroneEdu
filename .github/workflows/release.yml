@@ -38,6 +38,20 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     
+    - name: Debug environment (non-fatal)
+      continue-on-error: true
+      run: |
+        echo "--- ENV ---"
+        echo "JAVA_HOME=$JAVA_HOME"
+        echo "which java: $(which java || true)"
+        java -version || true
+        echo "which javac: $(which javac || true)"
+        javac -version || true
+        echo "--- GRADLE INFO ---"
+        ./gradlew --version || true
+        echo "--- ATTEMPT flight-patterns:compileJava (info, non-fatal) ---"
+        ./gradlew :flight-patterns:compileJava --no-daemon --info || true
+
     - name: Build and test
       run: ./gradlew build test
     
