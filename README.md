@@ -1,8 +1,5 @@
 # CoDrone EDU Java API
 
-> ⚠️ **DEVELOPMENT STATUS** ⚠️  
-> This project is currently under active development and is **not yet available for download or use**. The API is incomplete and subject to significant changes. Please check back later for release announcements.
-
 🎓 **Educational Java API for CoDrone EDU** - A comprehensive programming interface designed specifically for robotics education with full Python API parity, extensive sensor support, LED control, flight patterns, and AP Computer Science A compliance.
 
 ---
