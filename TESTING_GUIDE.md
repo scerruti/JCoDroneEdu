@@ -156,8 +156,6 @@ MultiSensorTest - snapshots range, optical flow, temperature, and color sensors:
 ```
 
 The example will request the relevant DataType messages and print sensor values to the console. Use it to validate sensor wiring, ranges, and basic telemetry before attempting any flight.
-
-
 Notes:
 - If you add new drone API methods, update the `MockDrone` implementation in `src/test/java/com/otabi/jcodroneedu/DroneTest.java` so tests can simulate them.
 - Test helper classes and example tests live under `src/test/java/com/otabi/jcodroneedu/examples/`.
