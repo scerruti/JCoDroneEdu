@@ -11,7 +11,7 @@ Based on the official Python documentation (150+ documented methods):
 - ✅ **Fully Complete Categories:** Connection, Flight Commands, Flight Variables, LED, Sounds/Buzzer, Range Sensors, Optical Flow, Gyroscope/IMU
 - 🟢 **Nearly Complete (85-90%):** Pressure Sensors, State Data
 - 🟡 **Partial (40%):** Color Sensors (many methods unavailable for hardware)
-- 🔴 **Limited (20%):** Controller Display (unavailable for JROTC hardware)
+- 🔴 **Limited (20%):** Controller Display (Java exposes low-level draw primitives; no retained canvas helper provided)
 
 ## Category Breakdown
 
@@ -30,7 +30,7 @@ Based on the official Python documentation (150+ documented methods):
 | Color Sensors | 40% 🟡 | Training methods unavailable for hardware |
 | State/Status | 80% 🟢 | Missing: `get_error_data()` details |
 | Controller Input | 100% ✅ | Three-tier API with composites |
-| Controller Display | 20% 🔴 | Canvas methods unavailable for JROTC |
+| Controller Display | 20% 🔴 | Low-level draw primitives available on `Drone`; retained canvas helpers are not provided in Java |
 
 ## Top 1 High-Priority Missing Method (Updated!)
 
@@ -136,6 +136,7 @@ int y = joy[2];  // What is index 2?
    - Multiplexed hardware limitation
 
 2. **JROTC Edition Controller Display**
+    - Note: The Java library does not include a retained `ControllerCanvas` abstraction. Users should construct a `BufferedImage` + `Graphics2D` locally and send via `Drone` primitives or a small helper.
    - Canvas drawing methods unavailable
    - Basic text/line/rectangle only
    - Documented in API comparison
