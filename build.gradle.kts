@@ -7,6 +7,15 @@ plugins {
     id("signing")
 }
 
+// Ensure a consistent Java toolchain for local and CI builds. This makes Gradle
+// request a JDK matching the language level used across subprojects (21), so
+// compilation doesn't fail when runners provide an older JAVA_HOME.
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 // ------------------------------------------------------------
 // Run Smoke Test - convenience task for the example SmokeTest
 // ------------------------------------------------------------
