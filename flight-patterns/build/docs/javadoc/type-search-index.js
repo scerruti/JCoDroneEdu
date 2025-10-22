@@ -1,1 +1,0 @@
-typeSearchIndex = [{"p":"com.otabi.jcodroneedu.patterns","l":"AdvancedPatternDrone"},{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.otabi.jcodroneedu.patterns","l":"BasicPatternDrone"},{"p":"com.otabi.jcodroneedu.patterns","l":"ExamplePrograms"}];updateSearchResults();
