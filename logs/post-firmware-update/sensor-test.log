@@ -1,0 +1,162 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :runMultiSensorTest
+11:22:47.655 [main] INFO  com.otabi.jcodroneedu.Drone - Drone instance created and ready for connection.
+Auto-detecting controller port...
+Detected CoDrone EDU controller at port cu.usbmodem3973337534311.
+11:22:47.671 [main] INFO  com.otabi.jcodroneedu.SerialPortManager - Detected CoDrone EDU controller at port cu.usbmodem3973337534311
+Connected to cu.usbmodem3973337534311.
+11:22:47.710 [main] INFO  com.otabi.jcodroneedu.SerialPortManager - Connected to cu.usbmodem3973337534311
+Successfully connected to CoDrone EDU.
+Model: DRONE_8_DRONE_P1, Firmware: 25.2.1
+Battery: 100%
+11:22:47.921 [main] INFO  com.otabi.jcodroneedu.Drone - Connection established - Model: DRONE_8_DRONE_P1, Firmware: 25.2.1, Battery: 100%
+MultiSensorTest - Press Enter to take a single snapshot of sensors. Ctrl-C to quit.
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=443 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=398 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=477 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=450 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=435 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=441 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=427 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=427 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=439 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=418 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=418 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=447 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=429 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=415 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=429 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=451 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=389 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=435 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=424 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=388 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=388 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=432 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=384 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...
+Range (mm): front=384 bottom=0
+Optical flow (m) - x=0.0000 y=0.0000
+Colors - Front: BLACK (8), Back: BLACK (8)
+--- snapshot complete ---
+
+Press Enter to capture sensor snapshot...

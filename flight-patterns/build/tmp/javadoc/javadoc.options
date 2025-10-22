@@ -1,0 +1,20 @@
+-Xdoclint:none '-quiet'
+-author 
+-bottom '<div style="text-align: center; font-size: 12px; color: #666;">\
+    <p>Educational drone programming library for CoDrone EDU</p>\
+    <p>Created by Stephen Cerruti with AI assistance from GitHub Copilot</p>\
+</div>'
+-charset 'UTF-8'
+-classpath '/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/build/classes/java/main:/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/build/resources/main:/Users/scerruti/VSCode Projects/JCoDroneEdu/build/classes/java/main'
+-d '/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/build/docs/javadoc'
+-doctitle 'JCoDroneEdu Flight Patterns API'
+-encoding 'UTF-8'
+-html5 
+-notimestamp 
+-quiet 
+-use 
+-version 
+-windowtitle 'JCoDroneEdu Flight Patterns 1.0.9'
+'/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/src/main/java/com/otabi/jcodroneedu/patterns/AdvancedPatternDrone.java'
+'/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/src/main/java/com/otabi/jcodroneedu/patterns/BasicPatternDrone.java'
+'/Users/scerruti/VSCode Projects/JCoDroneEdu/flight-patterns/src/main/java/com/otabi/jcodroneedu/patterns/ExamplePrograms.java'

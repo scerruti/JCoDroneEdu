@@ -1,0 +1,25 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+
+> Task :runSmokeTest
+11:22:08.002 [main] INFO  com.otabi.jcodroneedu.Drone - Drone instance created and ready for connection.
+Attempting auto-detect and pair()...
+Detected CoDrone EDU controller at port cu.usbmodem3973337534311.
+11:22:08.019 [main] INFO  com.otabi.jcodroneedu.SerialPortManager - Detected CoDrone EDU controller at port cu.usbmodem3973337534311
+Connected to cu.usbmodem3973337534311.
+11:22:08.059 [main] INFO  com.otabi.jcodroneedu.SerialPortManager - Connected to cu.usbmodem3973337534311
+Successfully connected to CoDrone EDU.
+Model: DRONE_8_DRONE_P1, Firmware: 25.2.1
+Battery: 100%
+11:22:08.270 [main] INFO  com.otabi.jcodroneedu.Drone - Connection established - Model: DRONE_8_DRONE_P1, Firmware: 25.2.1, Battery: 100%
+Connection verified: isConnected=true
+11:22:08.315 [main] DEBUG com.otabi.jcodroneedu.FlightController - Getting battery level
+11:22:08.377 [main] DEBUG com.otabi.jcodroneedu.FlightController - Battery level: 100%
+Battery: 100%
+Smoke test complete - disconnecting.
+Serial port disconnected.
+11:22:08.653 [main] INFO  com.otabi.jcodroneedu.SerialPortManager - Serial port disconnected.
+
+BUILD SUCCESSFUL in 2s
+3 actionable tasks: 1 executed, 2 up-to-date
