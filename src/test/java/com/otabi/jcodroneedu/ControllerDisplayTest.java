@@ -30,90 +30,90 @@ public class ControllerDisplayTest {
     @Test
     void testControllerClearScreen() {
         // Test clear screen with default white
-        assertDoesNotThrow(() -> drone.controller_clear_screen());
+        assertDoesNotThrow(() -> drone.controllerClearScreen());
         
         // Test clear screen with specific pixel types
-        assertDoesNotThrow(() -> drone.controller_clear_screen(DisplayPixel.WHITE));
-        assertDoesNotThrow(() -> drone.controller_clear_screen(DisplayPixel.BLACK));
+        assertDoesNotThrow(() -> drone.controllerClearScreen(DisplayPixel.WHITE));
+        assertDoesNotThrow(() -> drone.controllerClearScreen(DisplayPixel.BLACK));
     }
 
     @Test
     void testControllerDrawPoint() {
         // Test draw point with default black
-        assertDoesNotThrow(() -> drone.controller_draw_point(10, 10));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(10, 10));
         
         // Test draw point with specific pixel types
-        assertDoesNotThrow(() -> drone.controller_draw_point(20, 20, DisplayPixel.BLACK));
-        assertDoesNotThrow(() -> drone.controller_draw_point(30, 30, DisplayPixel.WHITE));
-        assertDoesNotThrow(() -> drone.controller_draw_point(40, 40, DisplayPixel.INVERSE));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(20, 20, DisplayPixel.BLACK));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(30, 30, DisplayPixel.WHITE));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(40, 40, DisplayPixel.INVERSE));
         
         // Test boundary coordinates
-        assertDoesNotThrow(() -> drone.controller_draw_point(0, 0));
-        assertDoesNotThrow(() -> drone.controller_draw_point(127, 63));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(0, 0));
+        assertDoesNotThrow(() -> drone.controllerDrawPoint(127, 63));
     }
 
     @Test
     void testControllerDrawLine() {
         // Test draw line with defaults
-        assertDoesNotThrow(() -> drone.controller_draw_line(0, 0, 50, 50));
+        assertDoesNotThrow(() -> drone.controllerDrawLine(0, 0, 50, 50));
         
         // Test draw line with specific parameters
-        assertDoesNotThrow(() -> drone.controller_draw_line(10, 10, 60, 30, DisplayPixel.BLACK, DisplayLine.SOLID));
-        assertDoesNotThrow(() -> drone.controller_draw_line(20, 20, 70, 40, DisplayPixel.WHITE, DisplayLine.DOTTED));
-        assertDoesNotThrow(() -> drone.controller_draw_line(30, 30, 80, 50, DisplayPixel.INVERSE, DisplayLine.DASHED));
+        assertDoesNotThrow(() -> drone.controllerDrawLine(10, 10, 60, 30, DisplayPixel.BLACK, DisplayLine.SOLID));
+        assertDoesNotThrow(() -> drone.controllerDrawLine(20, 20, 70, 40, DisplayPixel.WHITE, DisplayLine.DOTTED));
+        assertDoesNotThrow(() -> drone.controllerDrawLine(30, 30, 80, 50, DisplayPixel.INVERSE, DisplayLine.DASHED));
     }
 
     @Test
     void testControllerDrawRectangle() {
         // Test draw rectangle with defaults
-        assertDoesNotThrow(() -> drone.controller_draw_rectangle(10, 10, 30, 20));
+        assertDoesNotThrow(() -> drone.controllerDrawRectangle(10, 10, 30, 20));
         
         // Test draw rectangle with specific parameters
-        assertDoesNotThrow(() -> drone.controller_draw_rectangle(20, 15, 40, 25, DisplayPixel.BLACK, false, DisplayLine.SOLID));
-        assertDoesNotThrow(() -> drone.controller_draw_rectangle(30, 20, 50, 30, DisplayPixel.WHITE, true, DisplayLine.DOTTED));
+        assertDoesNotThrow(() -> drone.controllerDrawRectangle(20, 15, 40, 25, DisplayPixel.BLACK, false, DisplayLine.SOLID));
+        assertDoesNotThrow(() -> drone.controllerDrawRectangle(30, 20, 50, 30, DisplayPixel.WHITE, true, DisplayLine.DOTTED));
     }
 
     @Test
     void testControllerDrawCircle() {
         // Test draw circle with defaults
-        assertDoesNotThrow(() -> drone.controller_draw_circle(50, 30, 15));
+        assertDoesNotThrow(() -> drone.controllerDrawCircle(50, 30, 15));
         
         // Test draw circle with specific parameters
-        assertDoesNotThrow(() -> drone.controller_draw_circle(60, 40, 20, DisplayPixel.BLACK, true));
-        assertDoesNotThrow(() -> drone.controller_draw_circle(70, 50, 10, DisplayPixel.WHITE, false));
+        assertDoesNotThrow(() -> drone.controllerDrawCircle(60, 40, 20, DisplayPixel.BLACK, true));
+        assertDoesNotThrow(() -> drone.controllerDrawCircle(70, 50, 10, DisplayPixel.WHITE, false));
     }
 
     @Test
     void testControllerDrawString() {
         // Test draw string with defaults
-        assertDoesNotThrow(() -> drone.controller_draw_string(5, 5, "Hello"));
+        assertDoesNotThrow(() -> drone.controllerDrawString(5, 5, "Hello"));
         
         // Test draw string with specific parameters
-        assertDoesNotThrow(() -> drone.controller_draw_string(10, 15, "Test", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK));
-        assertDoesNotThrow(() -> drone.controller_draw_string(20, 25, "CoDrone", DisplayFont.LIBERATION_MONO_10X16, DisplayPixel.WHITE));
+        assertDoesNotThrow(() -> drone.controllerDrawString(10, 15, "Test", DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK));
+        assertDoesNotThrow(() -> drone.controllerDrawString(20, 25, "CoDrone", DisplayFont.LIBERATION_MONO_10X16, DisplayPixel.WHITE));
         
         // Test empty string
-        assertDoesNotThrow(() -> drone.controller_draw_string(30, 35, ""));
+        assertDoesNotThrow(() -> drone.controllerDrawString(30, 35, ""));
         
         // Test null string handling
-        assertDoesNotThrow(() -> drone.controller_draw_string(40, 45, null));
+        assertDoesNotThrow(() -> drone.controllerDrawString(40, 45, null));
     }
 
     @Test
     void testControllerClearArea() {
         // Test clear area with defaults
-        assertDoesNotThrow(() -> drone.controller_clear_area(10, 10, 20, 15));
+        assertDoesNotThrow(() -> drone.controllerClearArea(10, 10, 20, 15));
         
         // Test clear area with specific pixel
-        assertDoesNotThrow(() -> drone.controller_clear_area(30, 30, 40, 25, DisplayPixel.WHITE));
-        assertDoesNotThrow(() -> drone.controller_clear_area(50, 20, 30, 20, DisplayPixel.BLACK));
+        assertDoesNotThrow(() -> drone.controllerClearArea(30, 30, 40, 25, DisplayPixel.WHITE));
+        assertDoesNotThrow(() -> drone.controllerClearArea(50, 20, 30, 20, DisplayPixel.BLACK));
     }
 
     @Test
     void testControllerInvertArea() {
         // Test invert area
-        assertDoesNotThrow(() -> drone.controller_invert_area(10, 10, 30, 20));
-        assertDoesNotThrow(() -> drone.controller_invert_area(0, 0, 127, 63)); // Full screen
+        assertDoesNotThrow(() -> drone.controllerClearArea(10, 10, 30, 20));
+        assertDoesNotThrow(() -> drone.controllerClearArea(0, 0, 127, 63)); // Full screen
     }
 
     @Test

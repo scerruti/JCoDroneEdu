@@ -688,16 +688,7 @@ public class Drone implements AutoCloseable {
 
     /**
      * Prints current values of roll, pitch, yaw, and throttle.
-     *
-     * @deprecated This method is deprecated and will be removed in a future release. Please use <pre>drone.getMoveValues()</pre> instead.
      */
-    /**
-     * @deprecated Use {@link #printMoveValues()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public void print_move_values() {
-        printMoveValues();
-    }
     public void printMoveValues() {
         flightController.printMoveValues();
     }
@@ -4008,7 +3999,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
      */
-    public void drone_buzzer(Object note, int duration) {
+    public void droneBuzzer(Object note, int duration) {
         if (duration < 0) {
             throw new IllegalArgumentException("Duration must be non-negative");
         }
@@ -4057,7 +4048,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
      */
-    public void controller_buzzer(Object note, int duration) {
+    public void controllerBuzzer(Object note, int duration) {
         if (duration < 0) {
             throw new IllegalArgumentException("Duration must be non-negative");
         }
@@ -4096,7 +4087,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer
      * @educational
      */
-    public void start_drone_buzzer(Object note) {
+    public void startDroneBuzzer(Object note) {
         BuzzerMode mode;
         int value;
         
@@ -4133,7 +4124,7 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      */
-    public void stop_drone_buzzer() {
+    public void stopDroneBuzzer() {
         sendBuzzerMute(DeviceType.Drone, 1);
         
         // Small delay to ensure command is processed
@@ -4152,7 +4143,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer
      * @educational
      */
-    public void start_controller_buzzer(Object note) {
+    public void startControllerBuzzer(Object note) {
         BuzzerMode mode;
         int value;
         
@@ -4181,7 +4172,7 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      */
-    public void stop_controller_buzzer() {
+    public void stopControllerBuzzer() {
         sendBuzzerMute(DeviceType.Controller, 1);
         
         // Small delay to ensure command is processed
@@ -4243,7 +4234,7 @@ public class Drone implements AutoCloseable {
      * @param pixel The pixel type to use for clearing (WHITE or BLACK)
      * @educational
      */
-    public void controller_clear_screen(DisplayPixel pixel) {
+    public void controllerClearScreen(DisplayPixel pixel) {
         DisplayClearAll clearCommand = new DisplayClearAll(pixel);
         
         Header header = new Header();
@@ -4260,8 +4251,8 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      */
-    public void controller_clear_screen() {
-        controller_clear_screen(DisplayPixel.WHITE);
+    public void controllerClearScreen() {
+        controllerClearScreen(DisplayPixel.WHITE);
     }
 
     /**
@@ -4272,7 +4263,7 @@ public class Drone implements AutoCloseable {
      * @param pixel The pixel type to draw (BLACK, WHITE, INVERSE, OUTLINE)
      * @educational
      */
-    public void controller_draw_point(int x, int y, DisplayPixel pixel) {
+    public void controllerDrawPoint(int x, int y, DisplayPixel pixel) {
         DisplayDrawPoint drawCommand = new DisplayDrawPoint(x, y, pixel);
         
         Header header = new Header();
@@ -4291,8 +4282,8 @@ public class Drone implements AutoCloseable {
      * @param y Y coordinate (0-63)
      * @educational
      */
-    public void controller_draw_point(int x, int y) {
-        controller_draw_point(x, y, DisplayPixel.BLACK);
+    public void controllerDrawPoint(int x, int y) {
+        controllerDrawPoint(x, y, DisplayPixel.BLACK);
     }
 
     /**
@@ -4306,7 +4297,7 @@ public class Drone implements AutoCloseable {
      * @param line The line style (SOLID, DOTTED, DASHED)
      * @educational
      */
-    public void controller_draw_line(int x1, int y1, int x2, int y2, DisplayPixel pixel, DisplayLine line) {
+    public void controllerDrawLine(int x1, int y1, int x2, int y2, DisplayPixel pixel, DisplayLine line) {
         DisplayDrawLine drawCommand = new DisplayDrawLine(x1, y1, x2, y2, pixel, line);
         
         Header header = new Header();
@@ -4327,8 +4318,8 @@ public class Drone implements AutoCloseable {
      * @param y2 Ending Y coordinate
      * @educational
      */
-    public void controller_draw_line(int x1, int y1, int x2, int y2) {
-        controller_draw_line(x1, y1, x2, y2, DisplayPixel.BLACK, DisplayLine.SOLID);
+    public void controllerDrawLine(int x1, int y1, int x2, int y2) {
+        controllerDrawLine(x1, y1, x2, y2, DisplayPixel.BLACK, DisplayLine.SOLID);
     }
 
     /**
@@ -4343,7 +4334,7 @@ public class Drone implements AutoCloseable {
      * @param line The line style for outline
      * @educational
      */
-    public void controller_draw_rectangle(int x, int y, int width, int height, DisplayPixel pixel, boolean filled, DisplayLine line) {
+    public void controllerDrawRectangle(int x, int y, int width, int height, DisplayPixel pixel, boolean filled, DisplayLine line) {
         DisplayDrawRect drawCommand = new DisplayDrawRect(x, y, width, height, pixel, filled, line);
         
         Header header = new Header();
@@ -4364,8 +4355,8 @@ public class Drone implements AutoCloseable {
      * @param height Height of the rectangle
      * @educational
      */
-    public void controller_draw_rectangle(int x, int y, int width, int height) {
-        controller_draw_rectangle(x, y, width, height, DisplayPixel.BLACK, false, DisplayLine.SOLID);
+    public void controllerDrawRectangle(int x, int y, int width, int height) {
+        controllerDrawRectangle(x, y, width, height, DisplayPixel.BLACK, false, DisplayLine.SOLID);
     }
 
     /**
@@ -4378,7 +4369,7 @@ public class Drone implements AutoCloseable {
      * @param filled Whether to fill the circle
      * @educational
      */
-    public void controller_draw_circle(int x, int y, int radius, DisplayPixel pixel, boolean filled) {
+    public void controllerDrawCircle(int x, int y, int radius, DisplayPixel pixel, boolean filled) {
         DisplayDrawCircle drawCommand = new DisplayDrawCircle(x, y, radius, pixel, filled);
         
         Header header = new Header();
@@ -4398,8 +4389,8 @@ public class Drone implements AutoCloseable {
      * @param radius Radius of the circle
      * @educational
      */
-    public void controller_draw_circle(int x, int y, int radius) {
-        controller_draw_circle(x, y, radius, DisplayPixel.BLACK, true);
+    public void controllerDrawCircle(int x, int y, int radius) {
+        controllerDrawCircle(x, y, radius, DisplayPixel.BLACK, true);
     }
 
     /**
@@ -4412,7 +4403,7 @@ public class Drone implements AutoCloseable {
      * @param pixel The pixel type to draw
      * @educational
      */
-    public void controller_draw_string(int x, int y, String message, DisplayFont font, DisplayPixel pixel) {
+    public void controllerDrawString(int x, int y, String message, DisplayFont font, DisplayPixel pixel) {
         DisplayDrawString drawCommand = new DisplayDrawString(x, y, font, pixel, message);
         
         Header header = new Header();
@@ -4432,8 +4423,8 @@ public class Drone implements AutoCloseable {
      * @param message The text message to display
      * @educational
      */
-    public void controller_draw_string(int x, int y, String message) {
-        controller_draw_string(x, y, message, DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
+    public void controllerDrawString(int x, int y, String message) {
+        controllerDrawString(x, y, message, DisplayFont.LIBERATION_MONO_5X8, DisplayPixel.BLACK);
     }
 
     /**
@@ -4446,7 +4437,7 @@ public class Drone implements AutoCloseable {
      * @param pixel The pixel type to use for clearing
      * @educational
      */
-    public void controller_clear_area(int x, int y, int width, int height, DisplayPixel pixel) {
+    public void controllerClearArea(int x, int y, int width, int height, DisplayPixel pixel) {
         DisplayClear clearCommand = new DisplayClear(x, y, width, height, pixel);
         
         Header header = new Header();
@@ -4467,8 +4458,8 @@ public class Drone implements AutoCloseable {
      * @param height Height of area to clear
      * @educational
      */
-    public void controller_clear_area(int x, int y, int width, int height) {
-        controller_clear_area(x, y, width, height, DisplayPixel.WHITE);
+    public void controllerClearArea(int x, int y, int width, int height) {
+        controllerClearArea(x, y, width, height, DisplayPixel.WHITE);
     }
 
     /**
@@ -4480,7 +4471,7 @@ public class Drone implements AutoCloseable {
      * @param height Height of area to invert
      * @educational
      */
-    public void controller_invert_area(int x, int y, int width, int height) {
+    public void controllerInvertArea(int x, int y, int width, int height) {
         DisplayInvert invertCommand = new DisplayInvert(x, y, width, height);
         
         Header header = new Header();
