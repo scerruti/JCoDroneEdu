@@ -5332,7 +5332,7 @@ public class Drone implements AutoCloseable {
         
         // Play three buzzer beeps (200ms each, 200ms pause between)
         for (int i = 0; i < 3; i++) {
-            drone_buzzer(1000, 200);  // 1000 Hz for 200ms
+            droneBuzzer(1000, 200);  // 1000 Hz for 200ms
             
             // Pause between beeps (except after last one)
             if (i < 2) {

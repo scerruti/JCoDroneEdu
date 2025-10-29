@@ -40,16 +40,6 @@ public class TemperatureCalibrationDemo {
             System.out.println("╚════════════════════════════════════════════════════════════╝");
             System.out.println();
             
-            // Test 1: Deprecated method (should show warning)
-            System.out.println("═══════════════════════════════════════════════════════════");
-            System.out.println("TEST 1: Deprecated getTemperature() Method");
-            System.out.println("═══════════════════════════════════════════════════════════");
-            @SuppressWarnings("deprecation")
-            double deprecatedTemp = drone.getTemperature();
-            System.out.printf("  ⚠️  getTemperature(): %.2f°C (DEPRECATED)\n", deprecatedTemp);
-            System.out.println("  Note: This method is deprecated - use getDroneTemperature()");
-            System.out.println();
-            
             // Test 2: Explicit methods (always work the same)
             System.out.println("═══════════════════════════════════════════════════════════");
             System.out.println("TEST 2: Explicit Methods (Always Consistent)");
