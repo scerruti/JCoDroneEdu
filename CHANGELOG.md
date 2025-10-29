@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.0 - 2025-10-28
+
+### Added
+- Renamed `getAltitudeData` to `getAltitude` for Java idiomatic usage.
+- Added deprecated `getAltitudeData` method for Python compatibility.
+- Updated documentation for altitude methods, clarifying usage and compatibility.
+- Bumped project version to 1.1 (minor release).
+
+### Changed
+- Renamed sensor and range methods for consistency with Python API:
+  - `getBottomDistance` replaced with `getBottomRange`
+  - `getAltitudeData` replaced with `getAltitude`
+  - Deprecated methods preserved for compatibility
+- Converted several method names from `snake_case` to `camelCase` for Java API consistency.
+- Improved API consistency between Java and Python versions.
+
+### Notes
+- This release introduces a minor version increment due to public API changes and compatibility improvements.
+
 ## v1.0.0 - 2025-10-15
 
 - Add expanded smoke tests and examples: non-flying SmokeTest, controller display and buzzer tests, QuickLEDTest, and a guarded FlightSmokeTest (indoor-safe turning-only) with Gradle tasks `runSmokeTest`, `runControllerDisplayExample`, `runBuzzerTest`, `runQuickLEDTest`, and `runFlightSmokeTest`.
