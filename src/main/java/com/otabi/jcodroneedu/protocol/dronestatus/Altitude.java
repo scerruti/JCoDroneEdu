@@ -119,4 +119,13 @@ public class Altitude implements Serializable
      * @return Range height in meters
      */
     public float getRangeHeight() { return rangeHeight; }
+
+    @Override
+    public String toString() {
+        return "Altitude [temperature=" + temperature + ", altitude=" + altitude + ", pressure=" + pressure
+                + ", rangeHeight=" + rangeHeight + "]";
+    }
+
+    
+    
 }
