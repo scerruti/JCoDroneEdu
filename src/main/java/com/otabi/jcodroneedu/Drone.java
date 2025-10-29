@@ -828,16 +828,7 @@ public class Drone implements AutoCloseable {
 
     /**
      * Prints current values of roll, pitch, yaw, and throttle.
-     *
-     * @deprecated This method is deprecated and will be removed in a future release. Please use <pre>drone.getMoveValues()</pre> instead.
      */
-    /**
-     * @deprecated Use {@link #printMoveValues()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public void print_move_values() {
-        printMoveValues();
-    }
     public void printMoveValues() {
         flightController.printMoveValues();
     }
@@ -5088,7 +5079,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
      */
-    public void drone_buzzer(Object note, int duration) {
+    public void droneBuzzer(Object note, int duration) {
         if (duration < 0) {
             throw new IllegalArgumentException("Duration must be non-negative");
         }
@@ -5137,7 +5128,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
      */
-    public void controller_buzzer(Object note, int duration) {
+    public void controllerBuzzer(Object note, int duration) {
         if (duration < 0) {
             throw new IllegalArgumentException("Duration must be non-negative");
         }
@@ -5176,7 +5167,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer
      * @educational
      */
-    public void start_drone_buzzer(Object note) {
+    public void startDroneBuzzer(Object note) {
         BuzzerMode mode;
         int value;
         
@@ -5213,7 +5204,7 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      */
-    public void stop_drone_buzzer() {
+    public void stopDroneBuzzer() {
         sendBuzzerMute(DeviceType.Drone, 1);
         
         // Small delay to ensure command is processed
@@ -5232,7 +5223,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if note is neither Note nor Integer
      * @educational
      */
-    public void start_controller_buzzer(Object note) {
+    public void startControllerBuzzer(Object note) {
         BuzzerMode mode;
         int value;
         
@@ -5261,7 +5252,7 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      */
-    public void stop_controller_buzzer() {
+    public void stopControllerBuzzer() {
         sendBuzzerMute(DeviceType.Controller, 1);
         
         // Small delay to ensure command is processed
@@ -5341,7 +5332,7 @@ public class Drone implements AutoCloseable {
         
         // Play three buzzer beeps (200ms each, 200ms pause between)
         for (int i = 0; i < 3; i++) {
-            drone_buzzer(1000, 200);  // 1000 Hz for 200ms
+            droneBuzzer(1000, 200);  // 1000 Hz for 200ms
             
             // Pause between beeps (except after last one)
             if (i < 2) {

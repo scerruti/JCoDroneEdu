@@ -27,7 +27,7 @@ public class BuzzerTest {
             Note[] notes = {Note.C4, Note.D4, Note.E4, Note.F4, Note.G4, Note.A4, Note.B4, Note.C5};
             for (Note note : notes) {
                 System.out.println("  Playing: " + note + " (" + String.format("%.1f", note.getFrequency()) + " Hz)");
-                drone.drone_buzzer(note, 500);  // 500ms duration
+                drone.droneBuzzer(note, 500);  // 500ms duration
                 Thread.sleep(600);  // Wait between notes
             }
             
@@ -36,20 +36,20 @@ public class BuzzerTest {
             int[] frequencies = {440, 880, 1320, 1760};  // A notes in different octaves
             for (int freq : frequencies) {
                 System.out.println("  Playing: " + freq + " Hz");
-                drone.drone_buzzer(freq, 500);
+                drone.droneBuzzer(freq, 500);
                 Thread.sleep(600);
             }
             
             // Test 3: Controller buzzer
             System.out.println("\nTest 3: Controller buzzer - Simple melody");
             System.out.println("  Playing melody on controller...");
-            drone.controller_buzzer(Note.C4, 300);
+            drone.controllerBuzzer(Note.C4, 300);
             Thread.sleep(350);
-            drone.controller_buzzer(Note.E4, 300);
+            drone.controllerBuzzer(Note.E4, 300);
             Thread.sleep(350);
-            drone.controller_buzzer(Note.G4, 300);
+            drone.controllerBuzzer(Note.G4, 300);
             Thread.sleep(350);
-            drone.controller_buzzer(Note.C5, 600);
+            drone.controllerBuzzer(Note.C5, 600);
             Thread.sleep(700);
             
             // Test 4: Different durations
@@ -57,22 +57,22 @@ public class BuzzerTest {
             int[] durations = {100, 250, 500, 1000};
             for (int duration : durations) {
                 System.out.println("  Duration: " + duration + "ms");
-                drone.drone_buzzer(Note.A4, duration);  // A4 = 440 Hz
+                drone.droneBuzzer(Note.A4, duration);  // A4 = 440 Hz
                 Thread.sleep(duration + 200);
             }
             
             // Test 5: Volume test (if supported - using different frequencies)
             System.out.println("\nTest 5: Frequency range test");
             System.out.println("  Low frequency (200 Hz)");
-            drone.drone_buzzer(200, 1000);
+            drone.droneBuzzer(200, 1000);
             Thread.sleep(1200);
             
             System.out.println("  Mid frequency (1000 Hz)");
-            drone.drone_buzzer(1000, 1000);
+            drone.droneBuzzer(1000, 1000);
             Thread.sleep(1200);
             
             System.out.println("  High frequency (4000 Hz)");
-            drone.drone_buzzer(4000, 1000);
+            drone.droneBuzzer(4000, 1000);
             Thread.sleep(1200);
             
             // Test 6: Built-in buzzer sequences

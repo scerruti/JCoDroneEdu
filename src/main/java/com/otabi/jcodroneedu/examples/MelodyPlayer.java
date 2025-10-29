@@ -34,7 +34,7 @@ public class MelodyPlayer {
                 Thread.sleep(durations[i]);
             } else {
                 // Play note
-                drone.drone_buzzer(notes[i], durations[i]);
+                drone.droneBuzzer(notes[i], durations[i]);
                 // Pause between notes (percentage of note duration)
                 int pause = durations[i] + (durations[i] * pausePercent / 100);
                 Thread.sleep(pause);

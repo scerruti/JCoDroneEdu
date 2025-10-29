@@ -27,14 +27,14 @@ public class SingleNoteTest {
             
             for (int i = 1; i <= 5; i++) {
                 System.out.println("Playing #" + i + " - G4 (392.0 Hz) for 1 second");
-                drone.drone_buzzer(Note.G4, 1000);  // 1 second duration
+                drone.droneBuzzer(Note.G4, 1000);  // 1 second duration
                 Thread.sleep(1500);  // Wait 1.5 seconds between plays
             }
             
             System.out.println("\nNow testing with raw frequency (392 Hz)...");
             for (int i = 1; i <= 5; i++) {
                 System.out.println("Playing #" + i + " - 392 Hz for 1 second");
-                drone.drone_buzzer(392, 1000);
+                drone.droneBuzzer(392, 1000);
                 Thread.sleep(1500);
             }
             

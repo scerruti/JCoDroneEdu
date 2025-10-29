@@ -136,27 +136,27 @@ public class BothMonitors {
                             // Buzzer warning with increasing urgency
                             if (i == 3) {
                                 // Low urgency - single beep
-                                drone.drone_buzzer(500, 150);
+                                drone.droneBuzzer(500, 150);
                                 Thread.sleep(850);
                             } else if (i == 2) {
                                 // Medium urgency - double beep
-                                drone.drone_buzzer(750, 100);
+                                drone.droneBuzzer(750, 100);
                                 Thread.sleep(100);
-                                drone.drone_buzzer(750, 100);
+                                drone.droneBuzzer(750, 100);
                                 Thread.sleep(700);
                             } else {
                                 // High urgency - triple beep (faster and higher pitch)
-                                drone.drone_buzzer(1000, 80);
+                                drone.droneBuzzer(1000, 80);
                                 Thread.sleep(70);
-                                drone.drone_buzzer(1000, 80);
+                                drone.droneBuzzer(1000, 80);
                                 Thread.sleep(70);
-                                drone.drone_buzzer(1200, 100);
+                                drone.droneBuzzer(1200, 100);
                                 Thread.sleep(600);
                             }
                         }
                         
                         // Final warning beep
-                        drone.drone_buzzer(1500, 200);
+                        drone.droneBuzzer(1500, 200);
                         Thread.sleep(200);
                         
                         System.out.println("    🚁 TAKING OFF! Watch the sensors update!");
