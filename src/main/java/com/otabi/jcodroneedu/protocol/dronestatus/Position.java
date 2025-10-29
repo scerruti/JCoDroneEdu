@@ -9,11 +9,11 @@ public class Position implements Serializable
 {
     public static final byte POSITION_SIZE = 12;
 
-    private int x;
-    private int y;
-    private int z;
+    private float x;
+    private float y;
+    private float z;
 
-    public Position(int x, int y, int z)
+    public Position(float x, float y, float z)
     {
         this.x = x;
         this.y = y;
@@ -34,21 +34,21 @@ public class Position implements Serializable
     @Override
     public void unpack(ByteBuffer buffer) throws InvalidDataSizeException
     {
-        this.x = buffer.getInt();
-        this.y = buffer.getInt();
-        this.z = buffer.getInt();
+        this.x = buffer.getFloat();
+        this.y = buffer.getFloat();
+        this.z = buffer.getFloat();
     }
 
     @Override
     public void pack(ByteBuffer buffer)
     {
-        buffer.putInt(x);
-        buffer.putInt(y);
-        buffer.putInt(z);
+        buffer.putFloat(x);
+        buffer.putFloat(y);
+        buffer.putFloat(z);
     }
-
-    // Position getters (in millimeters from takeoff point)
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public int getZ() { return z; }
+    
+    // Position getters (in meters from takeoff point)
+    public float getX() { return x; }
+    public float getY() { return y; }
+    public float getZ() { return z; }
 }

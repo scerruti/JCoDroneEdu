@@ -195,13 +195,13 @@ public class SensorDataAccessTest {
         void testGetPosX() {
             // Arrange
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getX()).thenReturn(1500); // 1500mm = 150cm
+            when(mockPosition.getX()).thenReturn(1.5f); // 1.5m = 150cm
 
             // Act
             double posX = flightController.getPosX();
 
             // Assert
-            assertEquals(150.0, posX, 0.01, "X position should convert mm to cm");
+            assertEquals(150.0, posX, 0.01, "X position should convert m to cm");
             verify(mockDrone).sendRequest(DataType.Position);
         }
 
@@ -210,13 +210,13 @@ public class SensorDataAccessTest {
         void testGetPosY() {
             // Arrange
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getY()).thenReturn(-800); // -800mm = -80cm
+            when(mockPosition.getY()).thenReturn(-0.8f); // -0.8m = -80cm
 
             // Act
             double posY = flightController.getPosY();
 
             // Assert
-            assertEquals(-80.0, posY, 0.01, "Y position should convert mm to cm (negative)");
+            assertEquals(-80.0, posY, 0.01, "Y position should convert m to cm (negative)");
         }
 
         @Test
@@ -224,13 +224,26 @@ public class SensorDataAccessTest {
         void testGetPosZ() {
             // Arrange
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getZ()).thenReturn(2000); // 2000mm = 200cm
+            when(mockPosition.getZ()).thenReturn(2.0f); // 2.0m = 200cm
 
             // Act
             double posZ = flightController.getPosZ();
 
             // Assert
-            assertEquals(200.0, posZ, 0.01, "Z position should convert mm to cm");
+            assertEquals(200.0, posZ, 0.01, "Z position should convert m to cm");
+        }
+
+        @Test
+        @DisplayName("getPosX(unit) supports different units")
+        void testGetPosXWithUnit() {
+            // Arrange
+            when(mockStatus.getPosition()).thenReturn(mockPosition);
+            when(mockPosition.getX()).thenReturn(1.0f); // 1.0m
+
+            // Act & Assert
+            assertEquals(1000.0, flightController.getPosX("mm"), 0.01, "Should convert to mm");
+            assertEquals(100.0, flightController.getPosX("cm"), 0.01, "Should convert to cm");
+            assertEquals(1.0, flightController.getPosX("m"), 0.01, "Should keep in meters");
         }
 
         @Test
@@ -238,11 +251,11 @@ public class SensorDataAccessTest {
         void testPositionWithUnits() {
             // Arrange
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getX()).thenReturn(1000); // 1000mm
+            when(mockPosition.getX()).thenReturn(1.0f); // 1.0m
 
             // Act & Assert
-            assertEquals(100.0, flightController.getPosX("cm"), 0.01, "Should convert to cm");
-            assertEquals(1.0, flightController.getPosX("m"), 0.01, "Should convert to m");
+            assertEquals(100.0, flightController.getPosX("cm"), 0.01, "Should convert m to cm");
+            assertEquals(1.0, flightController.getPosX("m"), 0.01, "Should keep in meters");
             assertEquals(39.37, flightController.getPosX("in"), 0.01, "Should convert to inches");
         }
 
@@ -268,13 +281,14 @@ public class SensorDataAccessTest {
         void testGetAccelX() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelX()).thenReturn((short) 1500); // Raw value
+            // raw units: m/s^2 * 10 -> to get 1.5 G, raw ~= 1.5 * 9.80665 / 0.1 = ~147
+            when(mockMotion.getAccelX()).thenReturn((short) 147); // Raw value corresponding to 1.5 G
 
             // Act
             double accelX = flightController.getAccelX();
 
             // Assert
-            assertEquals(1.5, accelX, 0.01, "Acceleration should be scaled to G-force");
+            assertEquals(1.5, accelX, 0.02, "Acceleration should be scaled to G-force");
             verify(mockDrone).sendRequest(DataType.Motion);
         }
 
@@ -283,13 +297,14 @@ public class SensorDataAccessTest {
         void testGetAccelY() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelY()).thenReturn((short) -800); // Negative raw value
+            // raw for -0.8 G -> ~ -0.8 * 9.80665 / 0.1 = -78
+            when(mockMotion.getAccelY()).thenReturn((short) -78); // Negative raw value
 
             // Act
             double accelY = flightController.getAccelY();
 
             // Assert
-            assertEquals(-0.8, accelY, 0.01, "Acceleration should handle negative values");
+            assertEquals(-0.8, accelY, 0.02, "Acceleration should handle negative values");
         }
 
         @Test
@@ -297,13 +312,14 @@ public class SensorDataAccessTest {
         void testGetAccelZ() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAccelZ()).thenReturn((short) 1000); // 1G
+            // raw for 1.0 G -> ~ 1.0 * 9.80665 / 0.1 = 98
+            when(mockMotion.getAccelZ()).thenReturn((short) 98); // Raw value corresponding to 1.0 G
 
             // Act
             double accelZ = flightController.getAccelZ();
 
             // Assert
-            assertEquals(1.0, accelZ, 0.01, "Z acceleration should represent gravity");
+            assertEquals(1.0, accelZ, 0.02, "Z acceleration should represent gravity");
         }
 
         @Test
@@ -311,13 +327,14 @@ public class SensorDataAccessTest {
         void testGetAngleX() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAngleRoll()).thenReturn((short) 1500); // Raw value
+            // angles are raw degrees per reference
+            when(mockMotion.getAngleRoll()).thenReturn((short) 15); // 15 degrees raw
 
             // Act
             double angleX = flightController.getAngleX();
 
             // Assert
-            assertEquals(15.0, angleX, 0.01, "Angle should be scaled to degrees");
+            assertEquals(15.0, angleX, 0.01, "Angle should be in degrees");
         }
 
         @Test
@@ -325,7 +342,7 @@ public class SensorDataAccessTest {
         void testGetAngleY() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAnglePitch()).thenReturn((short) -1000); // Negative
+            when(mockMotion.getAnglePitch()).thenReturn((short) -10); // -10 degrees raw
 
             // Act
             double angleY = flightController.getAngleY();
@@ -339,13 +356,13 @@ public class SensorDataAccessTest {
         void testGetAngleZ() {
             // Arrange
             when(mockStatus.getMotion()).thenReturn(mockMotion);
-            when(mockMotion.getAngleYaw()).thenReturn((short) 9000); // 90 degrees
+            when(mockMotion.getAngleYaw()).thenReturn((short) 90); // 90 degrees raw
 
             // Act
             double angleZ = flightController.getAngleZ();
 
             // Assert
-            assertEquals(90.0, angleZ, 0.01, "Yaw angle should be scaled correctly");
+            assertEquals(90.0, angleZ, 0.01, "Yaw angle should be degrees");
         }
 
         @Test
@@ -377,7 +394,7 @@ public class SensorDataAccessTest {
             when(mockRange.getFront()).thenReturn((short) 500);   // 500mm
             
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getX()).thenReturn(2000); // 2000mm
+            when(mockPosition.getX()).thenReturn(2.0f); // 2.0m = 200cm
             
             // Test unit conversions match Python behavior
             assertEquals(100.0, flightController.getHeight("cm"), 0.01, "cm conversion should match Python");
@@ -460,16 +477,16 @@ public class SensorDataAccessTest {
         void testPositionTrackingVariables() {
             // Arrange
             when(mockStatus.getPosition()).thenReturn(mockPosition);
-            when(mockPosition.getX()).thenReturn(0);
-            when(mockPosition.getY()).thenReturn(0);
+            when(mockPosition.getX()).thenReturn(0.0f);
+            when(mockPosition.getY()).thenReturn(0.0f);
             
             // Simulate takeoff position
             double startX = flightController.getPosX();
             double startY = flightController.getPosY();
             
             // Simulate movement
-            when(mockPosition.getX()).thenReturn(1000); // Moved 100cm right
-            when(mockPosition.getY()).thenReturn(500);  // Moved 50cm forward
+            when(mockPosition.getX()).thenReturn(1.0f); // Moved 100cm (1m) right
+            when(mockPosition.getY()).thenReturn(0.5f);  // Moved 50cm (0.5m) forward
             
             double currentX = flightController.getPosX();
             double currentY = flightController.getPosY();

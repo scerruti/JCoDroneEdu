@@ -1,0 +1,92 @@
+name: Publish Only (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (no leading v)'
+        required: true
+        default: '1.0.14-test'
+      dry_run:
+        description: 'If true, publish to mavenLocal only (safe). If false, publish to OSSRH.'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+      debug_signing:
+        description: 'If true, run a safe signing-key detection step to emit non-secret metadata.'
+        required: false
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build artifacts
+        run: |
+          echo "Building artifacts for version: ${{ inputs.version }}"
+          ./gradlew -Pversion=${{ inputs.version }} studentJar javadocJar sourcesJar teacherJar
+
+      - name: Debug signing key (safe metadata)
+        if: ${{ inputs.debug_signing == 'true' }}
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          echo "--- Signing key detection (non-secret metadata) ---"
+          if [ -z "${SIGNING_KEY}" ]; then
+            echo "SIGNING_KEY secret is not set"
+            exit 0
+          fi
+          # Print length in characters and whether it contains an armored header or newlines
+          LEN=$(echo -n "${SIGNING_KEY}" | wc -c)
+          LINES=$(echo -n "${SIGNING_KEY}" | wc -l)
+          echo "SIGNING_KEY length (chars): ${LEN}"
+          echo "SIGNING_KEY lines: ${LINES}"
+          echo "Contains armored header: $(echo "${SIGNING_KEY}" | grep -q 'BEGIN PGP PRIVATE KEY' && echo yes || echo no)"
+
+      - name: Dry-run publish to mavenLocal
+        if: ${{ inputs.dry_run == 'true' }}
+        run: |
+          echo "Dry-run selected — publishing to mavenLocal only"
+          ./gradlew -Pversion=${{ inputs.version }} publishStudentPublicationToMavenLocal
+
+      - name: Real publish to OSSRH
+        if: ${{ inputs.dry_run == 'false' }}
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          echo "Publishing to OSSRH (real publish) for version: ${{ inputs.version }}"
+          ./gradlew publishStudentPublicationToOSSRHRepository \
+            -Pversion=${{ inputs.version }} \
+            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }}

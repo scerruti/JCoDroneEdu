@@ -126,6 +126,52 @@ This test file helps students verify their square flight pattern code **before**
 ./gradlew test --tests L0102FlightMovementsTest --info
 ```
 
+### Run tests locally (quick reference)
+
+The test suite is designed to run without hardware using the built-in `MockDrone`. Use these commands from the repository root:
+
+```bash
+# Run all tests (recommended before any hardware tests)
+./gradlew test
+
+# Run a single test class (full package path recommended)
+./gradlew test --tests com.otabi.jcodroneedu.examples.L0102FlightMovementsTest
+
+# Run with more logging
+./gradlew test --tests com.otabi.jcodroneedu.examples.L0102FlightMovementsTest --info
+```
+
+### Running sensor examples (non-flying)
+
+The repository includes small example utilities to exercise sensors without flying. These are safe to run and useful for hardware verification.
+
+MultiSensorTest - snapshots range, optical flow, temperature, and color sensors:
+
+```bash
+# Interactive (prompts you to press Enter per snapshot)
+./gradlew runMultiSensorTest
+
+# Provide a port or use --auto for continuous captures
+./gradlew runMultiSensorTest --args='/dev/cu.usbserial-XXXX --auto'
+```
+
+The example will request the relevant DataType messages and print sensor values to the console. Use it to validate sensor wiring, ranges, and basic telemetry before attempting any flight.
+
+
+Notes:
+- If you add new drone API methods, update the `MockDrone` implementation in `src/test/java/com/otabi/jcodroneedu/DroneTest.java` so tests can simulate them.
+- Test helper classes and example tests live under `src/test/java/com/otabi/jcodroneedu/examples/`.
+
+### Extending MockDrone
+
+If you add new public API methods to `Drone` (for students to call), implement matching mock behavior in the nested `MockDrone` class in `DroneTest.java`:
+
+1. Add the method signature to `MockDrone` and record command history (see existing methods like `go(...)`, `square(...)`).
+2. Add any helper getters (e.g., `getUniquePitchValues()` or `getMethodCalls(String)`) used by tests.
+3. Run `./gradlew test` to verify tests exercise the new mock method.
+
+Link: See `PYTHON_MANAGEMENT.md` for a short checklist about updating MockDrone when adapting the Python reference.
+
 ### Understanding Test Results
 
 #### ✅ **Green (Passing) Tests**

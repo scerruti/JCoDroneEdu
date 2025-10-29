@@ -30,7 +30,11 @@ public class ControllerDisplayExample {
         try (Drone drone = new Drone()) {
             System.out.println("=== CoDrone EDU Controller Display Demo ===\n");
             
-            // Note: Display commands work without pairing - they only affect the controller
+            // Connect to the controller
+            System.out.println("Connecting to drone controller...");
+            drone.pair();
+            System.out.println("Connected!\n");
+            
             System.out.println("1. Clearing the display screen...");
             drone.controllerClearScreen();
             sleep(1000);
@@ -89,7 +93,7 @@ public class ControllerDisplayExample {
         // Draw rectangles
         drone.controllerDrawRectangle(60, 5, 20, 15); // Outline
         drone.controllerDrawRectangle(85, 5, 15, 15, DisplayPixel.BLACK, true, DisplayLine.SOLID); // Filled
-        
+
         // Draw circles
         drone.controllerDrawCircle(15, 35, 8, DisplayPixel.BLACK, false); // Outline
         drone.controllerDrawCircle(40, 35, 8, DisplayPixel.BLACK, true);  // Filled
@@ -183,7 +187,7 @@ public class ControllerDisplayExample {
         sleep(1000);
         
         // Invert a portion
-        drone.controllerClearArea(40, 20, 40, 20);
+        drone.controllerInvertArea(40, 20, 40, 20);
         drone.controllerDrawString(10, 55, "Inverted Area");
     }
     

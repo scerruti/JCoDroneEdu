@@ -45,6 +45,7 @@ public enum DataType {
     // --- Commands (Data sent from the base - no factory needed for parsing) ---
     Request((byte) 0x04, Request.class, null),
     Control((byte) 0x10, Quad8.class, null),
+    ControlPosition((byte) 0x10, com.otabi.jcodroneedu.protocol.control.Position.class, null),
     Command((byte) 0x11, Command.class, null),
     LightManual((byte) 0x20, LightManual.class, null),
     LightMode((byte) 0x21, LightMode.class, null),
@@ -65,7 +66,7 @@ public enum DataType {
     Flow((byte) 0x46, Flow.class, Flow::new),
 
     // --- Settings (Received) ---
-    Count((byte) 0x50, Count.class, null),
+    Count((byte) 0x50, Count.class, Count::new),
     Bias((byte) 0x51, Bias.class, null),
     Trim((byte) 0x52, Trim.class, null),
     Weight((byte) 0x53, Weight.class, null),
@@ -85,6 +86,7 @@ public enum DataType {
     DisplayDrawRect((byte) 0x84, null, null),
     DisplayDrawCircle((byte) 0x85, null, null),
     DisplayDrawString((byte) 0x86, null, null),
+    DisplayDrawImage((byte) 0x88, null, null),
 
     // --- Card Reader (Received) ---
     CardClassify((byte) 0x90, CardClassify.class, CardClassify::new),

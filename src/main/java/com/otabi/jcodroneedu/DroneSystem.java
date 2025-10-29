@@ -393,12 +393,12 @@ public class DroneSystem
         }
 
         /**
-         * Returns the ModeUpdate enum constant associated with the given integer value.
+         * Returns the ModeUpdate enum constant associated with the given byte value.
          *
-         * @param value The integer value to look up.
+         * @param value The byte value to look up.
          * @return The corresponding ModeUpdate enum constant, or null if not found.
          */
-        public static ModeUpdate fromValue(int value) {
+        public static ModeUpdate fromValue(byte value) {
             return VALUE_MAP.get(value);
         }
     }
@@ -715,6 +715,64 @@ public class DroneSystem
         public int getValue()
         {
             return value;
+        }
+        
+        /**
+         * Gets the java.awt.Color representation of this card color.
+         * Useful for GUI display and visualization.
+         * 
+         * @return The AWT Color object corresponding to this card color
+         */
+        public java.awt.Color toAwtColor() {
+            switch (this) {
+                case UNKNOWN:   return java.awt.Color.GRAY;
+                case WHITE:     return java.awt.Color.WHITE;
+                case RED:       return java.awt.Color.RED;
+                case YELLOW:    return java.awt.Color.YELLOW;
+                case GREEN:     return java.awt.Color.GREEN;
+                case CYAN:      return new java.awt.Color(135, 206, 235); // Sky blue / light blue
+                case BLUE:      return java.awt.Color.BLUE;
+                case MAGENTA:   return new java.awt.Color(128, 0, 128);    // Purple
+                case BLACK:     return java.awt.Color.BLACK;
+                default:        return java.awt.Color.GRAY;
+            }
+        }
+        
+        /**
+         * Gets the CardColorIndex enum value from a color index byte.
+         * 
+         * @param index The color index (0-8)
+         * @return The corresponding CardColorIndex enum value, or UNKNOWN if invalid
+         */
+        public static CardColorIndex fromIndex(int index) {
+            for (CardColorIndex color : values()) {
+                if (color.value == index) {
+                    return color;
+                }
+            }
+            return UNKNOWN;
+        }
+    }
+
+    /**
+     * Helper to convert a `CardColorIndex` value into a human readable name.
+     * This is useful for examples and tests to map the card color byte to a string.
+     * 
+     * @param idx The color index value (0-8)
+     * @return Human-readable color name
+     */
+    public static String cardColorIndexToName(int idx) {
+        switch (idx) {
+            case 0x00: return "NONE";        // No card detected (drone in air or no card)
+            case 0x01: return "WHITE";
+            case 0x02: return "RED";
+            case 0x03: return "YELLOW";
+            case 0x04: return "GREEN";
+            case 0x05: return "LIGHT_BLUE";
+            case 0x06: return "BLUE";
+            case 0x07: return "PURPLE";
+            case 0x08: return "BLACK";
+            default:   return "INVALID";     // Out of range value
         }
     }
 
@@ -1043,6 +1101,21 @@ public class DroneSystem
         
         /** Standard unit string for feet */
         public static final String UNIT_FEET = "ft";
+    }
+
+    /**
+     * Sensor scale constants to convert raw sensor integers to SI units.
+     * Keep these centralized to avoid divergent magic numbers across the codebase.
+     */
+    public static class SensorScales {
+        /** Raw accelerometer units: m/s^2 * 10 (i.e. raw / 10.0 -> m/s^2) */
+        public static final double ACCEL_RAW_TO_MS2 = 0.1; // multiply raw by 0.1 to get m/s^2
+
+        /** Raw accelerometer to G units (g) */
+        public static final double ACCEL_RAW_TO_G = ACCEL_RAW_TO_MS2 / 9.80665;
+
+        /** Raw angle units: raw is degrees (no additional scaling) */
+        public static final double ANGLE_RAW_TO_DEG = 1.0; // raw value already in degrees per reference
     }
 
     /**

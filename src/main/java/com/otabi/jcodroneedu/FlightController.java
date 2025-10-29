@@ -539,7 +539,7 @@ public class FlightController {
      * 
      * @param distance The distance to move backward
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveBackward(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -557,17 +557,17 @@ public class FlightController {
     }
     
     /**
-     * Move backward with default units (cm) and speed (1.0 m/s).
+     * Move backward with default units (cm) and speed (0.5 m/s).
      */
     public void moveBackward(double distance) {
-        moveBackward(distance, "cm", 1.0);
+        moveBackward(distance, "cm", 0.5);
     }
     
     /**
-     * Move backward with specified units and default speed (1.0 m/s).
+     * Move backward with specified units and default speed (0.5 m/s).
      */
     public void moveBackward(double distance, String units) {
-        moveBackward(distance, units, 1.0);
+        moveBackward(distance, units, 0.5);
     }
     
     /**
@@ -578,7 +578,7 @@ public class FlightController {
      * 
      * @param distance The distance to move left
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveLeft(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -596,17 +596,17 @@ public class FlightController {
     }
     
     /**
-     * Move left with default units (cm) and speed (1.0 m/s).
+     * Move left with default units (cm) and speed (0.5 m/s).
      */
     public void moveLeft(double distance) {
-        moveLeft(distance, "cm", 1.0);
+        moveLeft(distance, "cm", 0.5);
     }
     
     /**
-     * Move left with specified units and default speed (1.0 m/s).
+     * Move left with specified units and default speed (0.5 m/s).
      */
     public void moveLeft(double distance, String units) {
-        moveLeft(distance, units, 1.0);
+        moveLeft(distance, units, 0.5);
     }
     
     /**
@@ -617,7 +617,7 @@ public class FlightController {
      * 
      * @param distance The distance to move right
      * @param units The unit of measurement: "cm", "in", "ft", "m" (default: "cm")
-     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The movement speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveRight(double distance, String units, double speed) {
         double distanceMeters = convertToMeters(distance, units);
@@ -635,17 +635,17 @@ public class FlightController {
     }
     
     /**
-     * Move right with default units (cm) and speed (1.0 m/s).
+     * Move right with default units (cm) and speed (0.5 m/s).
      */
     public void moveRight(double distance) {
-        moveRight(distance, "cm", 1.0);
+        moveRight(distance, "cm", 0.5);
     }
     
     /**
-     * Move right with specified units and default speed (1.0 m/s).
+     * Move right with specified units and default speed (0.5 m/s).
      */
     public void moveRight(double distance, String units) {
-        moveRight(distance, units, 1.0);
+        moveRight(distance, units, 0.5);
     }
     
     /**
@@ -1314,7 +1314,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getX(), unit);
+            double posValue = convertMeter(positionData.getX(), unit);
             log.debug("X position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1350,7 +1350,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getY(), unit);
+            double posValue = convertMeter(positionData.getY(), unit);
             log.debug("Y position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1386,7 +1386,7 @@ public class FlightController {
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
-            double posValue = convertMillimeter(positionData.getZ(), unit);
+            double posValue = convertMeter(positionData.getZ(), unit);
             log.debug("Z position: {} {}", posValue, unit);
             return posValue;
         } else {
@@ -1422,7 +1422,9 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelX() / 1000.0; // Scale factor
+            // Convert raw accel -> G using canonical sensor scale
+            double accelMs2 = motion.getAccelX() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("X acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1448,7 +1450,8 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelY() / 1000.0; // Scale factor
+            double accelMs2 = motion.getAccelY() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("Y acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1474,7 +1477,8 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelValue = motion.getAccelZ() / 1000.0; // Scale factor
+            double accelMs2 = motion.getAccelZ() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double accelValue = accelMs2 / 9.80665; // G units
             log.debug("Z acceleration: {} G", accelValue);
             return accelValue;
         } else {
@@ -1500,7 +1504,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleRoll() / 100.0; // Scale factor
+            double angleValue = motion.getAngleRoll() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("X angle (roll): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1526,7 +1530,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAnglePitch() / 100.0; // Scale factor
+            double angleValue = motion.getAnglePitch() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("Y angle (pitch): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1552,7 +1556,7 @@ public class FlightController {
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
             // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleYaw() / 100.0; // Scale factor
+            double angleValue = motion.getAngleYaw() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
             log.debug("Z angle (yaw): {} degrees", angleValue);
             return angleValue;
         } else {
@@ -1566,13 +1570,18 @@ public class FlightController {
     // =============================================================================
 
     /**
-     * Gets accelerometer data as an array.
-     * 
-     * <p>Returns acceleration data for all three axes in a convenient array format.
-     * This is useful for AP CSA students learning about arrays and coordinate systems.</p>
-     * 
-     * @return int array containing [X, Y, Z] acceleration values (scaled from G-force * 1000)
-     * @apiNote Equivalent to Python's various accel methods, returns array for AP CSA compatibility
+    * Gets accelerometer data as an array.
+    * 
+    * <p>Returns the raw accelerometer values from the protocol for all three axes.
+    * The protocol encodes accelerometer samples as signed 16-bit integers where the
+    * raw unit equals m/s^2 * 10 (i.e., multiply raw by {@code DroneSystem.SensorScales.ACCEL_RAW_TO_MS2}
+    * to obtain m/s^2). This method is provided for AP CSA compatibility and educational
+    * examples that expect integer arrays. For human-friendly values, use {@link #getAccelX()},
+    * {@link #getAccelY()}, and {@link #getAccelZ()} which return acceleration in G (approx).
+    * </p>
+    *
+    * @return int array containing [X, Y, Z] raw accelerometer protocol values
+    * @apiNote Equivalent to Python's {@code drone.get_accel()} and returns raw protocol integers
      * @since 1.0
      * @educational This demonstrates array usage and coordinate systems
      */
@@ -1591,7 +1600,11 @@ public class FlightController {
                 motion.getAccelY(), 
                 motion.getAccelZ()
             };
-            log.debug("Acceleration array: [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2]);
+            // Also log scaled values (m/s^2) for easier debugging
+            double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            log.debug("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
             return accelArray;
         } else {
             log.warn("Motion data not available for acceleration array reading");
@@ -1687,6 +1700,22 @@ public class FlightController {
             default:
                 log.warn("Unknown unit '{}', defaulting to cm", unit);
                 return millimeter / 10.0;
+        }
+    }
+
+    private double convertMeter(double meter, String unit) {
+        switch (unit.toLowerCase()) {
+            case "m":
+                return meter;
+            case "cm":
+                return meter * 100.0;
+            case "mm":
+                return meter * 1000.0;
+            case "in":
+                return meter * 39.3701;
+            default:
+                log.warn("Unknown unit '{}', defaulting to cm", unit);
+                return meter * 100.0;
         }
     }
 }

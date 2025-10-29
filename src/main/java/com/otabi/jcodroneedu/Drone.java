@@ -1,10 +1,12 @@
-    // ...existing code...
-// ...existing code...
 package com.otabi.jcodroneedu;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.otabi.jcodroneedu.autonomous.AutonomousMethod;
+import com.otabi.jcodroneedu.autonomous.AutonomousMethodRegistry;
+import com.otabi.jcodroneedu.buzzer.BuzzerSequence;
+import com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistry;
 import com.otabi.jcodroneedu.protocol.*;
-import com.otabi.jcodroneedu.protocol._unknown.Request;
+import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
 import com.otabi.jcodroneedu.protocol.display.*;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
@@ -17,9 +19,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import javax.imageio.ImageIO;
 
 /**
  * The main class for controlling your CoDrone EDU drone.
@@ -122,6 +129,8 @@ public class Drone implements AutoCloseable {
     // --- Core Components ---
     private final DroneStatus droneStatus;
     private final LinkManager linkManager;
+    private final InventoryManager inventoryManager;
+    private final ControllerInputManager controllerInputManager;
     private final Receiver receiver;
     private final SerialPortManager serialPortManager;
 
@@ -132,10 +141,11 @@ public class Drone implements AutoCloseable {
 
     private final RateLimiter commandRateLimiter;
     private boolean isConnected = false;
-
-    // --- Controller Input Data Storage ---
-    private volatile Object[] buttonData = new Object[3];      // [timestamp, button_flags, event_name]
-    private volatile int[] joystickData = new int[9];          // [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
+    
+    // --- Sensor Correction Settings ---
+    private boolean useCorrectedElevation = false;
+    private boolean useCalibratedTemperature = false;
+    private double initialPressure = 0.0;  // For relative height measurements
 
     /**
      * Creates a new Drone instance ready for connection.
@@ -158,12 +168,20 @@ public class Drone implements AutoCloseable {
         // Initialize state-holding managers
         this.droneStatus = new DroneStatus();
         this.linkManager = new LinkManager();
+        this.inventoryManager = new InventoryManager();
+        this.controllerInputManager = new ControllerInputManager();
+
+        // Initialize CardColor with default NONE values
+        byte[][] hsvl = new byte[2][4]; // All zeros
+        byte[] colors = {0, 0}; // NONE for both sensors
+        byte card = 0; // No card
+        this.droneStatus.setCardColor(new com.otabi.jcodroneedu.protocol.cardreader.CardColor(hsvl, colors, card));
 
         // Initialize core components
         // The 'Internals' class from the original code seems to have been absorbed
         // into the new manager/controller structure. If it has other responsibilities,
         // it would be initialized here.
-        this.receiver = new Receiver(this, droneStatus, linkManager);
+        this.receiver = new Receiver(this, droneStatus, linkManager, inventoryManager);
         this.serialPortManager = new SerialPortManager(receiver);
 
         // Initialize the controllers, passing a reference to this Drone instance
@@ -174,9 +192,6 @@ public class Drone implements AutoCloseable {
         // Set a default command rate limit (e.g., ~16 commands/sec)
         double permitsPerSecond = 1.0 / 0.060;
         this.commandRateLimiter = RateLimiter.create(permitsPerSecond);
-
-        // Initialize controller input data
-        initializeControllerInputData();
 
         log.info("Drone instance created and ready for connection.");
     }
@@ -545,6 +560,131 @@ public class Drone implements AutoCloseable {
         flightController.resetMoveValues();
     }
 
+    // ============================================================================
+    // Autonomous Flight Methods - Sensor-Driven Behaviors
+    // ============================================================================
+
+    /**
+     * Autonomously maintains a specified distance from a wall ahead of the drone.
+     * The drone uses its front range sensor to detect the wall and adjusts pitch
+     * (forward/backward movement) to stay at the target distance. This method
+     * provides matching functionality to the Python API's avoid_wall() method.
+     * 
+     * <p><strong>🎯 How it works:</strong></p>
+     * <ul>
+     *   <li>Continuously reads front range sensor</li>
+     *   <li>Calculates distance error from target</li>
+     *   <li>Applies proportional control to adjust position</li>
+     *   <li>Maintains position within threshold (±20cm)</li>
+     * </ul>
+     * 
+     * <p><strong>💡 Educational Use (L0205):</strong></p>
+     * <pre>{@code
+     * // Basic wall avoidance
+     * drone.takeoff();
+     * drone.avoidWall(10, 50);  // Keep 50cm from wall for 10 seconds
+     * drone.land();
+     * 
+     * // Following a wall at different distances
+     * drone.takeoff();
+     * drone.avoidWall(5, 80);   // Stay 80cm away
+     * drone.setYaw(50);          // Start turning
+     * drone.move(3);             // Turn while maintaining wall distance
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>⚠️ Safety Notes:</strong></p>
+     * <ul>
+     *   <li>Requires clear space in front of the drone</li>
+     *   <li>Front range sensor must detect a surface within 200cm</li>
+     *   <li>Does not control altitude, yaw, or roll - use hover() for stability</li>
+     *   <li>Best used in controlled indoor environments</li>
+     * </ul>
+     * 
+     * @param timeout Duration to maintain wall distance, in seconds (1-30)
+     * @param distance Target distance from wall, in centimeters (10-100)
+     * @throws IllegalArgumentException if timeout not in range 1-30 or distance not in range 10-100
+     * @see #keepDistance(int, int)
+     * @see #getFrontRange()
+     * @educational
+     * @pythonEquivalent avoid_wall(timeout, distance)
+     */
+    public void avoidWall(int timeout, int distance) {
+        AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
+        AutonomousMethod method = registry.getMethod("avoidWall");
+        
+        Map<String, Integer> params = new HashMap<>();
+        params.put("timeout", timeout);
+        params.put("distance", distance);
+        
+        method.execute(this, params);
+    }
+
+    /**
+     * Autonomously maintains a specified distance from an object ahead of the drone.
+     * Similar to avoidWall(), but optimized for tracking moving objects or maintaining
+     * distance from non-wall surfaces. The drone uses its front range sensor and applies
+     * proportional control to adjust its position. This method provides matching
+     * functionality to the Python API's keep_distance() method.
+     * 
+     * <p><strong>🎯 How it works:</strong></p>
+     * <ul>
+     *   <li>Continuously monitors front range sensor</li>
+     *   <li>Calculates distance error from target</li>
+     *   <li>Applies proportional control (P-controller)</li>
+     *   <li>Maintains position within threshold (±10cm)</li>
+     * </ul>
+     * 
+     * <p><strong>💡 Educational Use (L0206):</strong></p>
+     * <pre>{@code
+     * // Following a moving person/object
+     * drone.takeoff();
+     * drone.keepDistance(15, 60);  // Maintain 60cm distance for 15 seconds
+     * drone.land();
+     * 
+     * // Combining with other movements
+     * drone.takeoff();
+     * drone.keepDistance(8, 40);   // Stay 40cm from object
+     * drone.setRoll(30);           // Strafe right while tracking
+     * drone.move(2);
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>🔬 Algorithm Details:</strong></p>
+     * The method uses a proportional controller with P-value of 0.4:
+     * <pre>{@code
+     * error = (target_distance - current_distance) / target_distance
+     * speed = error * 0.4 * 100
+     * }</pre>
+     * This creates smooth, responsive distance maintenance without oscillation.
+     * 
+     * <p><strong>⚠️ Safety Notes:</strong></p>
+     * <ul>
+     *   <li>Requires detectable object within sensor range (10-200cm)</li>
+     *   <li>May move forward/backward to maintain distance</li>
+     *   <li>Does not control altitude, yaw, or roll</li>
+     *   <li>Best for flat, level surfaces</li>
+     * </ul>
+     * 
+     * @param timeout Duration to maintain distance, in seconds (1-30)
+     * @param distance Target distance from object, in centimeters (10-100)
+     * @throws IllegalArgumentException if timeout not in range 1-30 or distance not in range 10-100
+     * @see #avoidWall(int, int)
+     * @see #getFrontRange()
+     * @educational
+     * @pythonEquivalent keep_distance(timeout, distance)
+     */
+    public void keepDistance(int timeout, int distance) {
+        AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
+        AutonomousMethod method = registry.getMethod("keepDistance");
+        
+        Map<String, Integer> params = new HashMap<>();
+        params.put("timeout", timeout);
+        params.put("distance", distance);
+        
+        method.execute(this, params);
+    }
+
     /**
      * This is a setter function that allows you to set the pitch variable.
      * Once you set pitch, you have to use move() to actually execute the movement.
@@ -881,12 +1021,15 @@ public class Drone implements AutoCloseable {
      * gyro values.
      * </p>
      * <p>
-     * The method will block until calibration is complete, which typically
-     * takes a few seconds.
+     * The method actively monitors the {@code MOTION_CALIBRATING} error flag
+     * and blocks until calibration is complete (typically 3-5 seconds) or times out
+     * after 10 seconds.
      * </p>
      * 
      * @throws RuntimeException if calibration fails or times out
      * @apiNote Equivalent to Python's {@code drone.reset_gyro()}
+     * @see ErrorData#isCalibrating()
+     * @see DroneSystem.ErrorFlagsForSensor#MOTION_CALIBRATING
      * @educational
      */
     public void resetGyro() {
@@ -901,22 +1044,50 @@ public class Drone implements AutoCloseable {
             // Wait for calibration to complete by monitoring error flags
             long calibrationStart = System.currentTimeMillis();
             long timeout = 10000; // 10 second timeout
+            long minCalibrationTime = 3000; // Minimum 3 seconds for calibration process
+            boolean errorDataReceived = false;
+            int nullDataCount = 0;
             
             while (System.currentTimeMillis() - calibrationStart < timeout) {
                 // Request fresh error data to check calibration status
                 sendRequest(DataType.Error);
                 Thread.sleep(100);
                 
-                // Check if motion calibration flag is cleared (calibration complete)
-                // Note: The actual error flag checking would need to be implemented
-                // For now, we'll use a fixed delay approach similar to Python reference
-                if (System.currentTimeMillis() - calibrationStart > 3000) {
-                    log.info("Gyroscope calibration complete");
-                    return;
+                // Get current error data to check calibration flag
+                ErrorData errors = getErrors();
+                
+                if (errors != null) {
+                    errorDataReceived = true;
+                    // Check if motion calibration flag is cleared (calibration complete)
+                    boolean isCalibrating = errors.isCalibrating();
+                    long elapsed = System.currentTimeMillis() - calibrationStart;
+                    
+                    // Ensure minimum calibration time has passed before accepting completion
+                    // This prevents false positives from initial flag state
+                    if (!isCalibrating && elapsed > minCalibrationTime) {
+                        log.info("Gyroscope calibration complete ({}ms)", elapsed);
+                        return;
+                    }
+                    
+                    if (isCalibrating) {
+                        log.debug("Calibrating... ({}ms elapsed)", elapsed);
+                    }
+                } else {
+                    // Track null error data to provide better error message
+                    nullDataCount++;
+                    if (nullDataCount > 20 && !errorDataReceived) {
+                        // After 2 seconds of no data, warn about possible connection issue
+                        log.warn("No error data received - check drone connection");
+                    }
                 }
             }
             
-            throw new RuntimeException("Gyroscope calibration timed out - ensure drone is on flat surface and stationary");
+            // Provide more specific error message based on what happened
+            if (!errorDataReceived) {
+                throw new RuntimeException("Gyroscope calibration timed out - no error data received. Check drone connection and ensure it is powered on.");
+            } else {
+                throw new RuntimeException("Gyroscope calibration timed out - ensure drone is on flat surface and stationary. Calibration flag may not have cleared.");
+            }
             
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -1279,21 +1450,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveBackward(double distance, String units, double speed) {
         flightController.moveBackward(distance, units, speed);
     }
     
     /**
-     * Move backward with default units (cm) and speed (1.0 m/s).
+     * Move backward with default units (cm) and speed (0.5 m/s).
      */
     public void moveBackward(double distance) {
         flightController.moveBackward(distance);
     }
     
     /**
-     * Move backward with specified units and default speed (1.0 m/s).
+     * Move backward with specified units and default speed (0.5 m/s).
      */
     public void moveBackward(double distance, String units) {
         flightController.moveBackward(distance, units);
@@ -1315,21 +1486,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveLeft(double distance, String units, double speed) {
         flightController.moveLeft(distance, units, speed);
     }
     
     /**
-     * Move left with default units (cm) and speed (1.0 m/s).
+     * Move left with default units (cm) and speed (0.5 m/s).
      */
     public void moveLeft(double distance) {
         flightController.moveLeft(distance);
     }
     
     /**
-     * Move left with specified units and default speed (1.0 m/s).
+     * Move left with specified units and default speed (0.5 m/s).
      */
     public void moveLeft(double distance, String units) {
         flightController.moveLeft(distance, units);
@@ -1351,21 +1522,21 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 1.0)
+     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
      */
     public void moveRight(double distance, String units, double speed) {
         flightController.moveRight(distance, units, speed);
     }
     
     /**
-     * Move right with default units (cm) and speed (1.0 m/s).
+     * Move right with default units (cm) and speed (0.5 m/s).
      */
     public void moveRight(double distance) {
         flightController.moveRight(distance);
     }
     
     /**
-     * Move right with specified units and default speed (1.0 m/s).
+     * Move right with specified units and default speed (0.5 m/s).
      */
     public void moveRight(double distance, String units) {
         flightController.moveRight(distance, units);
@@ -1684,6 +1855,267 @@ public class Drone implements AutoCloseable {
      */
     public String getMovementState() {
         return flightController.getMovementState();
+    }
+
+    /**
+     * Gets the current error state data from the drone.
+     * 
+     * <p>Returns error information about both sensor and state problems.
+     * This method requests fresh error data from the drone and returns
+     * it as an array containing timestamp, sensor error flags, and state error flags.</p>
+     * 
+     * <p><strong>Error Flags:</strong></p>
+     * <ul>
+     *   <li><strong>Sensor Errors:</strong> {@link DroneSystem.ErrorFlagsForSensor}
+     *     <ul>
+     *       <li>MOTION_CALIBRATING: Gyroscope/accelerometer calibrating</li>
+     *       <li>MOTION_NO_ANSWER: Motion sensor unresponsive</li>
+     *       <li>MOTION_WRONG_VALUE: Motion sensor giving incorrect data</li>
+     *       <li>MOTION_NOT_CALIBRATED: Motion sensor not calibrated</li>
+     *       <li>PRESSURE_NO_ANSWER: Barometer unresponsive</li>
+     *       <li>PRESSURE_WRONG_VALUE: Barometer giving incorrect data</li>
+     *       <li>RANGE_GROUND_NO_ANSWER: Bottom range sensor unresponsive</li>
+     *       <li>RANGE_GROUND_WRONG_VALUE: Bottom range sensor incorrect data</li>
+     *       <li>FLOW_NO_ANSWER: Optical flow sensor unresponsive</li>
+     *       <li>FLOW_WRONG_VALUE: Optical flow sensor incorrect data</li>
+     *       <li>FLOW_CANNOT_RECOGNIZE_GROUND_IMAGE: Cannot recognize ground pattern</li>
+     *     </ul>
+     *   </li>
+     *   <li><strong>State Errors:</strong> {@link DroneSystem.ErrorFlagsForState}
+     *     <ul>
+     *       <li>NOT_REGISTERED: Device not registered</li>
+     *       <li>FLASH_READ_LOCK_UNLOCKED: Flash memory read lock not engaged</li>
+     *       <li>BOOTLOADER_WRITE_LOCK_UNLOCKED: Bootloader write lock not engaged</li>
+     *       <li>LOW_BATTERY: Battery level is low</li>
+     *       <li>TAKEOFF_FAILURE_CHECK_PROPELLER_AND_MOTOR: Takeoff failed</li>
+     *       <li>CHECK_PROPELLER_VIBRATION: Propeller vibration detected</li>
+     *       <li>ATTITUDE_NOT_STABLE: Drone attitude too tilted or inverted</li>
+     *       <li>CANNOT_FLIP_LOW_BATTERY: Battery below 50% for flip</li>
+     *       <li>CANNOT_FLIP_TOO_HEAVY: Drone too heavy for flip</li>
+     *     </ul>
+     *   </li>
+     * </ul>
+     * 
+     * <h3>🔍 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Check for specific error conditions</li>
+     *   <li><strong>L0108 Loops:</strong> Monitor errors during flight</li>
+     *   <li><strong>Debugging:</strong> Diagnose hardware or sensor issues</li>
+     *   <li><strong>Safety Programming:</strong> Respond to error states</li>
+     * </ul>
+     * 
+     * @return Array containing [timestamp, sensorErrorFlags, stateErrorFlags], 
+     *         or null if error data is unavailable
+     * @apiNote Equivalent to Python's {@code drone.get_error_data()}
+     * @since 2.5
+     * 
+     * @example
+     * <pre>{@code
+     * // L0106: Check for low battery error
+     * double[] errorData = drone.getErrorData();
+     * if (errorData != null) {
+     *     int stateErrors = (int) errorData[2];
+     *     if ((stateErrors & DroneSystem.ErrorFlagsForState.LOW_BATTERY.getValue()) != 0) {
+     *         System.out.println("Warning: Low battery detected!");
+     *         drone.land();
+     *     }
+     * }
+     * }</pre>
+     * 
+     * @example
+     * <pre>{@code
+     * // L0108: Monitor calibration status
+     * drone.resetGyro();
+     * while (true) {
+     *     double[] errorData = drone.getErrorData();
+     *     if (errorData != null) {
+     *         int sensorErrors = (int) errorData[1];
+     *         if ((sensorErrors & DroneSystem.ErrorFlagsForSensor.MOTION_CALIBRATING.getValue()) == 0) {
+     *             System.out.println("Calibration complete!");
+     *             break;
+     *         }
+     *     }
+     *     Thread.sleep(100);
+     * }
+     * }</pre>
+     */
+    public double[] getErrorData() {
+        return getErrorData(0.2);
+    }
+
+    /**
+     * Gets the current error state data from the drone with custom delay.
+     * 
+     * <p>Allows specifying a custom delay for error data request response.
+     * Use shorter delays when checking frequently, longer delays when
+     * connection is slow.</p>
+     * 
+     * @param delay Delay in seconds to wait for error data response (default 0.2)
+     * @return Array containing [timestamp, sensorErrorFlags, stateErrorFlags], 
+     *         or null if error data is unavailable
+     * @apiNote Equivalent to Python's {@code drone.get_error_data(delay)}
+     * @since 2.5
+     * 
+     * @see #getErrorData()
+     */
+    public double[] getErrorData(double delay) {
+        log.debug("Requesting error data");
+        
+        try {
+            // Request fresh error data from drone
+            sendRequest(DataType.Error);
+            
+            // Wait for response
+            Thread.sleep((long) (delay * 1000));
+            
+            // Get error data from link manager
+            var error = linkManager.getError();
+            if (error == null) {
+                log.debug("No error data available");
+                return null;
+            }
+            
+            // Convert to Python-compatible format: [timestamp, sensorFlags, stateFlags]
+            double timestamp = error.getSystemTime() / 1000.0; // Convert ms to seconds
+            double[] result = {
+                timestamp,
+                (double) error.getErrorFlagsForSensor(),
+                (double) error.getErrorFlagsForState()
+            };
+            
+            log.debug("Retrieved error data - timestamp: {}, sensor flags: 0x{}, state flags: 0x{}",
+                     timestamp, 
+                     Integer.toHexString(error.getErrorFlagsForSensor()),
+                     Integer.toHexString(error.getErrorFlagsForState()));
+            
+            return result;
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error data request interrupted", e);
+        } catch (Exception e) {
+            log.error("Failed to get error data", e);
+            return null;
+        }
+    }
+
+    /**
+     * Gets error state information as a type-safe immutable object (recommended).
+     * 
+     * <p><strong>This is the recommended Java-idiomatic way to check for errors.</strong>
+     * Use this instead of {@link #getErrorData()} for cleaner, more maintainable code.</p>
+     * 
+     * <p>Returns an {@link ErrorData} object providing:
+     * <ul>
+     *   <li><strong>Type-safe error checking:</strong> No bitwise operations needed</li>
+     *   <li><strong>IDE auto-completion:</strong> All error types visible in IDE</li>
+     *   <li><strong>Named methods:</strong> No array indexing required</li>
+     *   <li><strong>Compile-time safety:</strong> Can't mix up sensor vs state errors</li>
+     * </ul>
+     * </p>
+     * 
+     * <h3>🔍 Comparison with Array-Based API:</h3>
+     * <pre>{@code
+     * // Array-based approach (Python-compatible)
+     * double[] errorArray = drone.getErrorData();
+     * if (errorArray != null) {
+     *     int stateErrors = (int) errorArray[2];
+     *     if ((stateErrors & DroneSystem.ErrorFlagsForState.LOW_BATTERY.getValue()) != 0) {
+     *         drone.land();
+     *     }
+     * }
+     * 
+     * // Object-based approach (Java-idiomatic, recommended)
+     * ErrorData errorData = drone.getErrors();
+     * if (errorData != null && errorData.isLowBattery()) {
+     *     drone.land();
+     * }
+     * }</pre>
+     * 
+     * <h3>📖 Usage Examples:</h3>
+     * <pre>{@code
+     * // Basic error checking
+     * ErrorData errors = drone.getErrors();
+     * if (errors != null) {
+     *     if (errors.hasCriticalErrors()) {
+     *         System.out.println("Critical error - landing!");
+     *         drone.land();
+     *     }
+     *     
+     *     if (errors.isCalibrating()) {
+     *         System.out.println("Please wait - calibrating...");
+     *     }
+     * }
+     * 
+     * // Check specific sensor errors
+     * if (errors.hasSensorError(DroneSystem.ErrorFlagsForSensor.FLOW_NO_ANSWER)) {
+     *     System.out.println("Warning: Optical flow sensor not responding");
+     * }
+     * 
+     * // Check specific state errors
+     * if (errors.hasStateError(DroneSystem.ErrorFlagsForState.ATTITUDE_NOT_STABLE)) {
+     *     System.out.println("Attitude unstable - avoiding maneuvers");
+     * }
+     * 
+     * // Get all active errors
+     * Set<DroneSystem.ErrorFlagsForSensor> sensorErrors = errors.getSensorErrors();
+     * Set<DroneSystem.ErrorFlagsForState> stateErrors = errors.getStateErrors();
+     * 
+     * // Display all errors
+     * System.out.println(errors.toDetailedString());
+     * }</pre>
+     * 
+     * <h3>🎓 Educational Context:</h3>
+     * <ul>
+     *   <li><strong>L0106 Conditionals:</strong> Safe error handling patterns</li>
+     *   <li><strong>L0109 Methods:</strong> Clean data encapsulation</li>
+     *   <li><strong>L0111 Object-Oriented:</strong> Immutable data objects</li>
+     *   <li><strong>Safety Programming:</strong> Proactive error monitoring</li>
+     * </ul>
+     * 
+     * <h3>⚠️ Important Notes:</h3>
+     * <ul>
+     *   <li>Uses default 0.2 second delay for sensor data collection</li>
+     *   <li>Returns null if no error data is available yet</li>
+     *   <li>Always check for null before accessing the returned object</li>
+     *   <li>For custom delays, use the overload with delay parameter</li>
+     * </ul>
+     * 
+     * @return ErrorData object containing type-safe error information, or null if unavailable
+     * @see ErrorData
+     * @see #getErrorData()
+     * @see DroneSystem.ErrorFlagsForSensor
+     * @see DroneSystem.ErrorFlagsForState
+     */
+    public ErrorData getErrors() {
+        double[] errorArray = getErrorData();
+        return ErrorData.fromArray(errorArray);
+    }
+
+    /**
+     * Gets error state information as a type-safe immutable object with custom delay (recommended).
+     * 
+     * <p>Same as {@link #getErrors()} but allows specifying a custom delay
+     * for sensor data collection.</p>
+     * 
+     * <h3>📖 Usage Example:</h3>
+     * <pre>{@code
+     * // Use longer delay for more accurate data
+     * ErrorData errors = drone.getErrors(0.5);
+     * if (errors != null && errors.hasAnyErrors()) {
+     *     System.out.println(errors.toDetailedString());
+     * }
+     * }</pre>
+     * 
+     * @param delay Time in seconds to wait for sensor data collection (typically 0.1 to 0.5)
+     * @return ErrorData object containing type-safe error information, or null if unavailable
+     * @see ErrorData
+     * @see #getErrors()
+     * @see #getErrorData(double)
+     */
+    public ErrorData getErrors(double delay) {
+        double[] errorArray = getErrorData(delay);
+        return ErrorData.fromArray(errorArray);
     }
 
     /**
@@ -2436,9 +2868,12 @@ public class Drone implements AutoCloseable {
             case "red": return 2;
             case "yellow": return 3;
             case "green": return 4;
-            case "cyan": return 5;
+            case "cyan": 
+            case "light_blue":
+            case "lightblue": return 5;
             case "blue": return 6;
-            case "magenta": return 7;
+            case "magenta":
+            case "purple": return 7;
             case "black": return 8;
             default: return 0; // UNKNOWN
         }
@@ -2578,52 +3013,52 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      * @educational
      */
-    public int[] getPositionData() {
+    public float[] getPositionData() {
         var position = droneStatus.getPosition();
         if (position == null) {
             return null;
         }
-        return new int[]{position.getX(), position.getY(), position.getZ()};
+        return new float[]{position.getX(), position.getY(), position.getZ()};
     }
 
     /**
-     * Gets the X position (forward/backward) in millimeters.
+     * Gets the X position (forward/backward) in meters.
      * 
      * <p>Returns the drone's forward/backward position relative to takeoff point.
      * Positive values indicate forward movement, negative values indicate backward.</p>
      * 
-     * @return X position in millimeters, or 0 if no data available
+     * @return X position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionX() {
+    public float getPositionX() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getX() : 0;
     }
 
     /**
-     * Gets the Y position (left/right) in millimeters.
+     * Gets the Y position (left/right) in meters.
      * 
      * <p>Returns the drone's left/right position relative to takeoff point.
      * Positive values indicate leftward movement, negative values indicate rightward.</p>
      * 
-     * @return Y position in millimeters, or 0 if no data available
+     * @return Y position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionY() {
+    public float getPositionY() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getY() : 0;
     }
 
     /**
-     * Gets the Z position (up/down) in millimeters.
+     * Gets the Z position (up/down) in meters.
      * 
      * <p>Returns the drone's up/down position relative to takeoff point.
      * Positive values indicate upward movement, negative values indicate downward.</p>
      * 
-     * @return Z position in millimeters, or 0 if no data available
+     * @return Z position in meters, or 0 if no data available
      * @educational
      */
-    public int getPositionZ() {
+    public float getPositionZ() {
         var position = droneStatus.getPosition();
         return (position != null) ? position.getZ() : 0;
     }
@@ -2649,9 +3084,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     /**
-     * Gets the current pressure value from the drone.
+     * Gets the current pressure value from the drone in Pascals.
      *
-     * @return Pressure in hPa
+     * @return Pressure in Pascals (Pa)
      * @apiNote Equivalent to Python's {@code drone.get_pressure()}
      * @since 1.0
      * @educational
@@ -2709,67 +3144,711 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Gets the drone's internal temperature in Celsius.
+     * Gets the uncorrected elevation from the drone's firmware.
      * 
-     * <p>Returns the temperature reading from the drone's internal sensor.
-     * This data is useful for environmental monitoring and thermal analysis projects.</p>
+     * <p><strong>⚠️ Important:</strong> This returns the raw altitude value from the drone's
+     * firmware, which has a known offset of approximately +100 to +150 meters. This value
+     * should NOT be used for accurate altitude measurements. Use {@link #getCorrectedElevation()}
+     * for accurate altitude readings.</p>
+     * 
+     * <p>This method is provided for:
+     * <ul>
+     *   <li>Python API compatibility (matches {@code drone.get_elevation()})</li>
+     *   <li>Educational purposes to demonstrate sensor calibration concepts</li>
+     *   <li>Debugging and comparison with corrected values</li>
+     * </ul>
+     * 
+     * <h3>📊 Example Readings:</h3>
+     * <pre>
+     * // At 16m above sea level with 1011 hPa pressure:
+     * double uncorrected = drone.getUncorrectedElevation();  // ~126m (off by ~110m!)
+     * double corrected = drone.getCorrectedElevation();       // ~17m (accurate!)
+     * </pre>
+     * 
+     * @return Uncorrected elevation in meters (with firmware offset), or 0.0 if no data available
+     * @see #getCorrectedElevation()
+     * @see #getElevation()
+     * @apiNote Equivalent to Python's {@code drone.get_elevation()}
+     * @since 1.0
+     * @educational
+     */
+    public double getUncorrectedElevation() {
+        var altitude = droneStatus.getAltitude();
+        return altitude != null ? altitude.getAltitude() : 0.0;
+    }
+
+    /**
+     * Gets the elevation reading - either corrected or uncorrected based on settings.
+     * 
+     * <p>This convenience method matches the Python API while allowing flexible behavior:
+     * <ul>
+     *   <li><strong>Default:</strong> Returns uncorrected firmware value (Python compatibility)</li>
+     *   <li><strong>After {@code useCorrectedElevation(true)}:</strong> Returns corrected value</li>
+     * </ul>
+     * 
+     * <p><strong>🎓 Educational Note:</strong> For explicit control and clearer code,
+     * prefer using {@link #getUncorrectedElevation()} or {@link #getCorrectedElevation()}
+     * directly instead of relying on state-based behavior.</p>
+     * 
+     * <h3>📝 Usage Examples:</h3>
+     * <pre>
+     * // Python-style default (uncorrected):
+     * double elevation = drone.getElevation();  // Returns uncorrected value
+     * 
+     * // Switch to corrected values:
+     * drone.useCorrectedElevation(true);
+     * double elevation = drone.getElevation();  // Now returns corrected value
+     * 
+     * // Explicit control (recommended):
+     * double raw = drone.getUncorrectedElevation();
+     * double accurate = drone.getCorrectedElevation();
+     * </pre>
+     * 
+     * @return Elevation in meters (corrected or uncorrected based on settings)
+     * @see #getUncorrectedElevation()
+     * @see #getCorrectedElevation()
+     * @see #useCorrectedElevation(boolean)
+     * @apiNote Equivalent to Python's {@code drone.get_elevation()}
+     * @since 1.0
+     * @educational
+     */
+    public double getElevation() {
+        return useCorrectedElevation ? getCorrectedElevation() : getUncorrectedElevation();
+    }
+
+    /**
+     * Sets whether {@link #getElevation()} returns corrected or uncorrected values.
+     * 
+     * <p>This allows switching between Python-compatible default behavior (uncorrected)
+     * and accurate altitude readings (corrected) without changing code that calls
+     * {@code getElevation()}.</p>
+     * 
+     * <p><strong>Note:</strong> This only affects {@link #getElevation()}. The explicit
+     * methods {@link #getUncorrectedElevation()} and {@link #getCorrectedElevation()}
+     * always return their respective values regardless of this setting.</p>
+     * 
+     * @param useCorrected If true, {@code getElevation()} returns corrected altitude.
+     *                     If false (default), returns uncorrected firmware value.
+     * @see #getElevation()
+     * @since 1.0
+     * @educational
+     */
+    public void useCorrectedElevation(boolean useCorrected) {
+        this.useCorrectedElevation = useCorrected;
+    }
+
+    /**
+     * Calculates accurate altitude from barometric pressure using the standard barometric formula.
+     * 
+     * <p>This method provides accurate altitude calculation, correcting the drone's built-in
+     * altitude reading which has a firmware offset of +100 to +150 meters.</p>
+     * 
+     * <p><strong>🌐 Automatic Calibration:</strong> This method now automatically attempts to
+     * determine your location and fetch current weather data for best accuracy:
+     * <ol>
+     *   <li>Try OS location services (if available via JNI)</li>
+     *   <li>Try IP-based geolocation</li>
+     *   <li>Fall back to standard atmosphere (101325 Pa)</li>
+     * </ol>
+     * All failures are handled gracefully - you'll always get a valid altitude reading!</p>
+     * 
+     * <p>The calculation uses the international standard atmosphere formula:
+     * <pre>h = 44330 * (1 - (P/P₀)^0.1903)</pre>
+     * where P is measured pressure and P₀ is sea-level pressure.</p>
      * 
      * <h3>🎯 Educational Usage:</h3>
      * <ul>
-     *   <li><strong>Environmental Science:</strong> Temperature monitoring</li>
-     *   <li><strong>Data Collection:</strong> Multi-sensor environmental data</li>
-     *   <li><strong>Physics Learning:</strong> Heat transfer and thermal properties</li>
-     *   <li><strong>Weather Projects:</strong> Temperature trend analysis</li>
+     *   <li><strong>Physics Learning:</strong> Understand barometric altitude calculation</li>
+     *   <li><strong>Math Application:</strong> Real-world exponential functions</li>
+     *   <li><strong>Sensor Calibration:</strong> Compare calculated vs sensor-reported values</li>
+     *   <li><strong>Data Science:</strong> Error analysis and calibration techniques</li>
+     *   <li><strong>Graceful Degradation:</strong> Learn about fallback strategies</li>
      * </ul>
      * 
-     * @return Temperature in Celsius, or 0.0 if no data available
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature("C")}
+     * <p><strong>Note:</strong> For explicit control of pressure source, use
+     * {@link #getCorrectedElevation(double)} or {@link #getCorrectedElevation(double, double)}.</p>
+     * 
+     * @return Corrected altitude in meters above sea level, or 0.0 if no pressure data available
+     * @see #getPressure()
+     * @see #getUncorrectedElevation()
+     * @see #getCorrectedElevation(double)
+     * @see #getCorrectedElevation(double, double)
      * @since 1.0
      * @educational
      */
+    public double getCorrectedElevation() {
+        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getAutomaticSeaLevelPressure();
+        return getCorrectedElevation(seaLevelPressure);
+    }
+
     /**
-     * Gets the current temperature value from the drone in Celsius.
-     *
-     * @return Temperature in Celsius
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
+     * Calculates corrected altitude from barometric pressure using a calibrated sea-level pressure.
+     * 
+     * <p>This allows for more accurate altitude calculations when the current local
+     * sea-level pressure is known (from local weather reports or nearby weather stations).
+     * Uses the international standard atmosphere formula with calibrated sea-level pressure.</p>
+     * 
+     * <h3>📡 Getting Local Sea-Level Pressure:</h3>
+     * <ul>
+     *   <li>Check local weather stations or weather apps</li>
+     *   <li>Look for "barometric pressure" or "QNH" in aviation weather</li>
+     *   <li>Convert if needed: 1 hPa = 100 Pa, 1 inHg = 3386.39 Pa</li>
+     * </ul>
+     * 
+     * @param seaLevelPressure The current sea-level pressure in Pascals (Pa).
+     *                         Standard atmosphere is 101325 Pa (1013.25 hPa).
+     *                         Get local value from weather reports for best accuracy.
+     * @return Corrected altitude in meters above sea level, or 0.0 if no pressure data available
+     * @see #getPressure()
+     * @see #getCorrectedElevation()
      * @since 1.0
      * @educational
      */
-    public double getDroneTemperature() {
+    public double getCorrectedElevation(double seaLevelPressure) {
+        double pressure = getPressure();
+        if (pressure == 0.0) {
+            return 0.0;
+        }
+        
+        // International standard atmosphere formula
+        // h = 44330 * (1 - (P/P₀)^0.1903)
+        return 44330.0 * (1.0 - Math.pow(pressure / seaLevelPressure, 0.1903));
+    }
+
+    /**
+     * @deprecated Use {@link #getCorrectedElevation()} instead.
+     *             Method renamed for clarity (calculated → corrected).
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getCalculatedAltitude() {
+        return getCorrectedElevation();
+    }
+
+    /**
+     * @deprecated Use {@link #getCorrectedElevation(double)} instead.
+     *             Method renamed for clarity (calculated → corrected).
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getCalculatedAltitude(double seaLevelPressure) {
+        return getCorrectedElevation(seaLevelPressure);
+    }
+
+    /**
+     * Gets corrected elevation using current sea-level pressure from online weather data.
+     * 
+     * <p>This method automatically fetches the current barometric pressure from online
+     * weather services (Open-Meteo API) based on your location coordinates. This provides
+     * the most accurate altitude readings by accounting for local weather conditions.</p>
+     * 
+     * <h3>📍 How to Find Your Coordinates:</h3>
+     * <ul>
+     *   <li><strong>Google Maps:</strong> Right-click location → "What's here?"</li>
+     *   <li><strong>iPhone:</strong> Open Compass app (shows coordinates at bottom)</li>
+     *   <li><strong>Settings:</strong> Enable Location Services for more accuracy</li>
+     *   <li><strong>Command line:</strong> curl ipinfo.io (approximate)</li>
+     * </ul>
+     * 
+     * <h3>🌐 Network Requirements:</h3>
+     * <ul>
+     *   <li>Requires internet connection</li>
+     *   <li>Uses Open-Meteo API (free, no API key)</li>
+     *   <li>Falls back to standard pressure if offline</li>
+     *   <li>5-second timeout to avoid blocking</li>
+     * </ul>
+     * 
+     * <h3>💡 Example Usage:</h3>
+     * <pre>
+     * // San Francisco, CA
+     * double elevation = drone.getCorrectedElevation(37.7749, -122.4194);
+     * 
+     * // New York, NY  
+     * double elevation = drone.getCorrectedElevation(40.7128, -74.0060);
+     * 
+     * // Tokyo, Japan
+     * double elevation = drone.getCorrectedElevation(35.6762, 139.6503);
+     * </pre>
+     * 
+     * @param latitude Latitude of your location in decimal degrees (-90 to 90)
+     * @param longitude Longitude of your location in decimal degrees (-180 to 180)
+     * @return Corrected elevation in meters with weather-calibrated sea-level pressure
+     * @throws IllegalArgumentException if coordinates are out of valid range
+     * @see com.otabi.jcodroneedu.util.WeatherService#getSeaLevelPressure(double, double)
+     * @since 1.0
+     * @educational
+     */
+    public double getCorrectedElevation(double latitude, double longitude) {
+        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getSeaLevelPressure(latitude, longitude);
+        return getCorrectedElevation(seaLevelPressure);
+    }
+
+    /**
+     * Sets the initial pressure reference point for relative height measurements.
+     * 
+     * <p>This method captures the current barometric pressure from the drone and stores it
+     * as a reference point. Subsequent calls to {@link #getHeightFromPressure()} will return
+     * the height change relative to this reference point.</p>
+     * 
+     * <p><strong>🎯 Use Cases:</strong></p>
+     * <ul>
+     *   <li><strong>Indoor Flying:</strong> Measure height above floor without knowing sea level</li>
+     *   <li><strong>Climb/Descent Tracking:</strong> Monitor altitude changes during flight</li>
+     *   <li><strong>Simple Calibration:</strong> No need for weather data or coordinates</li>
+     *   <li><strong>Relative Navigation:</strong> "How much higher/lower am I than where I started?"</li>
+     * </ul>
+     * 
+     * <h3>📝 Usage Pattern:</h3>
+     * <pre>
+     * // Place drone on ground/starting position
+     * drone.setInitialPressure();
+     * 
+     * // Fly around
+     * drone.takeoff();
+     * Thread.sleep(3000);
+     * 
+     * // Check how high you've climbed
+     * double heightChange = drone.getHeightFromPressure();
+     * System.out.printf("Height above starting point: %.2f m\n", heightChange / 1000.0);
+     * </pre>
+     * 
+     * <p><strong>Note:</strong> Call this method when the drone is at the position you want
+     * to use as your reference "zero" point. Typically this is done on the ground before takeoff.</p>
+     * 
+     * @see #getHeightFromPressure()
+     * @see #getHeightFromPressure(double, double)
+     * @apiNote Equivalent to Python's {@code drone.set_initial_pressure()}
+     * @since 1.0
+     * @educational
+     */
+    public void setInitialPressure() {
+        this.initialPressure = getPressure();
+    }
+
+    /**
+     * Gets the relative height change from the initial pressure reference point.
+     * 
+     * <p>Returns the height change in millimeters since {@link #setInitialPressure()} was called.
+     * This uses a linear approximation of pressure-to-height conversion with default calibration
+     * values (b=0, m=9.34 mm/Pa).</p>
+     * 
+     * <p><strong>⚠️ Important:</strong> You MUST call {@link #setInitialPressure()} first,
+     * otherwise this will return 0.0.</p>
+     * 
+     * <h3>🎯 Educational Context:</h3>
+     * <ul>
+     *   <li><strong>Linear vs Exponential:</strong> Compare with {@link #getCorrectedElevation()}</li>
+     *   <li><strong>Relative vs Absolute:</strong> This measures change, not position</li>
+     *   <li><strong>Indoor Applications:</strong> Works without internet or weather data</li>
+     *   <li><strong>Sensor Precision:</strong> Accuracy is ±5-10mm in stable conditions</li>
+     * </ul>
+     * 
+     * <h3>📐 Formula:</h3>
+     * <pre>height_mm = (initial_pressure - current_pressure) * 9.34</pre>
+     * 
+     * <p><strong>Why 9.34?</strong> This is an empirically-derived constant representing
+     * approximately 9.34 mm of height change per Pascal of pressure change near sea level.</p>
+     * 
+     * @return Height change in millimeters from initial reference point, or 0.0 if
+     *         {@code setInitialPressure()} has not been called
+     * @see #setInitialPressure()
+     * @see #getHeightFromPressure(double, double)
+     * @apiNote Equivalent to Python's {@code drone.height_from_pressure()}
+     * @since 1.0
+     * @educational
+     */
+    public double getHeightFromPressure() {
+        return getHeightFromPressure(0.0, 9.34);
+    }
+
+    /**
+     * Gets the relative height change with custom calibration parameters.
+     * 
+     * <p>This overload allows fine-tuning the pressure-to-height conversion using
+     * custom calibration values. The formula is:
+     * <pre>height_mm = (initial_pressure - current_pressure + b) * m</pre>
+     * 
+     * <h3>📊 Calibration Parameters:</h3>
+     * <ul>
+     *   <li><strong>b (offset):</strong> Pressure offset in Pascals. Use to correct for
+     *       systematic errors or sensor drift. Default: 0.0</li>
+     *   <li><strong>m (slope):</strong> Conversion factor in mm/Pa. Adjusts sensitivity.
+     *       Default: 9.34 mm/Pa</li>
+     * </ul>
+     * 
+     * <h3>🔬 When to Adjust:</h3>
+     * <ul>
+     *   <li><strong>m parameter:</strong> If measurements consistently over/under-report height</li>
+     *   <li><strong>b parameter:</strong> If you need to compensate for known pressure offset</li>
+     *   <li><strong>Default values:</strong> Work well for most educational applications</li>
+     * </ul>
+     * 
+     * <h3>💡 Example Calibration:</h3>
+     * <pre>
+     * // Measure known height (e.g., 1 meter = 1000mm)
+     * drone.setInitialPressure();
+     * drone.goToHeight(100); // Fly to 100cm
+     * double measured = drone.getHeightFromPressure();
+     * 
+     * // If measured is 1050mm instead of 1000mm, adjust m:
+     * double newM = 9.34 * (1000.0 / 1050.0); // ≈ 8.9
+     * double corrected = drone.getHeightFromPressure(0, newM);
+     * </pre>
+     * 
+     * @param b Pressure offset in Pascals (y-intercept of linear model)
+     * @param m Conversion slope in millimeters per Pascal
+     * @return Height change in millimeters from initial reference point
+     * @see #setInitialPressure()
+     * @see #getHeightFromPressure()
+     * @apiNote Equivalent to Python's {@code drone.height_from_pressure(b, m)}
+     * @since 1.0
+     * @educational
+     */
+    public double getHeightFromPressure(double b, double m) {
+        if (initialPressure == 0.0) {
+            return 0.0;
+        }
+        double currentPressure = getPressure();
+        double heightMm = (initialPressure - currentPressure + b) * m;
+        return Math.round(heightMm * 100.0) / 100.0; // Round to 2 decimal places
+    }
+
+    /**
+     * Gets temperature from the drone (DEPRECATED - use getDroneTemperature).
+     * 
+     * <p><strong>⚠️ DEPRECATED:</strong> This method is deprecated and will be removed
+     * in a future release. Use {@link #getDroneTemperature()} instead.</p>
+     * 
+     * <p>This method exists for Python API compatibility. Python's {@code get_temperature()}
+     * was deprecated in favor of {@code get_drone_temperature()} to clarify that it returns
+     * the drone's internal sensor temperature, not ambient air temperature.</p>
+     * 
+     * @return Temperature in Celsius (uncalibrated or calibrated based on settings)
+     * @deprecated Use {@link #getDroneTemperature()} instead. This method is deprecated
+     *             to match Python's API deprecation.
+     * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature()}
+     * @since 1.0
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getTemperature() {
+        log.warn("getTemperature() is deprecated. Use getDroneTemperature() instead.");
+        return getDroneTemperature();
+    }
+
+    /**
+     * Gets temperature from the drone in specified unit (DEPRECATED - use getDroneTemperature).
+     * 
+     * <p><strong>⚠️ DEPRECATED:</strong> This method is deprecated and will be removed
+     * in a future release. Use {@link #getDroneTemperature(String)} instead.</p>
+     * 
+     * @param unit The unit for temperature measurement: "C", "F", or "K"
+     * @return Temperature in the specified unit (uncalibrated or calibrated based on settings)
+     * @deprecated Use {@link #getDroneTemperature(String)} instead. This method is deprecated
+     *             to match Python's API deprecation.
+     * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature(unit)}
+     * @since 1.0
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
+    public double getTemperature(String unit) {
+        log.warn("getTemperature(unit) is deprecated. Use getDroneTemperature(unit) instead.");
+        return getDroneTemperature(unit);
+    }
+
+    /**
+     * Gets the uncalibrated temperature reading from the drone's sensor in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> returns the raw sensor die temperature without any calibration.
+     * The sensor chip typically reads 10-15°C cooler than ambient air temperature.</p>
+     * 
+     * <p>This is the explicit method for getting uncalibrated temperature. Unlike
+     * {@link #getDroneTemperature()}, this method always returns raw sensor values
+     * regardless of the {@link #useCalibratedTemperature(boolean)} setting.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Sensor Calibration:</strong> Measure the sensor offset experimentally</li>
+     *   <li><strong>Data Collection:</strong> Raw sensor data for scientific analysis</li>
+     *   <li><strong>Physics Learning:</strong> Heat transfer and thermal properties</li>
+     *   <li><strong>Comparison:</strong> Compare with {@link #getCalibratedTemperature()}</li>
+     * </ul>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * double raw = drone.getUncalibratedTemperature();       // 8°C (sensor die)
+     * double calibrated = drone.getCalibratedTemperature();  // 20°C (ambient estimate)
+     * double offset = calibrated - raw;                      // 12°C correction
+     * }</pre>
+     * 
+     * @return Uncalibrated temperature in Celsius (sensor die temperature), or 0.0 if no data available
+     * @see #getCalibratedTemperature() for calibrated ambient temperature
+     * @see #getDroneTemperature() for switchable temperature (respects settings)
+     * @since 1.0
+     * @educational
+     */
+    public double getUncalibratedTemperature() {
         var altitude = droneStatus.getAltitude();
         return (altitude != null) ? altitude.getTemperature() : 0.0;
     }
 
     /**
-     * Gets the drone's internal temperature in the specified unit.
+     * Gets the uncalibrated temperature reading in the specified unit.
      * 
-     * <p>Returns temperature converted to the requested unit.
-     * Supports common temperature scales for educational use.</p>
+     * <p><strong>ALWAYS</strong> returns the raw sensor temperature without calibration,
+     * converted to the requested unit.</p>
      * 
      * @param unit The unit for temperature measurement. Supported values:
      *             "C" (Celsius), "F" (Fahrenheit), "K" (Kelvin)
-     * @return Temperature in the specified unit, or 0.0 if no data available
+     * @return Uncalibrated temperature in the specified unit, or 0.0 if no data available
      * @throws IllegalArgumentException if unit is not supported
-     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @see #getUncalibratedTemperature() for Celsius version
+     * @see #getCalibratedTemperature(String) for calibrated temperature with unit
      * @since 1.0
      * @educational
      */
+    public double getUncalibratedTemperature(String unit) {
+        double celsius = getUncalibratedTemperature();
+        return convertTemperature(celsius, unit);
+    }
+
     /**
-     * Gets the current temperature value from the drone in the specified unit.
-     *
-     * @param unit The unit for the return value: "C", "F", etc.
-     * @return Temperature in the specified unit
+     * Gets the temperature reading - either uncalibrated or calibrated based on settings.
+     * 
+     * <p>This convenience method matches the Python API while allowing flexible behavior:
+     * <ul>
+     *   <li><strong>Default:</strong> Returns uncalibrated sensor value (Python compatibility)</li>
+     *   <li><strong>After {@code useCalibratedTemperature(true)}:</strong> Returns calibrated value</li>
+     * </ul>
+     * 
+     * <p><strong>🎓 Educational Note:</strong> For explicit control and clearer code,
+     * prefer using {@link #getUncalibratedTemperature()} or {@link #getCalibratedTemperature()}
+     * directly instead of relying on state-based behavior.</p>
+     * 
+     * <h3>📝 Usage Examples:</h3>
+     * <pre>{@code
+     * // Python-style default (uncalibrated):
+     * double temp = drone.getDroneTemperature();  // Returns uncalibrated (8°C)
+     * 
+     * // Switch to calibrated values:
+     * drone.useCalibratedTemperature(true);
+     * double temp = drone.getDroneTemperature();  // Now returns calibrated (20°C)
+     * 
+     * // Explicit control (recommended):
+     * double raw = drone.getUncalibratedTemperature();     // 8°C
+     * double accurate = drone.getCalibratedTemperature();  // 20°C
+     * }</pre>
+     * 
+     * @return Temperature in Celsius (uncalibrated or calibrated based on settings), or 0.0 if no data available
+     * @see #getUncalibratedTemperature()
+     * @see #getCalibratedTemperature()
+     * @see #useCalibratedTemperature(boolean)
+     * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
+     * @since 1.0
+     * @educational
+     */
+    public double getDroneTemperature() {
+        return useCalibratedTemperature ? getCalibratedTemperature() : getUncalibratedTemperature();
+    }
+
+    /**
+     * Gets the temperature reading in the specified unit - uncalibrated or calibrated based on settings.
+     * 
+     * <p>Returns temperature converted to the requested unit, respecting the calibration setting.</p>
+     * 
+     * <p><strong>Note:</strong> This method's behavior changes based on {@link #useCalibratedTemperature(boolean)}.
+     * For explicit control, use {@link #getUncalibratedTemperature(String)} or
+     * {@link #getCalibratedTemperature(String)}.</p>
+     * 
+     * @param unit The unit for temperature measurement. Supported values:
+     *             "C" (Celsius), "F" (Fahrenheit), "K" (Kelvin)
+     * @return Temperature in the specified unit (uncalibrated or calibrated based on settings), or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
      * @apiNote Equivalent to Python's {@code drone.get_drone_temperature(unit)}
+     * @see #getUncalibratedTemperature(String) for always uncalibrated
+     * @see #getCalibratedTemperature(String) for always calibrated
+     * @see #useCalibratedTemperature(boolean)
      * @since 1.0
      * @educational
      */
     public double getDroneTemperature(String unit) {
-        double celsius = getDroneTemperature();
-        var altitude = droneStatus.getAltitude();
-        if (altitude == null) {
-            return 0.0; // No data available
-        }
-        
+        return useCalibratedTemperature ? getCalibratedTemperature(unit) : getUncalibratedTemperature(unit);
+    }
+
+    /**
+     * Sets whether {@link #getDroneTemperature()} returns uncalibrated or calibrated values.
+     * 
+     * <p>This allows switching between Python-compatible default behavior (uncalibrated)
+     * and accurate ambient temperature readings (calibrated) without changing code that calls
+     * {@code getDroneTemperature()}.</p>
+     * 
+     * <p><strong>Note:</strong> This only affects {@link #getDroneTemperature()}. The explicit
+     * methods {@link #getUncalibratedTemperature()} and {@link #getCalibratedTemperature()}
+     * always return their respective values regardless of this setting.</p>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Initially returns uncalibrated temperature
+     * System.out.println("Raw: " + drone.getDroneTemperature());  // 8°C
+     * 
+     * // Flip the switch to get calibrated temperatures
+     * drone.useCalibratedTemperature(true);
+     * System.out.println("Calibrated: " + drone.getDroneTemperature());  // 20°C
+     * 
+     * // Explicit methods always work regardless of setting
+     * System.out.println("Always raw: " + drone.getUncalibratedTemperature());  // 8°C
+     * System.out.println("Always calibrated: " + drone.getCalibratedTemperature());  // 20°C
+     * }</pre>
+     * 
+     * @param useCalibrated If true, {@code getDroneTemperature()} returns calibrated temperature.
+     *                      If false (default), returns uncalibrated sensor value.
+     * @see #getDroneTemperature()
+     * @since 1.0
+     * @educational
+     */
+    public void useCalibratedTemperature(boolean useCalibrated) {
+        this.useCalibratedTemperature = useCalibrated;
+    }
+
+    /**
+     * Default temperature calibration offset in Celsius.
+     * 
+     * <p>The BMP280 barometric sensor reports die temperature, which is typically
+     * 10-15°C cooler than ambient air. This default offset (12°C) provides a
+     * reasonable estimate of ambient temperature.</p>
+     * 
+     * <p>Students can experiment with different offsets based on their environment
+     * by using {@link #getCalibratedTemperature(double)}.</p>
+     */
+    private static final double DEFAULT_TEMPERATURE_OFFSET_C = 12.0;
+
+    /**
+     * Gets the calibrated ambient temperature in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> returns calibrated temperature regardless of settings.
+     * This is the explicit method for getting calibrated ambient temperature estimates.</p>
+     * 
+     * <p>This method applies a default calibration offset of 12°C to the raw sensor
+     * reading to estimate ambient air temperature. The sensor die is typically 10-15°C
+     * cooler than ambient air due to heat dissipation.</p>
+     * 
+     * <p>Unlike {@link #getDroneTemperature()}, this method always returns calibrated
+     * values regardless of the {@link #useCalibratedTemperature(boolean)} setting.</p>
+     * 
+     * <h3>🎯 Educational Usage:</h3>
+     * <ul>
+     *   <li><strong>Sensor Calibration:</strong> Demonstrates offset correction</li>
+     *   <li><strong>Scientific Method:</strong> Compare with reference thermometer</li>
+     *   <li><strong>Error Analysis:</strong> Understand sensor limitations</li>
+     *   <li><strong>Weather Stations:</strong> More accurate ambient readings</li>
+     * </ul>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * double sensorTemp = drone.getUncalibratedTemperature();  // 8°C (sensor die)
+     * double ambientTemp = drone.getCalibratedTemperature();   // 20°C (ambient estimate)
+     * double offset = ambientTemp - sensorTemp;                // 12°C correction
+     * }</pre>
+     * 
+     * @return Estimated ambient temperature in Celsius, or 0.0 if no data available
+     * @see #getUncalibratedTemperature() for raw sensor reading
+     * @see #getCalibratedTemperature(double) for custom offset
+     * @see #getDroneTemperature() for switchable temperature (respects settings)
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature() {
+        return getUncalibratedTemperature() + DEFAULT_TEMPERATURE_OFFSET_C;
+    }
+
+    /**
+     * Gets the calibrated ambient temperature with a custom offset in Celsius.
+     * 
+     * <p><strong>ALWAYS</strong> applies the specified calibration offset regardless of settings.</p>
+     * 
+     * <p>Apply your own calibration offset based on experimental measurements
+     * with a reference thermometer.</p>
+     * 
+     * <h3>🧪 Calibration Procedure:</h3>
+     * <ol>
+     *   <li>Place drone and reference thermometer in same location</li>
+     *   <li>Wait 5 minutes for thermal stabilization</li>
+     *   <li>Read both temperatures</li>
+     *   <li>Calculate: offset = reference - drone reading</li>
+     *   <li>Use this offset for future measurements</li>
+     * </ol>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Experimental calibration
+     * double sensorTemp = drone.getUncalibratedTemperature();  // 7.5°C
+     * double referenceTemp = 21.0;                             // From thermometer
+     * double offset = referenceTemp - sensorTemp;              // 13.5°C
+     * 
+     * // Use calibrated readings
+     * double ambient = drone.getCalibratedTemperature(offset); // 21.0°C
+     * }</pre>
+     * 
+     * @param offsetCelsius The calibration offset to add to sensor reading (in Celsius)
+     * @return Calibrated temperature in Celsius, or offset value if no data available
+     * @see #getUncalibratedTemperature() for raw sensor reading
+     * @see #getCalibratedTemperature() for default offset
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(double offsetCelsius) {
+        return getUncalibratedTemperature() + offsetCelsius;
+    }
+
+    /**
+     * Gets the calibrated ambient temperature in the specified unit.
+     * 
+     * <p><strong>ALWAYS</strong> returns calibrated temperature (with default 12°C offset)
+     * regardless of settings, converted to the requested unit.</p>
+     * 
+     * @param unit The unit for temperature measurement: "C", "F", or "K"
+     * @return Calibrated temperature in the specified unit, or 0.0 if no data available
+     * @throws IllegalArgumentException if unit is not supported
+     * @see #getCalibratedTemperature() for Celsius version
+     * @see #getCalibratedTemperature(double, String) for custom offset with unit conversion
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(String unit) {
+        double calibratedCelsius = getCalibratedTemperature();
+        return convertTemperature(calibratedCelsius, unit);
+    }
+
+    /**
+     * Gets the calibrated ambient temperature with custom offset in the specified unit.
+     * 
+     * <p><strong>ALWAYS</strong> applies the specified calibration offset regardless of settings,
+     * with unit conversion.</p>
+     * 
+     * <h3>📝 Usage Example:</h3>
+     * <pre>{@code
+     * // Custom offset with Fahrenheit output
+     * double tempF = drone.getCalibratedTemperature(13.5, "F");
+     * }</pre>
+     * 
+     * @param offsetCelsius The calibration offset in Celsius
+     * @param unit The unit for output: "C", "F", or "K"
+     * @return Calibrated temperature in the specified unit
+     * @throws IllegalArgumentException if unit is not supported
+     * @see #getCalibratedTemperature(double) for Celsius version
+     * @since 1.0
+     * @educational
+     */
+    public double getCalibratedTemperature(double offsetCelsius, String unit) {
+        double calibratedCelsius = getCalibratedTemperature(offsetCelsius);
+        return convertTemperature(calibratedCelsius, unit);
+    }
+
+    /**
+     * Converts temperature from Celsius to the specified unit.
+     * 
+     * @param celsius Temperature in Celsius
+     * @param unit Target unit: "C", "F", or "K"
+     * @return Converted temperature
+     * @throws IllegalArgumentException if unit is not supported
+     */
+    private double convertTemperature(double celsius, String unit) {
         switch (unit.toUpperCase()) {
             case "C":
                 return celsius;
@@ -2832,8 +3911,8 @@ public class Drone implements AutoCloseable {
         
         double[] sensorData = new double[21];
         
-        // Position data (0-2)
-        int[] position = getPositionData();
+        // Position data (0-2) - now in meters as floats
+        float[] position = getPositionData();
         if (position != null) {
             sensorData[0] = position[0]; // x
             sensorData[1] = position[1]; // y  
@@ -3522,6 +4601,7 @@ public class Drone implements AutoCloseable {
         }
 
         // Create color and send to drone
+        // Note: Python uses BodyHold mode with brightness as interval
         Color color = createColor(red, green, blue);
         LightDefault lightDefault = new LightDefault(
             com.otabi.jcodroneedu.protocol.lightcontroller.LightModesDrone.BodyHold, 
@@ -4183,6 +5263,322 @@ public class Drone implements AutoCloseable {
         }
     }
 
+    // ============================================================================
+    // Combined LED + Buzzer Methods
+    // ============================================================================
+
+    /**
+     * Pings the drone using buzzer and LED to help locate it visually and audibly.
+     * 
+     * <p>This is a "find my drone" feature that makes the drone easy to locate in a crowded
+     * space or if it's lost. The drone will blink its LED in a double-blink pattern and
+     * play three buzzer beeps. If RGB values are not specified, a random color is used
+     * to make it more noticeable.</p>
+     * 
+     * <h3>🎯 How it Works:</h3>
+     * <ol>
+     *   <li>Sets LED to double-blink mode with specified or random color</li>
+     *   <li>Plays three buzzer beeps (200ms each)</li>
+     *   <li>Sets LED to solid color at full brightness</li>
+     * </ol>
+     * 
+     * <h3>💡 Educational Use (L0304):</h3>
+     * <pre>{@code
+     * // Find drone with random color
+     * drone.pair();
+     * drone.ping();  // Random bright color + beeps
+     * 
+     * // Find drone with specific color
+     * drone.ping(255, 0, 0);  // Red
+     * 
+     * // Use in a search scenario
+     * System.out.println("Locating drone...");
+     * drone.ping(0, 255, 0);  // Green = found!
+     * 
+     * // Multiple drones - different colors
+     * drone1.ping(255, 0, 0);    // Red drone
+     * drone2.ping(0, 0, 255);    // Blue drone
+     * drone3.ping(255, 255, 0);  // Yellow drone
+     * }</pre>
+     * 
+     * <h3>🔍 Use Cases:</h3>
+     * <ul>
+     *   <li><strong>Lost Drone:</strong> Locate drone in a cluttered area</li>
+     *   <li><strong>Drone Identification:</strong> Identify which drone is which in multi-drone setups</li>
+     *   <li><strong>Status Indication:</strong> Signal readiness or completion</li>
+     *   <li><strong>Debugging:</strong> Confirm program is running on the correct drone</li>
+     * </ul>
+     * 
+     * <p><strong>⚠️ Note:</strong> If any RGB value is null or not provided, ALL colors
+     * will be randomly generated to create a unique, easily visible color.</p>
+     * 
+     * @param red Red component (0-255), or null for random
+     * @param green Green component (0-255), or null for random
+     * @param blue Blue component (0-255), or null for random
+     * @educational
+     * @pythonEquivalent ping(r, g, b)
+     */
+    public void ping(Integer red, Integer green, Integer blue) {
+        // Generate random color if any component is not specified
+        if (red == null || green == null || blue == null) {
+            Random random = new Random();
+            red = random.nextInt(256);
+            green = random.nextInt(256);
+            blue = random.nextInt(256);
+        }
+        
+        // Set double-blink LED mode (speed 7 for moderate blink rate)
+        setDroneLEDMode(red, green, blue, "double_blink", 7);
+        
+        // Play three buzzer beeps (200ms each, 200ms pause between)
+        for (int i = 0; i < 3; i++) {
+            drone_buzzer(1000, 200);  // 1000 Hz for 200ms
+            
+            // Pause between beeps (except after last one)
+            if (i < 2) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+        
+        // Set to solid color at full brightness
+        setDroneLED(red, green, blue, 255);
+    }
+
+    /**
+     * Pings the drone using buzzer and LED with a random color.
+     * Convenience overload for the most common use case.
+     * 
+     * @educational
+     * @pythonEquivalent ping()
+     */
+    public void ping() {
+        ping(null, null, null);
+    }
+
+    // ============================================================================
+    // Buzzer Sequence Methods - Predefined Sound Patterns
+    // ============================================================================
+
+    /**
+     * Plays a predefined buzzer sequence on the drone.
+     * 
+     * <p>This method provides access to built-in sound patterns ("success", "warning", "error")
+     * and any custom sequences registered via {@link #registerBuzzerSequence(String, BuzzerSequence)}.
+     * It matches the Python API's drone_buzzer_sequence(kind) functionality.</p>
+     * 
+     * <h3>🎵 Built-in Sequences:</h3>
+     * <ul>
+     *   <li><strong>"success"</strong> - Two ascending tones (1600 Hz → 2200 Hz)</li>
+     *   <li><strong>"warning"</strong> - Three 800 Hz beeps with pauses</li>
+     *   <li><strong>"error"</strong> - Three short 150 Hz beeps</li>
+     * </ul>
+     * 
+     * <h3>💡 Educational Use (L0301):</h3>
+     * <pre>{@code
+     * // Use built-in sequences for feedback
+     * drone.takeoff();
+     * 
+     * if (drone.getFrontRange() < 30) {
+     *     drone.droneBuzzerSequence("warning");  // Object detected
+     *     drone.land();
+     * } else {
+     *     drone.moveForward(50, 2.0);
+     *     drone.droneBuzzerSequence("success");  // Mission complete
+     * }
+     * 
+     * // Use custom sequence
+     * BuzzerSequence fanfare = new BuzzerSequence.Builder()
+     *     .addNote(523, 200)  // C
+     *     .addNote(659, 200)  // E
+     *     .addNote(784, 400)  // G
+     *     .build("fanfare");
+     * 
+     * drone.registerBuzzerSequence("fanfare", fanfare);
+     * drone.droneBuzzerSequence("fanfare");
+     * }</pre>
+     * 
+     * @param sequenceName The name of the sequence to play ("success", "warning", "error", or custom)
+     * @throws IllegalArgumentException if sequence name is not registered
+     * @see #registerBuzzerSequence(String, BuzzerSequence)
+     * @see #controllerBuzzerSequence(String)
+     * @educational
+     * @pythonEquivalent drone_buzzer_sequence(kind)
+     */
+    public void droneBuzzerSequence(String sequenceName) {
+        BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();
+        BuzzerSequence sequence = registry.get(sequenceName);
+        
+        if (sequence == null) {
+            throw new IllegalArgumentException(
+                "Unknown buzzer sequence: '" + sequenceName + "'. " +
+                "Available sequences: " + registry.list());
+        }
+        
+        playSequence(sequence, DeviceType.Drone);
+    }
+
+    /**
+     * Plays a predefined buzzer sequence on the controller.
+     * 
+     * <p>This method provides access to built-in sound patterns ("success", "warning", "error")
+     * and any custom sequences registered via {@link #registerBuzzerSequence(String, BuzzerSequence)}.
+     * It matches the Python API's controller_buzzer_sequence(kind) functionality.</p>
+     * 
+     * <h3>🎵 Built-in Sequences:</h3>
+     * <ul>
+     *   <li><strong>"success"</strong> - Two ascending tones (1600 Hz → 2200 Hz)</li>
+     *   <li><strong>"warning"</strong> - Three 800 Hz beeps with pauses</li>
+     *   <li><strong>"error"</strong> - Three short 150 Hz beeps</li>
+     * </ul>
+     * 
+     * <h3>💡 Educational Use (L0302):</h3>
+     * <pre>{@code
+     * // Provide local feedback without drone
+     * drone.pair();
+     * 
+     * System.out.println("Testing controller...");
+     * drone.controllerBuzzerSequence("success");
+     * 
+     * System.out.println("Press button to continue...");
+     * // Wait for button press
+     * drone.controllerBuzzerSequence("warning");
+     * 
+     * // Custom notification sound
+     * BuzzerSequence doorbell = new BuzzerSequence.Builder()
+     *     .addNote(659, 300)  // E
+     *     .addPause(100)
+     *     .addNote(523, 300)  // C
+     *     .build("doorbell");
+     * 
+     * drone.registerBuzzerSequence("doorbell", doorbell);
+     * drone.controllerBuzzerSequence("doorbell");
+     * }</pre>
+     * 
+     * @param sequenceName The name of the sequence to play ("success", "warning", "error", or custom)
+     * @throws IllegalArgumentException if sequence name is not registered
+     * @see #registerBuzzerSequence(String, BuzzerSequence)
+     * @see #droneBuzzerSequence(String)
+     * @educational
+     * @pythonEquivalent controller_buzzer_sequence(kind)
+     */
+    public void controllerBuzzerSequence(String sequenceName) {
+        BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();
+        BuzzerSequence sequence = registry.get(sequenceName);
+        
+        if (sequence == null) {
+            throw new IllegalArgumentException(
+                "Unknown buzzer sequence: '" + sequenceName + "'. " +
+                "Available sequences: " + registry.list());
+        }
+        
+        playSequence(sequence, DeviceType.Controller);
+    }
+
+    /**
+     * Registers a custom buzzer sequence for later use.
+     * 
+     * <p>This allows students to create and register their own sound patterns that can then
+     * be played using {@link #droneBuzzerSequence(String)} or {@link #controllerBuzzerSequence(String)}.
+     * Registered sequences persist for the lifetime of the Drone object.</p>
+     * 
+     * <h3>🎓 Educational Value (L0303):</h3>
+     * Students learn:
+     * <ul>
+     *   <li>Composition - building complex behaviors from simple parts</li>
+     *   <li>Registration pattern - storing objects for later retrieval</li>
+     *   <li>Reusability - define once, use many times</li>
+     * </ul>
+     * 
+     * <h3>💡 Usage Example:</h3>
+     * <pre>{@code
+     * // Create a custom alarm sequence
+     * BuzzerSequence alarm = new BuzzerSequence.Builder()
+     *     .addNote(1000, 100)
+     *     .addPause(50)
+     *     .addNote(1000, 100)
+     *     .addPause(50)
+     *     .addNote(1000, 100)
+     *     .addPause(200)
+     *     .addNote(1500, 300)
+     *     .build("alarm");
+     * 
+     * // Register it
+     * drone.registerBuzzerSequence("alarm", alarm);
+     * 
+     * // Use it multiple times
+     * drone.takeoff();
+     * for (int i = 0; i < 3; i++) {
+     *     drone.droneBuzzerSequence("alarm");
+     *     drone.hover(1.0);
+     * }
+     * drone.land();
+     * }</pre>
+     * 
+     * <p><strong>⚠️ Note:</strong> If a sequence with the given name already exists
+     * (including built-ins like "success"), it will be replaced. This allows overriding
+     * default sequences if desired.</p>
+     * 
+     * @param name The name to register the sequence under
+     * @param sequence The buzzer sequence to register
+     * @throws IllegalArgumentException if name is null/empty or sequence is null
+     * @see BuzzerSequence.Builder
+     * @see #droneBuzzerSequence(String)
+     * @see #controllerBuzzerSequence(String)
+     * @educational
+     */
+    public void registerBuzzerSequence(String name, BuzzerSequence sequence) {
+        BuzzerSequenceRegistry.getInstance().register(name, sequence);
+    }
+
+    /**
+     * Helper method to play a buzzer sequence on the specified device.
+     * 
+     * @param sequence The sequence to play
+     * @param device The target device (Drone or Controller)
+     */
+    private void playSequence(BuzzerSequence sequence, DeviceType device) {
+        // Add initial delay like Python version (200ms)
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+        
+        // Play each note in the sequence
+        for (BuzzerSequence.BuzzerNote note : sequence.getNotes()) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+            
+            // Play the note (or silence if frequency is 0)
+            if (note.frequency > 0) {
+                Buzzer buzzer = new Buzzer(BuzzerMode.HZ, note.frequency, note.durationMs);
+                
+                Header header = new Header();
+                header.setDataType(DataType.Buzzer);
+                header.setLength(buzzer.getSize());
+                header.setFrom(DeviceType.Base);
+                header.setTo(device);
+                
+                transfer(header, buzzer);
+            }
+            
+            // Wait for note duration + delay
+            try {
+                Thread.sleep(note.durationMs + note.delayAfterMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
     // ========================================
     // Private Buzzer Helper Methods
     // ========================================
@@ -4483,67 +5879,49 @@ public class Drone implements AutoCloseable {
         transfer(header, invertCommand);
     }
 
+
     // ========================================
     // Controller Input Methods
     // ========================================
 
-    /**
-     * Initializes controller input data arrays with default values.
-     */
-    private void initializeControllerInputData() {
-        // Initialize button data: [timestamp, button_flags, event_name]
-        buttonData[0] = 0.0;                    // timestamp
-        buttonData[1] = 0;                      // button flags
-        buttonData[2] = "None_";                // event name
-        
-        // Initialize joystick data: [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event]
-        for (int i = 0; i < joystickData.length; i++) {
-            joystickData[i] = 0;
-        }
-    }
+    // =================================================================================
+    // --- Controller Input API ---
+    // =================================================================================
 
     /**
-     * Returns the current button data array.
-     * Contains [timestamp, button_flags, event_name].
+     * Returns the current button data array (Python API compatibility).
      * 
-     * @return Object array with button state information
-     * @educational
-     */
-    /**
-     * Returns the current button data array.
-     * Contains [timestamp, button_flags, event_name].
+     * <p>Contains [timestamp, button_flags, event_name].</p>
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getButtonDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
      *
      * @return Object array with button state information
      * @educational
+     * @see #getButtonDataObject() Recommended Java alternative
      */
     public Object[] getButtonData() {
-        return buttonData.clone(); // Return copy to prevent external modification
+        return controllerInputManager.getButtonDataArray();
     }
 
     /**
-     * Returns the current joystick data array.
-     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     * Returns the current joystick data array (Python API compatibility).
      * 
-     * @return int array with joystick state information
-     * @educational
-     */
-    /**
-     * Returns the current joystick data array.
-     * Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].
+     * <p>Contains [timestamp, left_x, left_y, left_dir, left_event, right_x, right_y, right_dir, right_event].</p>
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getJoystickDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
      *
      * @return int array with joystick state information
      * @educational
+     * @see #getJoystickDataObject() Recommended Java alternative
      */
     public int[] getJoystickData() {
-        return joystickData.clone(); // Return copy to prevent external modification
+        return controllerInputManager.getJoystickDataArray();
     }
 
-    /**
-     * Gets the left joystick X (horizontal) value.
-     * 
-     * @return X-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the left joystick X (horizontal) value.
      *
@@ -4551,15 +5929,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getLeftJoystickX() {
-        return joystickData[1];
+        return controllerInputManager.getLeftJoystickX();
     }
 
-    /**
-     * Gets the left joystick Y (vertical) value.
-     * 
-     * @return Y-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the left joystick Y (vertical) value.
      *
@@ -4567,15 +5939,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getLeftJoystickY() {
-        return joystickData[2];
+        return controllerInputManager.getLeftJoystickY();
     }
 
-    /**
-     * Gets the right joystick X (horizontal) value.
-     * 
-     * @return X-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the right joystick X (horizontal) value.
      *
@@ -4583,15 +5949,9 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getRightJoystickX() {
-        return joystickData[5];
+        return controllerInputManager.getRightJoystickX();
     }
 
-    /**
-     * Gets the right joystick Y (vertical) value.
-     * 
-     * @return Y-axis value from -100 to 100, where 0 is neutral
-     * @educational
-     */
     /**
      * Gets the right joystick Y (vertical) value.
      *
@@ -4599,7 +5959,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int getRightJoystickY() {
-        return joystickData[6];
+        return controllerInputManager.getRightJoystickY();
     }
 
     /**
@@ -4729,17 +6089,17 @@ public class Drone implements AutoCloseable {
      * @return true if the button is pressed or held, false otherwise
      */
     private boolean isButtonPressed(int buttonFlag) {
-        if (buttonData[1] instanceof Integer) {
-            int currentButtons = (Integer) buttonData[1];
-            String eventName = (String) buttonData[2];
-            
-            // Check if the specific button flag is set and the event is Press or Down
-            boolean buttonFlagSet = (currentButtons & buttonFlag) != 0;
-            boolean validEvent = "Press".equals(eventName) || "Down".equals(eventName);
-            
-            return buttonFlagSet && validEvent;
-        }
-        return false;
+        ButtonData buttonData = controllerInputManager.getButtonDataObject();
+        
+        // Button is pressed if:
+        // 1. The button flag bit is set in buttonFlags, AND
+        // 2. The event is Press or Down (actively pressed/held)
+        // This prevents false positives from Up events where the flag might linger
+        boolean buttonFlagSet = (buttonData.getButtonFlags() & buttonFlag) != 0;
+        boolean activeEvent = "Press".equals(buttonData.getEventName()) || 
+                             "Down".equals(buttonData.getEventName());
+        
+        return buttonFlagSet && activeEvent;
     }
 
     /**
@@ -4749,12 +6109,7 @@ public class Drone implements AutoCloseable {
      * @param button The button protocol data received
      */
     public void updateButtonData(com.otabi.jcodroneedu.protocol.controllerinput.Button button) {
-        if (button != null) {
-            long currentTime = System.currentTimeMillis();
-            buttonData[0] = (double) currentTime / 1000.0; // timestamp in seconds
-            buttonData[1] = (int) button.getButton();       // button flags
-            buttonData[2] = button.getEvent().name();       // event name
-        }
+        controllerInputManager.updateButtonData(button);
     }
 
     /**
@@ -4764,18 +6119,443 @@ public class Drone implements AutoCloseable {
      * @param joystick The joystick protocol data received
      */
     public void updateJoystickData(com.otabi.jcodroneedu.protocol.controllerinput.Joystick joystick) {
-        if (joystick != null) {
-            long currentTime = System.currentTimeMillis();
-            joystickData[0] = (int) (currentTime / 1000); // timestamp in seconds
-            joystickData[1] = joystick.getLeft().getX();   // left X
-            joystickData[2] = joystick.getLeft().getY();   // left Y
-            joystickData[3] = joystick.getLeft().getDirection().getValue(); // left direction
-            joystickData[4] = joystick.getLeft().getEvent().getValue();     // left event
-            joystickData[5] = joystick.getRight().getX();  // right X
-            joystickData[6] = joystick.getRight().getY();  // right Y
-            joystickData[7] = joystick.getRight().getDirection().getValue(); // right direction
-            joystickData[8] = joystick.getRight().getEvent().getValue();     // right event
+        controllerInputManager.updateJoystickData(joystick);
+    }
+
+    /**
+     * Gets button data as a type-safe Java object (recommended for Java code).
+     * 
+     * <p>This method provides a Java-idiomatic way to access button data with proper types
+     * instead of working with Object arrays.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * ButtonData data = drone.getButtonDataObject();
+     * System.out.println("Button: " + data.getButtonFlags());
+     * System.out.println("Event: " + data.getEventName());
+     * }</pre>
+     * 
+     * @return ButtonData object containing timestamp, flags, and event name
+     * @since 1.0.0
+     * @see ButtonData
+     */
+    public ButtonData getButtonDataObject() {
+        return controllerInputManager.getButtonDataObject();
+    }
+
+    /**
+     * Gets joystick data as a type-safe Java object (recommended for Java code).
+     * 
+     * <p>This method provides a Java-idiomatic way to access joystick data with proper types
+     * instead of working with int arrays.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * JoystickData data = drone.getJoystickDataObject();
+     * System.out.println("Left X: " + data.getLeftX());
+     * System.out.println("Right Y: " + data.getRightY());
+     * }</pre>
+     * 
+     * @return JoystickData object containing all joystick values
+     * @since 1.0.0
+     * @see JoystickData
+     */
+    public JoystickData getJoystickDataObject() {
+        return controllerInputManager.getJoystickDataObject();
+    }
+
+    // ========================================
+    // Inventory Methods
+    // ========================================
+
+    /**
+     * Retrieves flight count statistics from the drone and returns an array containing:
+     * [timestamp, flight_time, takeoff_count, landing_count, accident_count]
+     *
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCountDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     *
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with count data
+     * @educational
+     * @since 1.0.0
+     * @see #getCountDataObject(double) Recommended Java alternative
+     * @see #getFlightTime() For individual value access
+     */
+    public Object[] getCountData(double delay) {
+        Request request = new Request(DataType.Count);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+        return inventoryManager.getCountDataArray();
+    }
+
+    /**
+     * Retrieves flight count statistics from the drone with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCountDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with count data [timestamp, flight_time, takeoff_count, landing_count, accident_count]
+     * @educational
+     * @since 1.0.0
+     * @see #getCountDataObject() Recommended Java alternative
+     * @see #getFlightTime() For individual value access
+     */
+    public Object[] getCountData() {
+        return getCountData(0.05);
+    }
+
+    /**
+     * Gets the total flight time in seconds from the count data.
+     * 
+     * @return Flight time in seconds
+     * @educational
+     * @since 1.0.0
+     */
+    public int getFlightTime() {
+        getCountData();
+        return inventoryManager.getFlightTime();
+    }
+
+    /**
+     * Gets the total number of takeoffs from the count data.
+     * 
+     * @return Number of takeoffs
+     * @educational
+     * @since 1.0.0
+     */
+    public int getTakeoffCount() {
+        getCountData();
+        return inventoryManager.getTakeoffCount();
+    }
+
+    /**
+     * Gets the total number of landings from the count data.
+     * 
+     * @return Number of landings
+     * @educational
+     * @since 1.0.0
+     */
+    public int getLandingCount() {
+        getCountData();
+        return inventoryManager.getLandingCount();
+    }
+
+    /**
+     * Gets the total number of accidents from the count data.
+     * 
+     * @return Number of accidents
+     * @educational
+     * @since 1.0.0
+     */
+    public int getAccidentCount() {
+        getCountData();
+        return inventoryManager.getAccidentCount();
+    }
+
+    /**
+     * Retrieves device information for both drone and controller.
+     * Returns an array containing: [timestamp, drone_model, drone_firmware, controller_model, controller_firmware]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getInformationDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with information data
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationDataObject(double) Recommended Java alternative
+     */
+    public Object[] getInformationData(double delay) {
+        Request request = new Request(DataType.Information);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getInformationDataArray();
+    }
+
+    /**
+     * Retrieves device information with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getInformationDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with information data [timestamp, drone_model, drone_firmware, controller_model, controller_firmware]
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationDataObject() Recommended Java alternative
+     */
+    public Object[] getInformationData() {
+        return getInformationData(0.05);
+    }
+
+    /**
+     * Retrieves CPU ID for both drone and controller.
+     * Returns an array containing: [timestamp, drone_cpu_id, controller_cpu_id]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCpuIdDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with CPU ID data
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdDataObject(double) Recommended Java alternative
+     */
+    public Object[] getCpuIdData(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCpuIdDataArray();
+    }
+
+    /**
+     * Retrieves CPU ID data with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getCpuIdDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with CPU ID data [timestamp, drone_cpu_id, controller_cpu_id]
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdDataObject() Recommended Java alternative
+     */
+    public Object[] getCpuIdData() {
+        return getCpuIdData(0.05);
+    }
+
+    /**
+     * Retrieves addresses for both drone and controller.
+     * Returns an array containing: [timestamp, drone_address, controller_address]
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getAddressDataObject(double)} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @param delay Delay in seconds to wait for response (default 0.05)
+     * @return Object array with address data
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressDataObject(double) Recommended Java alternative
+     */
+    public Object[] getAddressData(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getAddressDataArray();
+    }
+
+    /**
+     * Retrieves address data with default delay.
+     * 
+     * <p><strong>Note for Java developers:</strong> Consider using {@link #getAddressDataObject()} 
+     * for a more type-safe, Java-idiomatic approach. This method is provided primarily for 
+     * Python API compatibility.</p>
+     * 
+     * @return Object array with address data [timestamp, drone_address, controller_address]
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressDataObject() Recommended Java alternative
+     */
+    public Object[] getAddressData() {
+        return getAddressData(0.05);
+    }
+
+    // ========================================
+    // Inventory Methods - Java Composite Objects
+    // ========================================
+    
+    /**
+     * Retrieves flight count statistics from the drone as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getCountData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return CountData object with flight statistics, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCountData()
+     */
+    public CountData getCountDataObject(double delay) {
+        Request request = new Request(DataType.Count);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCountDataObject();
+    }
+    
+    /**
+     * Retrieves flight count statistics from the drone as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getCountData()}.
+     * 
+     * @return CountData object with flight statistics, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCountData()
+     */
+    public CountData getCountDataObject() {
+        return getCountDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves device information as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getInformationData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return InformationData object with device information, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationData()
+     */
+    public InformationData getInformationDataObject(double delay) {
+        Request request = new Request(DataType.Information);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getInformationDataObject();
+    }
+    
+    /**
+     * Retrieves device information as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getInformationData()}.
+     * 
+     * @return InformationData object with device information, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getInformationData()
+     */
+    public InformationData getInformationDataObject() {
+        return getInformationDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves CPU IDs as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getCpuIdData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return CpuIdData object with CPU IDs, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdData()
+     */
+    public CpuIdData getCpuIdDataObject(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getCpuIdDataObject();
+    }
+    
+    /**
+     * Retrieves CPU IDs as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getCpuIdData()}.
+     * 
+     * @return CpuIdData object with CPU IDs, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getCpuIdData()
+     */
+    public CpuIdData getCpuIdDataObject() {
+        return getCpuIdDataObject(0.05);
+    }
+    
+    /**
+     * Retrieves Bluetooth addresses as a type-safe Java object.
+     * This method provides a more Java-idiomatic alternative to {@link #getAddressData()}.
+     * 
+     * @param delay Delay in seconds to wait for response
+     * @return AddressData object with Bluetooth addresses, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressData()
+     */
+    public AddressData getAddressDataObject(double delay) {
+        Request request = new Request(DataType.Address);
+        sendMessage(request, DeviceType.Base, DeviceType.Drone);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        sendMessage(request, DeviceType.Base, DeviceType.Controller);
+        try {
+            Thread.sleep((long)(delay * 1000));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return inventoryManager.getAddressDataObject();
+    }
+    
+    /**
+     * Retrieves Bluetooth addresses as a type-safe Java object with default delay.
+     * This method provides a more Java-idiomatic alternative to {@link #getAddressData()}.
+     * 
+     * @return AddressData object with Bluetooth addresses, or null if not available
+     * @educational
+     * @since 1.0.0
+     * @see #getAddressData()
+     */
+    public AddressData getAddressDataObject() {
+        return getAddressDataObject(0.05);
     }
 
     // ========================================

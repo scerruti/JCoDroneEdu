@@ -186,6 +186,12 @@ class CheckInterruptTransformer(ast.NodeTransformer):
             return [node, check_interrupt_call]
         return super().generic_visit(node)
 
+class GlobalToNonlocalTransformer(ast.NodeTransformer):
+    def visit_Global(self, node):
+        # Replace `global x` with `nonlocal x`
+        nonlocal_node = ast.Nonlocal(names=node.names)
+        return ast.copy_location(nonlocal_node, node)
+
 def transform_code(code):
     # Parse the code into an AST
     tree = ast.parse(code)
@@ -200,10 +206,12 @@ def transform_code(code):
     async_transformer = AsyncTransformer(function_collector.custom_functions, "drone")
     sleep_transformer = SleepTransformer()
     check_interrupt_transformer = CheckInterruptTransformer()
+    global_to_nonlocal_transformer = GlobalToNonlocalTransformer()
 
     tree = async_transformer.visit(tree)
     tree = sleep_transformer.visit(tree)
     tree = check_interrupt_transformer.visit(tree)
+    tree = global_to_nonlocal_transformer.visit(tree)
 
     # Ensure the tree is correctly fixed
     ast.fix_missing_locations(tree)
