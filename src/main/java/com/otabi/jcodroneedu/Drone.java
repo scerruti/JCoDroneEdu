@@ -9,6 +9,7 @@ import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
 import com.otabi.jcodroneedu.protocol.display.*;
+import com.otabi.jcodroneedu.protocol.dronestatus.Altitude;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
 import com.otabi.jcodroneedu.protocol.lightcontroller.Color;
 import com.otabi.jcodroneedu.protocol.lightcontroller.LightDefault;
@@ -3064,6 +3065,40 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Gets altitude data including altitude, pressure, and temperature.
+     * <p>
+     * This method replaces {@code getAltitudeData()} for Java idiomatic usage.
+     * </p>
+     * <p>
+     * <b>Python Compatibility:</b> Equivalent to Python's {@code drone.get_altitude_data()}.
+     * </p>
+     * @return Altitude data object containing altitude, pressure, and temperature
+     * @since 1.0
+     */
+    public Altitude getAltitude() {
+        sendRequest(DataType.Altitude);
+         try {
+            Thread.sleep(100); // Brief delay for data request
+        } catch (InterruptedException e) {
+        } 
+        return droneStatus.getAltitude();
+    }
+
+    /**
+     * @deprecated Use {@link #getAltitude()} instead. Preserved for compatibility with Python API.
+     * <p>
+     * This method is maintained for compatibility with Python's {@code drone.get_altitude_data()}.
+     * Please use {@link #getAltitude()} for new Java code.
+     * </p>
+     * @return Altitude data object containing altitude, pressure, and temperature
+     */
+    @Deprecated(since = "1.0", forRemoval = false)
+    public Altitude getAltitudeData() {
+        return getAltitude();
+    }
+
+
+    /**
      * Gets atmospheric pressure in Pascals.
      * 
      * <p>Returns the current atmospheric pressure reading from the drone's
@@ -3092,6 +3127,11 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getPressure() {
+        sendRequest(DataType.Altitude);
+         try {
+            Thread.sleep(100); // Brief delay for data request
+        } catch (InterruptedException e) {
+        } 
         var altitude = droneStatus.getAltitude();
         return (altitude != null) ? altitude.getPressure() : 0.0;
     }
@@ -3644,6 +3684,11 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getDroneTemperature() {
+        sendRequest(DataType.Altitude);
+         try {
+            Thread.sleep(100); // Brief delay for data request
+        } catch (InterruptedException e) {
+        } 
         return useCalibratedTemperature ? getCalibratedTemperature() : getUncalibratedTemperature();
     }
 
