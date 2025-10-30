@@ -1,24 +1,26 @@
 package com.otabi.jcodroneedu.examples.tests;
 
-import java.util.Scanner;
-
 import com.otabi.jcodroneedu.Drone;
 
 public class TestHeight {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         try (Drone drone = new Drone()) {
-            System.out.println("Before pair: " + drone.getAltitude());
             drone.pair();
-            System.out.println("After pair: " + drone.getAltitude());
+            drone.takeoff();
+            drone.setThrottle(20);
 
-            System.out.println("Move drone to table height...");
-            scanner.nextLine();
-            System.out.println("Table height: " + drone.getAltitude());
+            System.out.println("Requesting initial altitude...");
+            float altitude = 0;
+            altitude = drone.getAltitude().getRangeHeight();
+            drone.getHeight();
+            System.out.println("Received altitude: " + altitude + " cm");
 
-            System.out.println("Move drone to eye level...");
-            scanner.nextLine();
-            System.out.println("Eye level: " + drone.getAltitude());
+            while (altitude < 2) {
+                altitude = drone.getAltitude().getRangeHeight();
+                System.out.println("Received altitude: " + altitude + " cm");
+                drone.move(0.01);
+            }
+            drone.land();
         }
 
         System.out.println("Disconnected.");

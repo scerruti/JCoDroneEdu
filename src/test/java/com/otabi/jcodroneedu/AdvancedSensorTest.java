@@ -40,8 +40,12 @@ class AdvancedSensorTest {
                 // When no position data is set
                 float[] result = drone.getPositionData();
 
-                // Should return null
-                assertNull(result, "getPositionData() should return null when no data is available");
+                // Should return default/bad data (array of zeros)
+                assertNotNull(result, "getPositionData() should not be null when no data is available");
+                assertEquals(3, result.length, "Should return array with 3 position values");
+                assertEquals(0.0, result[0], 0.001, "X position should be 0 when no data");
+                assertEquals(0.0, result[1], 0.001, "Y position should be 0 when no data");
+                assertEquals(0.0, result[2], 0.001, "Z position should be 0 when no data");
             });
         }
 
@@ -250,8 +254,13 @@ class AdvancedSensorTest {
                 // When no sensor data is set
                 double[] result = drone.getSensorData();
 
-                // Should return null
-                assertNull(result, "getSensorData() should return null when no basic data is available");
+                // Should return default/bad data (array of zeros)
+                assertNotNull(result, "getSensorData() should not be null when no basic data is available");
+                // The expected length may depend on your implementation; adjust as needed
+                assertTrue(result.length >= 3, "getSensorData() should return an array with at least 3 values");
+                for (double v : result) {
+                    assertEquals(0.0, v, 0.001, "Sensor value should be 0 when no data is available");
+                }
             });
         }
 
@@ -265,26 +274,20 @@ class AdvancedSensorTest {
                 droneStatus.setPosition(position);
                 droneStatus.setAltitude(altitude);
 
-                // Test the method - it may return null if range data is not available
-                // This is expected behavior when not all sensors are available
+                // Test the method - should always return an array (never null)
                 double[] result = drone.getSensorData();
 
-                if (result != null) {
-                    // If we get data, test the structure
-                    assertEquals(21, result.length, "Should return array with 21 sensor values");
+                assertNotNull(result, "getSensorData() should not return null when data is available");
+                assertEquals(17, result.length, "Should return array with 17 sensor values");
 
-                    // Test position data (indices 0-2) - now in meters
-                    assertEquals(1.0, result[0], 0.001, "Position X should match");
-                    assertEquals(0.5, result[1], 0.001, "Position Y should match");
-                    assertEquals(0.2, result[2], 0.001, "Position Z should match");
+                // Test position data (indices 0-2) - now in meters
+                assertEquals(1.0, result[0], 0.001, "Position X should match");
+                assertEquals(0.5, result[1], 0.001, "Position Y should match");
+                assertEquals(0.2, result[2], 0.001, "Position Z should match");
 
-                    // Test environmental data (indices 19-20)
-                    assertEquals(101325.0, result[19], 0.001, "Pressure should match");
-                    assertEquals(25.0, result[20], 0.001, "Temperature should match");
-                } else {
-                    // If null, it's because range data is not available, which is acceptable
-                    assertNull(result, "getSensorData() may return null when range data is not available");
-                }
+                // Test environmental data (indices 15-16)
+                assertEquals(101325.0, result[15], 0.001, "Pressure should match");
+                assertEquals(25.0, result[16], 0.001, "Temperature should match");
             });
         }
     }

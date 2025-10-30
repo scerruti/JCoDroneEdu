@@ -273,9 +273,9 @@ public class FlightController {
      *
      * @param duration Number of seconds to perform the action
      */
-    public void move(int duration)
+    public void move(double duration)
     {
-        int milliseconds = duration * DroneSystem.FlightControlConstants.MILLISECONDS_PER_SECOND;
+        int milliseconds = (int) (duration * DroneSystem.FlightControlConstants.MILLISECONDS_PER_SECOND);
         // there is a while loop inside of the send control method.
         sendControlWhile(control, milliseconds);
     }
@@ -995,8 +995,7 @@ public class FlightController {
         log.debug("Getting battery level");
         
         // Request fresh state data
-        drone.sendRequest(DataType.State);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null) {
@@ -1020,8 +1019,7 @@ public class FlightController {
         log.debug("Getting flight state");
         
         // Request fresh state data
-        drone.sendRequest(DataType.State);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null && state.getModeFlight() != null) {
@@ -1045,8 +1043,7 @@ public class FlightController {
         log.debug("Getting movement state");
         
         // Request fresh state data
-        drone.sendRequest(DataType.State);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null && state.getModeMovement() != null) {
@@ -1093,8 +1090,7 @@ public class FlightController {
         log.debug("Getting front range in {}", unit);
         
         // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Range);
         
         Range range = drone.getDroneStatus().getRange();
         if (range != null) {
@@ -1129,8 +1125,7 @@ public class FlightController {
         log.debug("Getting bottom range in {}", unit);
         
         // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Range);
         
         Range range = drone.getDroneStatus().getRange();
         if (range != null) {
@@ -1154,150 +1149,6 @@ public class FlightController {
     }
 
     /**
-     * Gets the distance measured by the back/rear range sensor.
-     * 
-     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
-     * @return Distance in the specified unit
-     * @apiNote Equivalent to Python's get_back_range() method
-     * @since 1.0
-     */
-    public double getBackRange(String unit) {
-        log.debug("Getting back range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getRear(), unit);
-            log.debug("Back range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for back range reading");
-            return 0.0;
-        }
-    }
-
-    /**
-     * Gets the distance measured by the back/rear range sensor in centimeters.
-     * 
-     * @return Distance in centimeters
-     * @since 1.0
-     */
-    public double getBackRange() {
-        return getBackRange("cm");
-    }
-
-    /**
-     * Gets the distance measured by the top range sensor.
-     * 
-     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
-     * @return Distance in the specified unit
-     * @apiNote Equivalent to Python's get_top_range() method
-     * @since 1.0
-     */
-    public double getTopRange(String unit) {
-        log.debug("Getting top range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getTop(), unit);
-            log.debug("Top range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for top range reading");
-            return 0.0;
-        }
-    }
-
-    /**
-     * Gets the distance measured by the top range sensor in centimeters.
-     * 
-     * @return Distance in centimeters
-     * @since 1.0
-     */
-    public double getTopRange() {
-        return getTopRange("cm");
-    }
-
-    /**
-     * Gets the distance measured by the left range sensor.
-     * 
-     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
-     * @return Distance in the specified unit
-     * @apiNote Equivalent to Python's get_left_range() method
-     * @since 1.0
-     */
-    public double getLeftRange(String unit) {
-        log.debug("Getting left range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getLeft(), unit);
-            log.debug("Left range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for left range reading");
-            return 0.0;
-        }
-    }
-
-    /**
-     * Gets the distance measured by the left range sensor in centimeters.
-     * 
-     * @return Distance in centimeters
-     * @since 1.0
-     */
-    public double getLeftRange() {
-        return getLeftRange("cm");
-    }
-
-    /**
-     * Gets the distance measured by the right range sensor.
-     * 
-     * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
-     * @return Distance in the specified unit
-     * @apiNote Equivalent to Python's get_right_range() method
-     * @since 1.0
-     */
-    public double getRightRange(String unit) {
-        log.debug("Getting right range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequest(DataType.Range);
-        sleep(10); // Brief delay for data update
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getRight(), unit);
-            log.debug("Right range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for right range reading");
-            return 0.0;
-        }
-    }
-
-    /**
-     * Gets the distance measured by the right range sensor in centimeters.
-     * 
-     * @return Distance in centimeters
-     * @since 1.0
-     */
-    public double getRightRange() {
-        return getRightRange("cm");
-    }
-
-    /**
      * Gets the X position relative to takeoff point.
      * 
      * @param unit The unit for the measurement ("cm", "mm", "m", or "in")
@@ -1309,8 +1160,7 @@ public class FlightController {
         log.debug("Getting X position in {}", unit);
         
         // Request fresh position data
-        drone.sendRequest(DataType.Position);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Position);
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
@@ -1345,8 +1195,7 @@ public class FlightController {
         log.debug("Getting Y position in {}", unit);
         
         // Request fresh position data
-        drone.sendRequest(DataType.Position);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Position);
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
@@ -1381,8 +1230,7 @@ public class FlightController {
         log.debug("Getting Z position in {}", unit);
         
         // Request fresh position data
-        drone.sendRequest(DataType.Position);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Position);
         
         com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
         if (positionData != null) {
@@ -1416,8 +1264,7 @@ public class FlightController {
         log.debug("Getting X acceleration");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1444,8 +1291,7 @@ public class FlightController {
         log.debug("Getting Y acceleration");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1471,8 +1317,7 @@ public class FlightController {
         log.debug("Getting Z acceleration");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1498,8 +1343,7 @@ public class FlightController {
         log.debug("Getting X angle (roll)");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1524,8 +1368,7 @@ public class FlightController {
         log.debug("Getting Y angle (pitch)");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1550,8 +1393,7 @@ public class FlightController {
         log.debug("Getting Z angle (yaw)");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1585,12 +1427,11 @@ public class FlightController {
      * @since 1.0
      * @educational This demonstrates array usage and coordinate systems
      */
-    public int[] get_accel() {
+    public int[] getAccel() {
         log.debug("Getting acceleration array data");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1623,12 +1464,11 @@ public class FlightController {
      * @since 1.0
      * @educational This demonstrates array usage and rotational concepts
      */
-    public int[] get_gyro() {
+    public int[] getGyro() {
         log.debug("Getting gyroscope array data");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {
@@ -1657,12 +1497,11 @@ public class FlightController {
      * @since 1.0
      * @educational This demonstrates array usage and spatial orientation concepts
      */
-    public int[] get_angle() {
+    public int[] getAngle() {
         log.debug("Getting angle array data");
         
         // Request fresh motion data
-        drone.sendRequest(DataType.Motion);
-        sleep(10); // Brief delay for data update
+        drone.sendRequestWait(DataType.Motion);
         
         Motion motion = drone.getDroneStatus().getMotion();
         if (motion != null) {

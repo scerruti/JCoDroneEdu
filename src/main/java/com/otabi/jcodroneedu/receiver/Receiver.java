@@ -115,6 +115,7 @@ public class Receiver {
     public void call(byte data) {
         if (timeReceiveStart > 0 && (System.currentTimeMillis() - timeReceiveStart > RECEIVE_TIMEOUT_MS)) {
             log.error("Receiver timeout. Resetting.");
+            setDefaultBadState();
             reset();
         }
 
@@ -136,10 +137,12 @@ public class Receiver {
                 break;
             default:
                 log.error("Unknown receiver section: {}", currentSection);
+                setDefaultBadState();
                 success = false;
         }
 
         if (!success) {
+            setDefaultBadState();
             reset();
             return;
         }
@@ -154,6 +157,7 @@ public class Receiver {
             if (data == DroneSystem.CommunicationConstants.PROTOCOL_START_BYTE_1) {
                 timeReceiveStart = System.currentTimeMillis();
             } else {
+                setDefaultBadState();
                 return false; // Not a start byte, ignore
             }
         } else if (index == 1) {
@@ -162,6 +166,7 @@ public class Receiver {
                 index = 0;
             } else {
                 log.warn("Invalid start sequence. Expected 0x55, got 0x{}", String.format("%02X", data & 0xFF));
+                setDefaultBadState();
                 return false;
             }
         }
@@ -245,13 +250,30 @@ public class Receiver {
             } else {
                 String rhex = String.format("%04X", crc16received & 0xFFFF);
                 String chex = String.format("%04X", crc16calculated & 0xFFFF);
-        // CRC mismatches are expected in tests that mutate packets; make this debug to avoid noisy test output
-        log.debug("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
-            header.getDataType(), rhex, chex);
+                // CRC mismatches are expected in tests that mutate packets; make this debug to avoid noisy test output
+                log.debug("CRC Mismatch for {}. Received: 0x{}, Calculated: 0x{}",
+                    header.getDataType(), rhex, chex);
+                setDefaultBadState();
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Sets the drone status State to a default/bad object (battery 0, not in flight).
+     */
+    private void setDefaultBadState() {
+        droneStatus.setState(new com.otabi.jcodroneedu.protocol.dronestatus.State(
+            com.otabi.jcodroneedu.DroneSystem.ModeSystem.RUNNING,
+            com.otabi.jcodroneedu.DroneSystem.ModeFlight.READY,
+            com.otabi.jcodroneedu.DroneSystem.ModeControlFlight.ATTITUDE,
+            com.otabi.jcodroneedu.DroneSystem.ModeMovement.HOVERING,
+            com.otabi.jcodroneedu.DroneSystem.Headless.NORMAL_MODE,
+            (byte)0,
+            com.otabi.jcodroneedu.DroneSystem.SensorOrientation.NORMAL,
+            (byte)0
+        ));
     }
 
     /**
@@ -322,6 +344,7 @@ public class Receiver {
             Consumer<Serializable> handler = handlers.get(header.getDataType());
             if (handler != null) {
                 handler.accept(message);
+                droneStatus.complete(header.getDataType());
                 
                 // Special handling for Address messages - need device type from header
                 if (header.getDataType() == DataType.Address) {

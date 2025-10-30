@@ -67,7 +67,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals(85, battery, "Battery level should match state data");
-            verify(mockDrone).sendRequest(DataType.State);
+            verify(mockDrone).sendRequestWait(DataType.State);
         }
 
         @Test
@@ -95,7 +95,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals("FLIGHT", flightState, "Flight state should match enum name");
-            verify(mockDrone).sendRequest(DataType.State);
+            verify(mockDrone).sendRequestWait(DataType.State);
         }
 
         @Test
@@ -142,7 +142,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals(120.0, height, 0.01, "Height should convert mm to cm");
-            verify(mockDrone).sendRequest(DataType.Range);
+            verify(mockDrone).sendRequestWait(DataType.Range);
         }
 
         @Test
@@ -171,7 +171,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals(50.0, frontRange, 0.01, "Front range should convert mm to cm");
-            verify(mockDrone).sendRequest(DataType.Range);
+            verify(mockDrone).sendRequestWait(DataType.Range);
         }
 
         @Test
@@ -202,7 +202,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals(150.0, posX, 0.01, "X position should convert m to cm");
-            verify(mockDrone).sendRequest(DataType.Position);
+            verify(mockDrone).sendRequestWait(DataType.Position);
         }
 
         @Test
@@ -289,7 +289,7 @@ public class SensorDataAccessTest {
 
             // Assert
             assertEquals(1.5, accelX, 0.02, "Acceleration should be scaled to G-force");
-            verify(mockDrone).sendRequest(DataType.Motion);
+            verify(mockDrone).sendRequestWait(DataType.Motion);
         }
 
         @Test

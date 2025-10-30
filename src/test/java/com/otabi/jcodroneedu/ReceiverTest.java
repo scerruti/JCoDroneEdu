@@ -108,58 +108,68 @@ class ReceiverTest {
     @Test
     @DisplayName("Should reject message with bad CRC")
     void shouldRejectBadCrc() {
-        try (Drone drone = new Drone()) {
-            receiver = drone.getReceiver();
-            droneStatus = drone.getDroneStatus();
+    try (Drone drone = new Drone()) {
+        receiver = drone.getReceiver();
+        droneStatus = drone.getDroneStatus();
+        droneStatus.setState(null); // Ensure state is clear before test
 
-            State s = new State(
-                    DroneSystem.ModeSystem.RUNNING,
-                    DroneSystem.ModeFlight.FLIGHT,
-                    DroneSystem.ModeControlFlight.ATTITUDE,
-                    DroneSystem.ModeMovement.HOVERING,
-                    DroneSystem.Headless.NORMAL_MODE,
-                    (byte)2,
-                    DroneSystem.SensorOrientation.NORMAL,
-                    (byte)50
-            );
-            Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
-            byte[] pkt = buildTestPacket(h, s);
+        State s = new State(
+            DroneSystem.ModeSystem.RUNNING,
+            DroneSystem.ModeFlight.FLIGHT,
+            DroneSystem.ModeControlFlight.ATTITUDE,
+            DroneSystem.ModeMovement.HOVERING,
+            DroneSystem.Headless.NORMAL_MODE,
+            (byte)2,
+            DroneSystem.SensorOrientation.NORMAL,
+            (byte)50
+        );
+        Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
+        byte[] pkt = buildTestPacket(h, s);
 
-            // Corrupt one byte in payload to break CRC
-            pkt[pkt.length - 3] ^= 0xFF;
+        // Corrupt one byte in payload to break CRC
+        pkt[pkt.length - 3] ^= 0xFF;
 
             // Feed and ensure receiver does not set state
             for (byte b : pkt) receiver.call(b);
-            assertNull(droneStatus.getState(), "State should be null after bad CRC");
-        }
+            State actualState = droneStatus.getState();
+            assertNotNull(actualState, "State object should not be null after bad CRC (should be default/bad data)");
+            // Check for default/bad values
+            assertEquals(0, actualState.getBattery(), "Battery should be 0 for bad data");
+            assertFalse(actualState.isFlight(), "Should not report as being in flight for bad data");
+    }
     }
 
     @Test
     @DisplayName("Should ignore malformed start sequence")
     void shouldIgnoreMalformedStart() {
-        try (Drone drone = new Drone()) {
-            receiver = drone.getReceiver();
-            droneStatus = drone.getDroneStatus();
+    try (Drone drone = new Drone()) {
+        receiver = drone.getReceiver();
+        droneStatus = drone.getDroneStatus();
+        droneStatus.setState(null); // Ensure state is clear before test
 
-            State s = new State(
-                    DroneSystem.ModeSystem.RUNNING,
-                    DroneSystem.ModeFlight.FLIGHT,
-                    DroneSystem.ModeControlFlight.ATTITUDE,
-                    DroneSystem.ModeMovement.HOVERING,
-                    DroneSystem.Headless.NORMAL_MODE,
-                    (byte)2,
-                    DroneSystem.SensorOrientation.NORMAL,
-                    (byte)50
-            );
-            Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
-            byte[] pkt = buildTestPacket(h, s);
+        State s = new State(
+            DroneSystem.ModeSystem.RUNNING,
+            DroneSystem.ModeFlight.FLIGHT,
+            DroneSystem.ModeControlFlight.ATTITUDE,
+            DroneSystem.ModeMovement.HOVERING,
+            DroneSystem.Headless.NORMAL_MODE,
+            (byte)2,
+            DroneSystem.SensorOrientation.NORMAL,
+            (byte)50
+        );
+        Header h = new Header(DataType.State, s.getSize(), DeviceType.Drone, DeviceType.Base);
+        byte[] pkt = buildTestPacket(h, s);
 
-            // Change the start bytes to be invalid
-            pkt[0] = 0x00; pkt[1] = 0x00;
+        // Change the start bytes to be invalid
+        pkt[0] = 0x00; pkt[1] = 0x00;
 
             for (byte b : pkt) receiver.call(b);
-            assertNull(droneStatus.getState(), "Malformed start should result in no parsed state");
-        }
+            State actualState = droneStatus.getState();
+            assertNotNull(actualState, "State object should not be null after malformed start (should be default/bad data)");
+            // Check for default/bad values
+            assertEquals(0, actualState.getBattery(), "Battery should be 0 for bad data");
+            assertFalse(actualState.isFlight(), "Should not report as being in flight for bad data");
+    }
     }
 
     @Test
