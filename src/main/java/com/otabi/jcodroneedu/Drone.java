@@ -517,6 +517,12 @@ public class Drone implements AutoCloseable {
         sendMessage(request);
     }
 
+    public void sendRequestWait(DataType dataType) {
+        Request request = new Request(dataType);
+        sendMessage(request);
+        droneStatus.waitForUpdate(dataType);
+    }
+
     // =================================================================================
     // --- Flight Control API ---
     // =================================================================================
@@ -822,7 +828,7 @@ public class Drone implements AutoCloseable {
      *
      * @param duration Number of seconds to perform the action
      */
-    public void move(int duration)
+    public void move(double duration)
     {
         flightController.move(duration);
     }
@@ -2209,90 +2215,6 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Gets the distance measured by the back/rear range sensor in centimeters.
-     * 
-     * <p>Returns the distance to objects behind the drone. Useful for
-     * backing up safely and creating comprehensive obstacle avoidance behaviors.</p>
-     * 
-     * <h3>🛡️ Educational Usage:</h3>
-     * <ul>
-     *   <li><strong>L0106 Conditionals:</strong> Check rear clearance before reversing</li>
-     *   <li><strong>L0108 While Loops:</strong> Back away from obstacles</li>
-     *   <li><strong>Safety Programming:</strong> 360-degree awareness</li>
-     * </ul>
-     * 
-     * @return distance in centimeters
-     * @apiNote Equivalent to Python's {@code drone.get_back_range()}
-     * @since 1.0
-     * 
-     * @example
-     * <pre>{@code
-     * // L0106: Safe backing maneuver
-     * if (drone.getBackRange() > 100) {
-     *     drone.go("backward", 30, 2);
-     * } else {
-     *     System.out.println("Can't back up - obstacle detected!");
-     * }
-     * }</pre>
-     */
-    public double getBackRange() {
-        return flightController.getBackRange();
-    }
-
-    /**
-     * Gets the distance measured by the back/rear range sensor in the specified unit.
-     * 
-     * @param unit measurement unit ("cm", "mm", "m", or "in")
-     * @return distance in the specified unit
-     * @since 1.0
-     */
-    public double getBackRange(String unit) {
-        return flightController.getBackRange(unit);
-    }
-
-    /**
-     * Gets the distance measured by the top range sensor in centimeters.
-     * 
-     * <p>Returns the distance to objects above the drone. Useful for
-     * altitude management and avoiding ceiling collisions.</p>
-     * 
-     * <h3>⬆️ Educational Usage:</h3>
-     * <ul>
-     *   <li><strong>L0106 Conditionals:</strong> Check ceiling clearance</li>
-     *   <li><strong>3D Navigation:</strong> Vertical obstacle avoidance</li>
-     *   <li><strong>Indoor Flying:</strong> Ceiling-aware behaviors</li>
-     * </ul>
-     * 
-     * @return distance in centimeters
-     * @apiNote Equivalent to Python's {@code drone.get_top_range()}
-     * @since 1.0
-     * 
-     * @example
-     * <pre>{@code
-     * // L0106: Safe altitude gain
-     * if (drone.getTopRange() > 50) {
-     *     drone.go("up", 20, 1);
-     * } else {
-     *     System.out.println("Ceiling too close!");
-     * }
-     * }</pre>
-     */
-    public double getTopRange() {
-        return flightController.getTopRange();
-    }
-
-    /**
-     * Gets the distance measured by the top range sensor in the specified unit.
-     * 
-     * @param unit measurement unit ("cm", "mm", "m", or "in")
-     * @return distance in the specified unit
-     * @since 1.0
-     */
-    public double getTopRange(String unit) {
-        return flightController.getTopRange(unit);
-    }
-
-    /**
      * Gets the distance measured by the bottom range sensor in centimeters.
      * 
      * <p>Returns the distance to the ground or objects below the drone.
@@ -2331,86 +2253,6 @@ public class Drone implements AutoCloseable {
      */
     public double getBottomRange(String unit) {
         return flightController.getBottomRange(unit);
-    }
-
-    /**
-     * Gets the distance measured by the left range sensor in centimeters.
-     * 
-     * <p>Returns the distance to objects on the left side of the drone.
-     * Useful for side obstacle avoidance and corridor navigation.</p>
-     * 
-     * <h3>⬅️ Educational Usage:</h3>
-     * <ul>
-     *   <li><strong>L0106 Conditionals:</strong> Side obstacle detection</li>
-     *   <li><strong>Navigation:</strong> Corridor following</li>
-     *   <li><strong>Complex Patterns:</strong> Wall-following behaviors</li>
-     * </ul>
-     * 
-     * @return distance in centimeters
-     * @apiNote Equivalent to Python's {@code drone.get_left_range()}
-     * @since 1.0
-     * 
-     * @example
-     * <pre>{@code
-     * // L0106: Corridor navigation
-     * if (drone.getLeftRange() < 30) {
-     *     drone.go("right", 20, 1);  // Move away from left wall
-     * }
-     * }</pre>
-     */
-    public double getLeftRange() {
-        return flightController.getLeftRange();
-    }
-
-    /**
-     * Gets the distance measured by the left range sensor in the specified unit.
-     * 
-     * @param unit measurement unit ("cm", "mm", "m", or "in")
-     * @return distance in the specified unit
-     * @since 1.0
-     */
-    public double getLeftRange(String unit) {
-        return flightController.getLeftRange(unit);
-    }
-
-    /**
-     * Gets the distance measured by the right range sensor in centimeters.
-     * 
-     * <p>Returns the distance to objects on the right side of the drone.
-     * Useful for side obstacle avoidance and corridor navigation.</p>
-     * 
-     * <h3>➡️ Educational Usage:</h3>
-     * <ul>
-     *   <li><strong>L0106 Conditionals:</strong> Side obstacle detection</li>
-     *   <li><strong>Navigation:</strong> Corridor following</li>
-     *   <li><strong>Complex Patterns:</strong> Wall-following behaviors</li>
-     * </ul>
-     * 
-     * @return distance in centimeters
-     * @apiNote Equivalent to Python's {@code drone.get_right_range()}
-     * @since 1.0
-     * 
-     * @example
-     * <pre>{@code
-     * // L0106: Corridor navigation
-     * if (drone.getRightRange() < 30) {
-     *     drone.go("left", 20, 1);  // Move away from right wall
-     * }
-     * }</pre>
-     */
-    public double getRightRange() {
-        return flightController.getRightRange();
-    }
-
-    /**
-     * Gets the distance measured by the right range sensor in the specified unit.
-     * 
-     * @param unit measurement unit ("cm", "mm", "m", or "in")
-     * @return distance in the specified unit
-     * @since 1.0
-     */
-    public double getRightRange(String unit) {
-        return flightController.getRightRange(unit);
     }
 
     /**
@@ -2659,7 +2501,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int[] getAccel() {
-        return flightController.get_accel();
+        return flightController.getAccel();
     }
 
     /**
@@ -2690,7 +2532,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int[] getGyro() {
-        return flightController.get_gyro();
+        return flightController.getGyro();
     }
 
     /**
@@ -2721,7 +2563,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public int[] getAngle() {
-        return flightController.get_angle();
+        return flightController.getAngle();
     }
 
     /**
@@ -3076,11 +2918,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public Altitude getAltitude() {
-        sendRequest(DataType.Altitude);
-         try {
-            Thread.sleep(100); // Brief delay for data request
-        } catch (InterruptedException e) {
-        } 
+        sendRequestWait(DataType.Altitude);
         return droneStatus.getAltitude();
     }
 
@@ -3954,7 +3792,7 @@ public class Drone implements AutoCloseable {
             return null;
         }
         
-        double[] sensorData = new double[21];
+        double[] sensorData = new double[17];
         
         // Position data (0-2) - now in meters as floats
         float[] position = getPositionData();
@@ -3986,20 +3824,16 @@ public class Drone implements AutoCloseable {
             sensorData[11] = angle[2]; // yaw
         }
         
-        // Range data (12-17)
+        // Range data (12-13)
         sensorData[12] = getFrontRange();
-        sensorData[13] = getBackRange();
-        sensorData[14] = getTopRange();
-        sensorData[15] = getBottomRange();
-        sensorData[16] = getLeftRange();
-        sensorData[17] = getRightRange();
+        sensorData[13] = getBottomRange();
         
-        // State data (18)
-        sensorData[18] = getBattery();
+        // State data (14)
+        sensorData[14] = getBattery();
         
-        // Environmental data (19-20)
-        sensorData[19] = getPressure();
-        sensorData[20] = getDroneTemperature();
+        // Environmental data (15-16)
+        sensorData[15] = getPressure();
+        sensorData[16] = getDroneTemperature();
         
         return sensorData;
     }
