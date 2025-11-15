@@ -173,7 +173,7 @@ public class FlightController {
                 flipMode = FlightEvent.FLIP_LEFT;
                 break;
             default:
-                System.out.println("Invalid flip direction. Use: front, back, left, or right");
+                log.warn("Invalid flip direction '{}'. Valid directions are: front, back, left, right", direction);
                 return;
         }
         
