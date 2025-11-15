@@ -2366,6 +2366,8 @@ public class Drone implements AutoCloseable {
      *     Thread.sleep(100);
      * }
      * }</pre>
+     * @pythonEquivalent get_error_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_error_data
      */
     public double[] getErrorData() {
         return getErrorData(0.2);
@@ -2385,6 +2387,8 @@ public class Drone implements AutoCloseable {
      * @since 2.5
      * 
      * @see #getErrorData()
+     * @pythonEquivalent get_error_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_error_data
      */
     public double[] getErrorData(double delay) {
         log.debug("Requesting error data");
@@ -2623,6 +2627,8 @@ public class Drone implements AutoCloseable {
      *     drone.go("forward", 50, 1);
      * }
      * }</pre>
+     * @pythonEquivalent get_front_range
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_front_range
      */
     public double getFrontRange() {
         return telemetryService.getFrontRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
@@ -2634,6 +2640,8 @@ public class Drone implements AutoCloseable {
      * @param unit measurement unit ("cm", "mm", "m", or "in")
      * @return distance in the specified unit
      * @since 1.0
+     * @pythonEquivalent get_front_range
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_front_range
      */
     public double getFrontRange(String unit) {
         return telemetryService.getFrontRange(unit);
@@ -2664,6 +2672,8 @@ public class Drone implements AutoCloseable {
      *     drone.go("up", 30, 1);
      * }
      * }</pre>
+     * @pythonEquivalent get_bottom_range
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_bottom_range
      */
     public double getBottomRange() {
         return telemetryService.getBottomRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
@@ -2675,6 +2685,8 @@ public class Drone implements AutoCloseable {
      * @param unit measurement unit ("cm", "mm", "m", or "in")
      * @return distance in the specified unit
      * @since 1.0
+     * @pythonEquivalent get_bottom_range
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_bottom_range
      */
     public double getBottomRange(String unit) {
         return telemetryService.getBottomRange(unit);
@@ -3041,6 +3053,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_color_data()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_color_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_color_data
      */
     public int[][] getColorData() {
         com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
@@ -3108,6 +3122,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_colors()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_colors
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_colors
      */
     public int[] getColors() {
         com.otabi.jcodroneedu.protocol.cardreader.CardColor cardColor = droneStatus.getCardColor();
@@ -3204,6 +3220,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_front_color()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_front_color
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_front_color
      */
     public int getFrontColor() {
         int[] colors = getColors();
@@ -3251,6 +3269,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_back_color()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_back_color
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_back_color
      */
     public int getBackColor() {
         int[] colors = getColors();
@@ -3434,6 +3454,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_pressure(unit)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_pressure
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_pressure
      */
     public double getPressure(String unit) {
         if (unit == null) unit = "pa";
@@ -3527,6 +3549,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_elevation()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_elevation
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_elevation
      */
     public double getElevation() {
         return useCorrectedElevation ? getCorrectedElevation() : getUncorrectedElevation();
@@ -3536,6 +3560,8 @@ public class Drone implements AutoCloseable {
      * Gets elevation in the requested unit, honoring the corrected/uncorrected toggle.
      * @param unit Target unit: "m", "cm", "km", "ft", or "mi" (case-insensitive)
      * @return Elevation in the specified unit
+     * @pythonEquivalent get_elevation
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_elevation
      */
     public double getElevation(String unit) {
         double meters = getElevation();
@@ -3744,6 +3770,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_initial_pressure()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent set_initial_pressure
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_initial_pressure
      */
     public void setInitialPressure() {
         this.initialPressure = getPressure();
@@ -3780,6 +3808,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.height_from_pressure()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent height_from_pressure
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#height_from_pressure
      */
     public double getHeightFromPressure() {
         return getHeightFromPressure(0.0, 9.34);
@@ -3827,6 +3857,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.height_from_pressure(b, m)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent height_from_pressure
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#height_from_pressure
      */
     public double getHeightFromPressure(double b, double m) {
         if (initialPressure == 0.0) {
@@ -3852,6 +3884,8 @@ public class Drone implements AutoCloseable {
      *             to match Python's API deprecation.
      * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature()}
      * @since 1.0
+     * @pythonEquivalent get_temperature
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_temperature
      */
     @Deprecated(since = "1.0", forRemoval = true)
     public double getTemperature() {
@@ -3871,6 +3905,8 @@ public class Drone implements AutoCloseable {
      *             to match Python's API deprecation.
      * @apiNote Equivalent to Python's deprecated {@code drone.get_temperature(unit)}
      * @since 1.0
+     * @pythonEquivalent get_temperature
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_temperature
      */
     @Deprecated(since = "1.0", forRemoval = true)
     public double getTemperature(String unit) {
@@ -3968,6 +4004,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_drone_temperature()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_drone_temperature
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_drone_temperature
      */
     public double getDroneTemperature() {
         sendRequest(DataType.Altitude);
@@ -3997,6 +4035,8 @@ public class Drone implements AutoCloseable {
      * @see #useCalibratedTemperature(boolean)
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_drone_temperature
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_drone_temperature
      */
     public double getDroneTemperature(String unit) {
         return useCalibratedTemperature ? getCalibratedTemperature(unit) : getUncalibratedTemperature(unit);
@@ -4368,6 +4408,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_x()}
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
+     * @pythonEquivalent get_flow_velocity_x
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_flow_velocity_x
      */
     public double getFlowVelocityX() {
         return getFlowVelocityX("cm");
@@ -4450,6 +4492,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_flow_velocity_y()}
      * @since 1.0
      * @educational Advanced navigation and robotics curricula
+     * @pythonEquivalent get_flow_velocity_y
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_flow_velocity_y
      */
     public double getFlowVelocityY() {
         return getFlowVelocityY("cm");
@@ -4737,6 +4781,8 @@ public class Drone implements AutoCloseable {
      * Based on Python CoDrone EDU flip() method.
      * 
      * @apiNote Delegates to {@link #flip(String)} using default direction
+     * @pythonEquivalent flip
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#flip
      */
     public void flip() {
         flip(DroneSystem.FlightControlConstants.DEFAULT_FLIP_DIRECTION);
@@ -6236,6 +6282,8 @@ public class Drone implements AutoCloseable {
      * @return Object array with button state information
      * @educational
      * @see #getButtonDataObject() Recommended Java alternative
+     * @pythonEquivalent get_button_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_button_data
      */
     public Object[] getButtonData() {
         return controllerInputManager.getButtonDataArray();
@@ -6518,6 +6566,8 @@ public class Drone implements AutoCloseable {
      * @since 1.0.0
      * @see #getCountDataObject(double) Recommended Java alternative
      * @see #getFlightTime() For individual value access
+     * @pythonEquivalent get_count_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_count_data
      */
     public Object[] getCountData(double delay) {
         Request request = new Request(DataType.Count);
@@ -6542,6 +6592,8 @@ public class Drone implements AutoCloseable {
      * @since 1.0.0
      * @see #getCountDataObject() Recommended Java alternative
      * @see #getFlightTime() For individual value access
+     * @pythonEquivalent get_count_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_count_data
      */
     public Object[] getCountData() {
         return getCountData(0.05);
@@ -6608,6 +6660,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getInformationDataObject(double) Recommended Java alternative
+     * @pythonEquivalent get_information_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_information_data
      */
     public Object[] getInformationData(double delay) {
         Request request = new Request(DataType.Information);
@@ -6637,6 +6691,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getInformationDataObject() Recommended Java alternative
+     * @pythonEquivalent get_information_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_information_data
      */
     public Object[] getInformationData() {
         return getInformationData(0.05);
@@ -6655,6 +6711,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getCpuIdDataObject(double) Recommended Java alternative
+     * @pythonEquivalent get_cpu_id_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_cpu_id_data
      */
     public Object[] getCpuIdData(double delay) {
         Request request = new Request(DataType.Address);
@@ -6684,6 +6742,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getCpuIdDataObject() Recommended Java alternative
+     * @pythonEquivalent get_cpu_id_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_cpu_id_data
      */
     public Object[] getCpuIdData() {
         return getCpuIdData(0.05);
@@ -6702,6 +6762,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getAddressDataObject(double) Recommended Java alternative
+     * @pythonEquivalent get_address_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_address_data
      */
     public Object[] getAddressData(double delay) {
         Request request = new Request(DataType.Address);
@@ -6731,6 +6793,8 @@ public class Drone implements AutoCloseable {
      * @educational
      * @since 1.0.0
      * @see #getAddressDataObject() Recommended Java alternative
+     * @pythonEquivalent get_address_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_address_data
      */
     public Object[] getAddressData() {
         return getAddressData(0.05);
