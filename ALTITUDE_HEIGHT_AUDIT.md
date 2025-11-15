@@ -526,9 +526,9 @@ def _get_drone_temperature_desktop(self, unit="C"):
 | Method names | ✅ | ✅ | Tie | - |
 | Behavioral parity | ⚠️ | ⚠️ | Tie | High (state toggle) |
 | Data freshness | ❌ Fixed delays | ❌ Mixed | Neither | **Critical** |
-| Temperature access | ✅ | ❌ Missing | Python | High |
-| Elevation units | ✅ | ❌ No param | Python | Medium |
-| Unit flexibility | ✅ | ❌ Case-sensitive | Python | Low |
+| Temperature access | ✅ | ✅ | Tie | - |
+| Elevation units | ✅ | ✅ | Tie | - |
+| Unit flexibility | ✅ | ✅ Case-insensitive | Tie | - |
 | Corrected altitude | ❌ Missing | ✅ | Java | Medium (add to Python upstream) |
 | Error handling | ⚠️ | ⚠️ | Tie | Medium |
 | Documentation | ❌ Minimal | ⚠️ Too technical | Neither | **Critical** |
@@ -553,6 +553,7 @@ def _get_drone_temperature_desktop(self, unit="C"):
     - `FlightController` retains no-arg overloads for height/range/position that default to centimeters (to preserve educational parity and tests), but also delegates to `TelemetryService`.
 - Pressure parity: Java now performs bounded retries on zero pressure values to match Python behavior without arbitrary sleeps.
 - Height vs Elevation: `getHeight[()]` remains an alias of bottom range (ground distance). `getElevation()` returns un/ corrected altitude (sea-level reference) depending on `useCorrectedElevation` toggle; explicit `getUncorrectedElevation()`/`getCorrectedElevation()` are recommended.
+- Elevation units: Added `getElevation(unit)`, `getUncorrectedElevation(unit)`, and `getCorrectedElevation(unit)` supporting `m`, `cm`, `km`, `ft`, `mi`.
 - Developer note: Documentation and examples should avoid explicit `sendRequest`/sleep patterns; `TelemetryService` handles freshness automatically.
 
 Action items remaining (tracked):

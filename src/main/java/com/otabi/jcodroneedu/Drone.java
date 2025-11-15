@@ -140,6 +140,7 @@ public class Drone implements AutoCloseable {
     private final LinkController linkController;
     private final SettingsController settingsController;
     private final TelemetryService telemetryService;
+    private final ElevationService elevationService;
 
     private final RateLimiter commandRateLimiter;
     private boolean isConnected = false;
@@ -191,6 +192,7 @@ public class Drone implements AutoCloseable {
         this.linkController = new LinkController(this);
         this.settingsController = new SettingsController(this);
         this.telemetryService = new TelemetryService(this);
+        this.elevationService = new ElevationService(telemetryService);
 
         // Set a default command rate limit (e.g., ~16 commands/sec)
         double permitsPerSecond = 1.0 / 0.060;
@@ -3392,8 +3394,16 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getUncorrectedElevation() {
-        var altitude = droneStatus.getAltitude();
-        return altitude != null ? altitude.getAltitude() : 0.0;
+        return elevationService.getUncorrectedElevation("m");
+    }
+
+    /**
+     * Gets the uncorrected elevation converted to the requested unit.
+     * @param unit Target unit: "m", "cm", "km", "ft", or "mi" (case-insensitive)
+     * @return Elevation in the specified unit (0.0 if no data)
+     */
+    public double getUncorrectedElevation(String unit) {
+        return elevationService.getUncorrectedElevation(unit);
     }
 
     /**
@@ -3433,6 +3443,16 @@ public class Drone implements AutoCloseable {
      */
     public double getElevation() {
         return useCorrectedElevation ? getCorrectedElevation() : getUncorrectedElevation();
+    }
+
+    /**
+     * Gets elevation in the requested unit, honoring the corrected/uncorrected toggle.
+     * @param unit Target unit: "m", "cm", "km", "ft", or "mi" (case-insensitive)
+     * @return Elevation in the specified unit
+     */
+    public double getElevation(String unit) {
+        double meters = getElevation();
+        return convertMetersToUnit(meters, unit);
     }
 
     /**
@@ -3496,8 +3516,16 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getCorrectedElevation() {
-        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getAutomaticSeaLevelPressure();
-        return getCorrectedElevation(seaLevelPressure);
+        return elevationService.getCorrectedElevation();
+    }
+
+    /**
+     * Gets corrected elevation converted to the requested unit.
+     * @param unit Target unit: "m", "cm", "km", "ft", or "mi" (case-insensitive)
+     * @return Elevation in the specified unit
+     */
+    public double getCorrectedElevation(String unit) {
+        return elevationService.getCorrectedElevation(unit);
     }
 
     /**
@@ -3524,14 +3552,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getCorrectedElevation(double seaLevelPressure) {
-        double pressure = getPressure();
-        if (pressure == 0.0) {
-            return 0.0;
-        }
-        
-        // International standard atmosphere formula
-        // h = 44330 * (1 - (P/P₀)^0.1903)
-        return 44330.0 * (1.0 - Math.pow(pressure / seaLevelPressure, 0.1903));
+        return elevationService.getCorrectedElevation(seaLevelPressure);
     }
 
     /**
@@ -3596,8 +3617,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getCorrectedElevation(double latitude, double longitude) {
-        double seaLevelPressure = com.otabi.jcodroneedu.util.WeatherService.getSeaLevelPressure(latitude, longitude);
-        return getCorrectedElevation(seaLevelPressure);
+        return elevationService.getCorrectedElevation(latitude, longitude);
     }
 
     /**
@@ -4405,6 +4425,7 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if unit is not supported
      */
     private double convertMetersToUnit(double meters, String unit) {
+        if (unit == null) return meters;
         switch (unit.toLowerCase()) {
             case DroneSystem.UnitConversion.UNIT_METERS:
                 return meters;
@@ -4414,12 +4435,19 @@ public class Drone implements AutoCloseable {
                 return meters * DroneSystem.UnitConversion.METERS_TO_MILLIMETERS;
             case DroneSystem.UnitConversion.UNIT_INCHES:
                 return meters * DroneSystem.UnitConversion.METERS_TO_INCHES;
+            case DroneSystem.UnitConversion.UNIT_FEET:
+                return meters * DroneSystem.UnitConversion.METERS_TO_FEET;
+            case "km":
+                return meters / 1000.0;
+            case "mi":
+                return meters / 1609.34;
             default:
-                throw new IllegalArgumentException("Unsupported distance unit: " + unit + 
-                    ". Supported units: " + DroneSystem.UnitConversion.UNIT_METERS + ", " + 
-                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " + 
-                    DroneSystem.UnitConversion.UNIT_MILLIMETERS + ", " + 
-                    DroneSystem.UnitConversion.UNIT_INCHES);
+                throw new IllegalArgumentException("Unsupported distance unit: " + unit +
+                    ". Supported units: " + DroneSystem.UnitConversion.UNIT_METERS + ", " +
+                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " +
+                    DroneSystem.UnitConversion.UNIT_MILLIMETERS + ", " +
+                    DroneSystem.UnitConversion.UNIT_INCHES + ", " +
+                    DroneSystem.UnitConversion.UNIT_FEET + ", km, mi");
         }
     }
 

@@ -1,3 +1,8 @@
+## Elevation API - Quick Reference Card
+
+## All Available Methods
+
+Units supported for elevation methods: `m`, `cm`, `km`, `ft`, `mi`.
 # Elevation API - Quick Reference Card
 
 ## All Available Methods
@@ -116,7 +121,7 @@ while (true) {
 | `drone.set_initial_pressure()` | `drone.setInitialPressure()` |
 | `drone.height_from_pressure()` | `drone.getHeightFromPressure()` |
 | `drone.height_from_pressure(b, m)` | `drone.getHeightFromPressure(b, m)` |
-| `drone.get_elevation(unit)` | `drone.getElevation()` / `drone.getUncorrectedElevation()` (meters) |
+| `drone.get_elevation(unit)` | `drone.getElevation(unit)` (respects corrected toggle) |
 
 ## Configuration Examples
 
