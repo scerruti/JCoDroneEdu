@@ -20,6 +20,7 @@ public class EasyControllerMonitor {
         drone.pair();
         
         // Open controller monitor with ONE line - that's it!
+        @SuppressWarnings("unused") // Monitor runs in background thread
         ControllerMonitor monitor = new ControllerMonitor(drone);
         
         // Now you can see what the controller is doing while you code...

@@ -3,6 +3,7 @@ package com.otabi.jcodroneedu.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import org.json.JSONObject;
 
@@ -124,7 +125,7 @@ public class WeatherService {
      */
     public static double[] getLocationFromIP() {
         try {
-            URL url = new URL(IPINFO_API);
+            URL url = URI.create(IPINFO_API).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(TIMEOUT_MS);
@@ -207,7 +208,7 @@ public class WeatherService {
                 OPEN_METEO_API, latitude, longitude
             );
             
-            URL url = new URL(urlString);
+            URL url = URI.create(urlString).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(TIMEOUT_MS);
@@ -263,7 +264,7 @@ public class WeatherService {
             
             for (String urlString : testUrls) {
                 try {
-                    URL url = new URL(urlString);
+                    URL url = URI.create(urlString).toURL();
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("HEAD");
                     conn.setConnectTimeout(2000);
@@ -301,7 +302,7 @@ public class WeatherService {
                 OPEN_METEO_API, latitude, longitude
             );
             
-            URL url = new URL(urlString);
+            URL url = URI.create(urlString).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(TIMEOUT_MS);

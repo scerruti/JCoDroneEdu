@@ -27,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.imageio.ImageIO;
-
 /**
  * The main class for controlling your CoDrone EDU drone.
  * 

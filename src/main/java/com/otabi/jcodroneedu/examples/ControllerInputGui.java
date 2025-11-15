@@ -22,6 +22,7 @@ public class ControllerInputGui extends JFrame {
     private JLabel lastUpdateLabel;
     private volatile boolean running = true;
     private volatile boolean connected = false;
+    @SuppressWarnings("unused") // Reserved for future debounce feature
     private volatile long lastInputTime = 0;
     
     // Track button press times for visual feedback (debounce)
@@ -30,6 +31,7 @@ public class ControllerInputGui extends JFrame {
     
     // Button indicators
     private JLabel l1Button, l2Button, r1Button, r2Button;
+    @SuppressWarnings("unused") // Reserved for future power button display
     private JLabel hButton, sButton, pButton, powerButton;
     private JLabel upButton, downButton, leftButton, rightButton;
     

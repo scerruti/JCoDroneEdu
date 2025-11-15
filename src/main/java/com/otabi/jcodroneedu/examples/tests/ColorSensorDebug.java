@@ -2,7 +2,6 @@ package com.otabi.jcodroneedu.examples.tests;
 
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;
-import com.otabi.jcodroneedu.DroneSystem;
 import com.otabi.jcodroneedu.protocol.DataType;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 
