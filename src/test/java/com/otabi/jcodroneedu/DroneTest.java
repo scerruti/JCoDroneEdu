@@ -211,7 +211,7 @@ public abstract class DroneTest {
      * @version 2.3
      * @since 1.0
      */
-    @SuppressWarnings("unused") // Methods are used by reflection in safety tests
+    @SuppressWarnings({"unused", "all"}) // Methods are used by reflection; suppress analyzer warnings
     protected static class MockDrone {
         private final List<String> commandHistory = new ArrayList<>();
         private final List<Integer> pitchValues = new ArrayList<>();
@@ -503,6 +503,29 @@ public abstract class DroneTest {
         }
 
         /**
+         * NEW: Flip maneuver with direction validation
+         * Validates flip direction against valid options: front, back, left, right
+         * Matches real FlightController.flip() validation behavior
+         */
+        public void flip(String direction) {
+            // Validate direction matches valid FlightEvent.FLIP_* enum values
+            String dir = direction.toLowerCase();
+            if (!dir.matches("front|back|left|right")) {
+                // Track invalid call for test detection
+                commandHistory.add("flip(" + direction + ") [INVALID]");
+                return;
+            }
+            commandHistory.add("flip(" + direction + ")");
+        }
+
+        /**
+         * Overloaded version with default direction (matches Drone.flip() default)
+         */
+        public void flip() {
+            flip("back");
+        }
+
+        /**
          * NEW: Turning methods - Basic yaw control
          */
         public void turn(int power, Double seconds) {
@@ -589,6 +612,44 @@ public abstract class DroneTest {
                 cmd.startsWith("turnDegree(") || 
                 cmd.startsWith("turnLeft(") || 
                 cmd.startsWith("turnRight("));
+        }
+
+        // =============================================================================
+        // Test Helper Methods for Flip
+        // =============================================================================
+
+        /**
+         * Check if any flip method was used
+         */
+        public boolean wasFlipUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("flip(") && !cmd.contains("[INVALID]"));
+        }
+
+        /**
+         * Get all valid flip method calls (excludes invalid directions)
+         */
+        public List<String> getFlipCalls() {
+            return commandHistory.stream()
+                    .filter(cmd -> cmd.startsWith("flip(") && !cmd.contains("[INVALID]"))
+                    .toList();
+        }
+
+        /**
+         * Check if invalid flip direction was attempted (test for student errors)
+         */
+        public boolean wasInvalidFlipUsed() {
+            return commandHistory.stream().anyMatch(cmd -> 
+                cmd.startsWith("flip(") && cmd.contains("[INVALID]"));
+        }
+
+        /**
+         * Get all invalid flip direction attempts for debugging
+         */
+        public List<String> getInvalidFlipCalls() {
+            return commandHistory.stream()
+                    .filter(cmd -> cmd.startsWith("flip(") && cmd.contains("[INVALID]"))
+                    .toList();
         }
 
         // =============================================================================
