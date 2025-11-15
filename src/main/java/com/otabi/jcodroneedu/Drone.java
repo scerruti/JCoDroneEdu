@@ -1046,6 +1046,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Resets the drone's internal gyroscope sensor bias to correct for drift.
+     * @pythonEquivalent clear_bias
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#clear_bias
      */
     public void clearBias() {
         settingsController.clearBias();
@@ -1053,6 +1055,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Resets the flight trim values to their default (zero) settings.
+     * @pythonEquivalent reset_trim
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#reset_trim
      */
     public void clearTrim() {
         settingsController.clearTrim();
@@ -1088,6 +1092,8 @@ public class Drone implements AutoCloseable {
      * @see ErrorData#isCalibrating()
      * @see DroneSystem.ErrorFlagsForSensor#MOTION_CALIBRATING
      * @educational
+     * @pythonEquivalent reset_gyro
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#reset_gyro
      */
     public void resetGyro() {
         log.info("Starting gyroscope calibration - keep drone stationary on flat surface");
@@ -1167,6 +1173,8 @@ public class Drone implements AutoCloseable {
      * @throws IllegalArgumentException if trim values are outside valid range
      * @apiNote Equivalent to Python's {@code drone.set_trim(roll, pitch)}
      * @educational
+     * @pythonEquivalent set_trim
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_trim
      */
     public void setTrim(int roll, int pitch) {
         // Validate input parameters
@@ -1202,6 +1210,8 @@ public class Drone implements AutoCloseable {
      * 
      * @apiNote Equivalent to Python's {@code drone.reset_trim()}
      * @educational  
+     * @pythonEquivalent reset_trim
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#reset_trim
      */
     public void resetTrim() {
         log.debug("Resetting trim values to zero");
@@ -1230,6 +1240,8 @@ public class Drone implements AutoCloseable {
      * @return Array containing [roll, pitch] trim values from -100 to 100
      * @apiNote Equivalent to Python's {@code drone.get_trim()}
      * @educational
+     * @pythonEquivalent get_trim
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_trim
      */
     public int[] getTrim() {
         log.debug("Requesting current trim values");
@@ -2808,6 +2820,8 @@ public class Drone implements AutoCloseable {
      * @return X acceleration in G-force
      * @apiNote Equivalent to Python's {@code drone.get_accel_x()}
      * @since 1.0
+     * @pythonEquivalent get_accel_x
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_accel_x
      */
     public double getAccelX() {
         return flightController.getAccelX();
@@ -2821,6 +2835,8 @@ public class Drone implements AutoCloseable {
      * @return Y acceleration in G-force
      * @apiNote Equivalent to Python's {@code drone.get_accel_y()}
      * @since 1.0
+     * @pythonEquivalent get_accel_y
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_accel_y
      */
     public double getAccelY() {
         return flightController.getAccelY();
@@ -2834,6 +2850,8 @@ public class Drone implements AutoCloseable {
      * @return Z acceleration in G-force
      * @apiNote Equivalent to Python's {@code drone.get_accel_z()}
      * @since 1.0
+     * @pythonEquivalent get_accel_z
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_accel_z
      */
     public double getAccelZ() {
         return flightController.getAccelZ();
@@ -2855,6 +2873,8 @@ public class Drone implements AutoCloseable {
      * @return X angle (roll) in degrees
      * @apiNote Equivalent to Python's {@code drone.get_angle_x()}
      * @since 1.0
+     * @pythonEquivalent get_angle_x
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_angle_x
      */
     public double getAngleX() {
         return flightController.getAngleX();
@@ -2869,6 +2889,8 @@ public class Drone implements AutoCloseable {
      * @return Y angle (pitch) in degrees
      * @apiNote Equivalent to Python's {@code drone.get_angle_y()}
      * @since 1.0
+     * @pythonEquivalent get_angle_y
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_angle_y
      */
     public double getAngleY() {
         return flightController.getAngleY();
@@ -2883,6 +2905,8 @@ public class Drone implements AutoCloseable {
      * @return Z angle (yaw) in degrees
      * @apiNote Equivalent to Python's {@code drone.get_angle_z()}
      * @since 1.0
+     * @pythonEquivalent get_angle_z
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_angle_z
      */
     public double getAngleZ() {
         return flightController.getAngleZ();
@@ -3380,6 +3404,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.get_pressure()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent get_pressure
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_pressure
      */
     public double getPressure() {
         return telemetryService.getPressure("pa");
