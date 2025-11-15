@@ -891,19 +891,6 @@ public class Drone implements AutoCloseable {
      * Returns current values of roll, pitch, yaw, and throttle.
      *
      * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
-     * @deprecated Use {@link #getMoveValues()} instead.
-     * @pythonEquivalent get_move_values
-     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_move_values
-     */
-    @Deprecated(forRemoval = true)
-    public byte[] get_move_values() {
-        return getMoveValues();
-    }
-    
-    /**
-     * Returns current values of roll, pitch, yaw, and throttle.
-     *
-     * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
      * @pythonEquivalent get_move_values
      * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_move_values
      */
