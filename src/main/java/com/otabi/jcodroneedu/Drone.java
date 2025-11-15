@@ -139,6 +139,7 @@ public class Drone implements AutoCloseable {
     private final FlightController flightController;
     private final LinkController linkController;
     private final SettingsController settingsController;
+    private final TelemetryService telemetryService;
 
     private final RateLimiter commandRateLimiter;
     private boolean isConnected = false;
@@ -189,6 +190,7 @@ public class Drone implements AutoCloseable {
         this.flightController = new FlightController(this);
         this.linkController = new LinkController(this);
         this.settingsController = new SettingsController(this);
+        this.telemetryService = new TelemetryService(this);
 
         // Set a default command rate limit (e.g., ~16 commands/sec)
         double permitsPerSecond = 1.0 / 0.060;
@@ -2504,7 +2506,7 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public double getHeight() {
-        return flightController.getHeight();
+        return telemetryService.getHeight(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2515,7 +2517,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getHeight(String unit) {
-        return flightController.getHeight(unit);
+        return telemetryService.getHeight(unit);
     }
 
     /**
@@ -2548,7 +2550,7 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public double getFrontRange() {
-        return flightController.getFrontRange();
+        return telemetryService.getFrontRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2559,7 +2561,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getFrontRange(String unit) {
-        return flightController.getFrontRange(unit);
+        return telemetryService.getFrontRange(unit);
     }
 
     /**
@@ -2589,7 +2591,7 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public double getBottomRange() {
-        return flightController.getBottomRange();
+        return telemetryService.getBottomRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2600,7 +2602,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getBottomRange(String unit) {
-        return flightController.getBottomRange(unit);
+        return telemetryService.getBottomRange(unit);
     }
 
     /**
@@ -2608,7 +2610,7 @@ public class Drone implements AutoCloseable {
      *
      * <p>This method is designed for educational use, providing a simple way to check for obstacles ahead using the front range sensor.</p>
      *
-     * <h3>🧑‍🏫 Educational Usage:</h3>
+     * <h3>Educational Usage:</h3>
      * <ul>
      *   <li><strong>L0106 Conditionals:</strong> If/else obstacle detection</li>
      *   <li><strong>L0107 Loops:</strong> Repeat until clear path</li>
@@ -2659,7 +2661,7 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public double getPosX() {
-        return flightController.getPosX();
+        return telemetryService.getPosX(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2670,7 +2672,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getPosX(String unit) {
-        return flightController.getPosX(unit);
+        return telemetryService.getPosX(unit);
     }
 
     /**
@@ -2684,7 +2686,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getPosY() {
-        return flightController.getPosY();
+        return telemetryService.getPosY(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2695,7 +2697,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getPosY(String unit) {
-        return flightController.getPosY(unit);
+        return telemetryService.getPosY(unit);
     }
 
     /**
@@ -2709,7 +2711,7 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getPosZ() {
-        return flightController.getPosZ();
+        return telemetryService.getPosZ(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
     /**
@@ -2720,7 +2722,11 @@ public class Drone implements AutoCloseable {
      * @since 1.0
      */
     public double getPosZ(String unit) {
-        return flightController.getPosZ(unit);
+        return telemetryService.getPosZ(unit);
+    }
+
+    public TelemetryService getTelemetryService() {
+        return telemetryService;
     }
 
     /**
@@ -3313,13 +3319,7 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getPressure() {
-        sendRequest(DataType.Altitude);
-         try {
-            Thread.sleep(100); // Brief delay for data request
-        } catch (InterruptedException e) {
-        } 
-        var altitude = droneStatus.getAltitude();
-        return (altitude != null) ? altitude.getPressure() : 0.0;
+        return telemetryService.getPressure("pa");
     }
 
     /**
@@ -3347,25 +3347,18 @@ public class Drone implements AutoCloseable {
      * @educational
      */
     public double getPressure(String unit) {
-        double pascals = getPressure();
-        if (pascals == 0.0) {
-            return 0.0;
-        }
-        
-        switch (unit.toLowerCase()) {
+        if (unit == null) unit = "pa";
+        String u = unit.toLowerCase();
+        switch (u) {
             case "pa":
-                return pascals;
             case "kpa":
-                return pascals / 1000.0;
             case "mbar":
-                return pascals / 100.0;
             case "inhg":
-                return pascals / 3386.389;
             case "atm":
-                return pascals / 101325.0;
+                return telemetryService.getPressure(u);
             default:
-                throw new IllegalArgumentException("Unsupported pressure unit: " + unit + 
-                    ". Supported units: Pa, kPa, mbar, inHg, atm");
+                throw new IllegalArgumentException("Unsupported pressure unit: " + unit +
+                        ". Supported units: Pa, kPa, mbar, inHg, atm");
         }
     }
 
