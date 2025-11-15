@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    You can override the receiver logger level at runtime using a system property:
-        ./gradlew runTestHarness -Dorg.gradle.jvmargs="-Djcodrone.logging.receiver=DEBUG"
-    or when running the jar directly:
+    Runtime Logging Configuration
+    ==============================
+    
+    You can override logger levels at runtime using system properties:
+    
+    1. Receiver (packet-level telemetry):
         java -Djcodrone.logging.receiver=DEBUG -jar build/libs/JCoDroneEdu-1.0-SNAPSHOT.jar
-
-    The property defaults to INFO to avoid noisy telemetry logs; set to DEBUG when you need packet-level details.
+        Default: INFO (suppresses noisy packet logs)
+    
+    2. FlightController (sensor polling, flight state):
+        java -Djcodrone.logging.flightcontroller=TRACE -jar build/libs/JCoDroneEdu-1.0-SNAPSHOT.jar
+        Default: INFO (suppresses sensor polling, shows battery thresholds and errors)
+        TRACE: All sensor polls (very verbose, development only)
+        DEBUG: Unused (no DEBUG logs after Phase 2)
+    
+    3. SerialPortManager (serial communication):
+        java -Djcodrone.logging.serialport=DEBUG -jar build/libs/JCoDroneEdu-1.0-SNAPSHOT.jar
+        Default: DEBUG (shows connection/error details)
+    
+    4. Combined example:
+        java -Djcodrone.logging.flightcontroller=TRACE -Djcodrone.logging.receiver=DEBUG -jar ...
+    
+    5. Gradle example:
+        ./gradlew runTestHarness -Dorg.gradle.jvmargs="-Djcodrone.logging.flightcontroller=TRACE"
 -->
 <Configuration status="WARN">
         <Properties>
-                <!-- default level for the receiver logger; can be overridden with -Djcodrone.logging.receiver -->
+                <!-- FlightController: sensor polling, battery warnings (default: INFO suppresses polling) -->
+                <Property name="jcodrone.logging.flightcontroller">INFO</Property>
+                <!-- SerialPortManager: serial communication details -->
+                <Property name="jcodrone.logging.serialport">DEBUG</Property>
+                <!-- Receiver: packet-level telemetry (default: INFO suppresses noisy logs) -->
                 <Property name="jcodrone.logging.receiver">INFO</Property>
         </Properties>
     <Appenders>
@@ -44,20 +66,22 @@
         
         <!-- Specific loggers for different components -->
         
-        <!-- Serial communication - more verbose for debugging connection issues -->
-        <Logger name="com.otabi.jcodroneedu.SerialPortManager" level="DEBUG" additivity="false">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFileAppender"/>
-        </Logger>
-        
         <!-- Main Drone class - balance of info for students and debug for developers -->
         <Logger name="com.otabi.jcodroneedu.Drone" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>
         
-        <!-- Flight controller - debug level for detailed movement tracking -->
-        <Logger name="com.otabi.jcodroneedu.FlightController" level="DEBUG" additivity="false">
+        <!-- Flight controller - info level (suppresses sensor polling at DEBUG/TRACE) -->
+        <!-- Set -Djcodrone.logging.flightcontroller=TRACE to see all sensor polls during development -->
+        <Logger name="com.otabi.jcodroneedu.FlightController" level="${jcodrone.logging.flightcontroller}" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        
+        <!-- Serial port manager - debug level for connection diagnostics -->
+        <!-- Set -Djcodrone.logging.serialport=TRACE for byte-level protocol details -->
+        <Logger name="com.otabi.jcodroneedu.SerialPortManager" level="${jcodrone.logging.serialport}" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>
@@ -73,8 +97,8 @@
             <!-- No appenders - these classes will use System.out directly -->
         </Logger>
         
-        <!-- Test classes -->
-        <Logger name="com.otabi.jcodroneedu" level="DEBUG" additivity="false">
+        <!-- Other components (Drone, TelemetryService, ElevationService, etc.) -->
+        <Logger name="com.otabi.jcodroneedu" level="INFO" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>
