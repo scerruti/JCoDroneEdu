@@ -561,6 +561,13 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Hovers the drone in place for the default duration.
+     */
+    public void hover() {
+        hover(DroneSystem.FlightControlConstants.DEFAULT_HOVER_DURATION_SECONDS);
+    }
+
+    /**
      * Resets the drone's movement values to zero to ensure it stops any prior movement.
      */
     public void resetMoveValues() {
@@ -1417,7 +1424,7 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
+     * @param speed The speed from {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} to 2.0 m/s (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS})
      * 
      * @see #moveBackward(double, String, double)
      * @see #moveLeft(double, String, double)
@@ -1434,12 +1441,12 @@ public class Drone implements AutoCloseable {
      * </p>
      * <ul>
      *   <li>Default units: centimeters ("cm")</li>
-     *   <li>Default speed: 0.5 m/s</li>
+     *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
      * </ul>
      * <p>
      * Example:
      * <pre>
-     * drone.moveForward(50); // Moves 50 cm forward at 0.5 m/s
+     * drone.moveForward(50); // Moves 50 cm forward at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
      * </pre>
      * </p>
      * @param distance The distance to move forward (in centimeters)
@@ -1494,14 +1501,14 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
+     * @param speed The speed from {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} to 2.0 m/s (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS})
      */
     public void moveBackward(double distance, String units, double speed) {
         flightController.moveBackward(distance, units, speed);
     }
     
     /**
-     * Move backward with default units (cm) and speed (0.5 m/s).
+     * Move backward with default units (cm) and speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveBackward(double distance) {
         /**
@@ -1511,12 +1518,12 @@ public class Drone implements AutoCloseable {
          * </p>
          * <ul>
          *   <li>Default units: centimeters ("cm")</li>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveBackward(50); // Moves 50 cm backward at 0.5 m/s
+         * drone.moveBackward(50); // Moves 50 cm backward at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move backward (in centimeters)
@@ -1528,7 +1535,7 @@ public class Drone implements AutoCloseable {
     }
     
     /**
-     * Move backward with specified units and default speed (0.5 m/s).
+     * Move backward with specified units and default speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveBackward(double distance, String units) {
         /**
@@ -1537,12 +1544,12 @@ public class Drone implements AutoCloseable {
          * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_backward(distance, units)} in Python.
          * </p>
          * <ul>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveBackward(2, "m"); // Moves 2 meters backward at 0.5 m/s
+         * drone.moveBackward(2, "m"); // Moves 2 meters backward at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move backward
@@ -1554,7 +1561,7 @@ public class Drone implements AutoCloseable {
          * @educational
          * @pythonEquivalent move_backward(distance, units)
          */
-        moveBackward(distance, units, 0.5);
+        moveBackward(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
     
     /**
@@ -1573,14 +1580,14 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
+     * @param speed The speed from {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} to 2.0 m/s (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS})
      */
     public void moveLeft(double distance, String units, double speed) {
         flightController.moveLeft(distance, units, speed);
     }
     
     /**
-     * Move left with default units (cm) and speed (0.5 m/s).
+     * Move left with default units (cm) and speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveLeft(double distance) {
         /**
@@ -1590,12 +1597,12 @@ public class Drone implements AutoCloseable {
          * </p>
          * <ul>
          *   <li>Default units: centimeters ("cm")</li>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveLeft(30); // Moves 30 cm left at 0.5 m/s
+         * drone.moveLeft(30); // Moves 30 cm left at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move left (in centimeters)
@@ -1607,7 +1614,7 @@ public class Drone implements AutoCloseable {
     }
     
     /**
-     * Move left with specified units and default speed (0.5 m/s).
+     * Move left with specified units and default speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveLeft(double distance, String units) {
         /**
@@ -1616,12 +1623,12 @@ public class Drone implements AutoCloseable {
          * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_left(distance, units)} in Python.
          * </p>
          * <ul>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveLeft(1.5, "m"); // Moves 1.5 meters left at 0.5 m/s
+         * drone.moveLeft(1.5, "m"); // Moves 1.5 meters left at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move left
@@ -1633,7 +1640,7 @@ public class Drone implements AutoCloseable {
          * @educational
          * @pythonEquivalent move_left(distance, units)
          */
-        moveLeft(distance, units, 0.5);
+        moveLeft(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
     
     /**
@@ -1652,14 +1659,14 @@ public class Drone implements AutoCloseable {
      *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
      *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
      *              {@link DroneSystem.UnitConversion#UNIT_METERS}
-     * @param speed The speed from 0.5 to 2.0 m/s (default: 0.5)
+     * @param speed The speed from {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} to 2.0 m/s (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS})
      */
     public void moveRight(double distance, String units, double speed) {
         flightController.moveRight(distance, units, speed);
     }
     
     /**
-     * Move right with default units (cm) and speed (0.5 m/s).
+     * Move right with default units (cm) and speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveRight(double distance) {
         /**
@@ -1669,12 +1676,12 @@ public class Drone implements AutoCloseable {
          * </p>
          * <ul>
          *   <li>Default units: centimeters ("cm")</li>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveRight(40); // Moves 40 cm right at 0.5 m/s
+         * drone.moveRight(40); // Moves 40 cm right at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move right (in centimeters)
@@ -1686,7 +1693,7 @@ public class Drone implements AutoCloseable {
     }
     
     /**
-     * Move right with specified units and default speed (0.5 m/s).
+     * Move right with specified units and default speed ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s).
      */
     public void moveRight(double distance, String units) {
         /**
@@ -1695,12 +1702,12 @@ public class Drone implements AutoCloseable {
          * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_right(distance, units)} in Python.
          * </p>
          * <ul>
-         *   <li>Default speed: 0.5 m/s</li>
+         *   <li>Default speed: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s</li>
          * </ul>
          * <p>
          * Example:
          * <pre>
-         * drone.moveRight(2, "m"); // Moves 2 meters right at 0.5 m/s
+         * drone.moveRight(2, "m"); // Moves 2 meters right at {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_MOVEMENT_SPEED_MPS} m/s
          * </pre>
          * </p>
          * @param distance The distance to move right
@@ -1712,7 +1719,7 @@ public class Drone implements AutoCloseable {
          * @educational
          * @pythonEquivalent move_right(distance, units)
          */
-        moveRight(distance, units, 0.5);
+        moveRight(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
     
     /**
@@ -1881,8 +1888,8 @@ public class Drone implements AutoCloseable {
      * 
      * @param degree The target heading in degrees (-180 to 180). Positive values
      *               are relative left turns, negative values are relative right turns.
-     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
-    * @param pValue Proportional gain for the control system (default: {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE})
+     * @param timeout Maximum time in seconds to attempt the turn (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS})lue com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS})
+    * @param pValue Proportional gain for the control system (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_P_VALUE})
      * 
      * @since 1.0
      * @see #turnLeft(int)
@@ -1909,11 +1916,11 @@ public class Drone implements AutoCloseable {
     /**
      * Turns the drone to a specific degree relative to its initial heading with a custom timeout.
      * <p>
-    * This overload uses the default proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}) for the control system.
+    * This overload uses the default proportional gain (pValue = {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_P_VALUE}) for the control system.
      * </p>
      *
      * @param degree The target heading in degrees (-180 to 180). Positive values are left turns, negative are right turns.
-     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * @param timeout Maximum time in seconds to attempt the turn (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS})
      * @see #turnDegree(int, double, double)
      * @educational
      * <strong>Example Usage:</strong>
@@ -1923,13 +1930,13 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public void turnDegree(int degree, double timeout) {
-        turnDegree(degree, timeout, FlightController.DEFAULT_TURN_P_VALUE);
+        turnDegree(degree, timeout, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
     }
 
     /**
      * Turns the drone to a specific degree relative to its initial heading using default timeout and proportional gain.
      * <p>
-    * This overload uses a default timeout of 3 seconds and proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}).
+    * This overload uses a default timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds and proportional gain (pValue = {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_P_VALUE}).
      * </p>
      *
      * @param degree The target heading in degrees (-180 to 180). Positive values are left turns, negative are right turns.
@@ -1942,25 +1949,25 @@ public class Drone implements AutoCloseable {
      * }</pre>
      */
     public void turnDegree(int degree) {
-        turnDegree(degree, 3, FlightController.DEFAULT_TURN_P_VALUE);
+        turnDegree(degree, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
     }
 
     /**
-     * Turns the drone 90 degrees left using default timeout and proportional gain.
+     * Turns the drone {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees left using default timeout and proportional gain.
      * <p>
-    * This overload uses a default turn of 90 degrees, timeout of 3 seconds, and proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}).
+    * This overload uses a default turn of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees, timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds, and proportional gain (pValue = {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_P_VALUE}).
      * </p>
      *
      * @see #turnDegree(int, double, double)
      * @educational
      * <strong>Example Usage:</strong>
      * <pre>{@code
-     * // Default 90 degree left turn
+     * // Default {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degree left turn
      * drone.turnDegree();
      * }</pre>
      */
     public void turnDegree() {
-        turnDegree(90, 3, FlightController.DEFAULT_TURN_P_VALUE);
+        turnDegree(DroneSystem.FlightControlConstants.DEFAULT_TURN_DEGREES, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
     }
 
     /**
@@ -1974,7 +1981,7 @@ public class Drone implements AutoCloseable {
      * is perfect for building navigation patterns and obstacle avoidance behaviors.</p>
      * 
      * @param degrees The number of degrees to turn left (0 to 179)
-     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * @param timeout Maximum time in seconds to attempt the turn (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS})
      * 
      * @since 1.0
      * @see #turnRight(int, double)
@@ -2004,7 +2011,7 @@ public class Drone implements AutoCloseable {
     /**
      * Turns the drone left by the specified number of degrees using the default timeout.
      * <p>
-     * This overload uses a default timeout of 3 seconds for the turn.
+     * This overload uses a default timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds for the turn.
      * </p>
      *
      * @param degrees The number of degrees to turn left (0 to 179)
@@ -2012,26 +2019,26 @@ public class Drone implements AutoCloseable {
      * @educational
      * <strong>Example Usage:</strong>
     * <pre>{@code
-    * // Turn left 60 degrees (quarter turn) using the default timeout (3.0 seconds)
+    * // Turn left 60 degrees (quarter turn) using the default timeout ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds)
     * drone.turnLeft(60);
     * }
     * </pre>
      */
     public void turnLeft(int degrees) {
-        turnLeft(degrees, 3.0);
+        turnLeft(degrees, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS);
     }
 
     /**
-     * Turns the drone left 90 degrees using the default timeout.
+     * Turns the drone left {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees using the default timeout.
      * <p>
-     * This overload uses a default turn of 90 degrees and a timeout of 3 seconds.
+     * This overload uses a default turn of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees and a timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds.
      * </p>
      *
      * @see #turnLeft(int, double)
      * @educational
      * <strong>Example Usage:</strong>
     * <pre>{@code
-    * // Default 90 degree left turn (uses default timeout 3.0 seconds)
+    * // Default {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degree left turn (uses default timeout {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds)
     * drone.turnLeft();
     * }
     * </pre>
@@ -2051,7 +2058,7 @@ public class Drone implements AutoCloseable {
      * is perfect for building navigation patterns and obstacle avoidance behaviors.</p>
      * 
      * @param degrees The number of degrees to turn right (0 to 179)
-     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * @param timeout Maximum time in seconds to attempt the turn (default: {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS})
      * 
      * @since 1.0
      * @see #turnLeft(int, double)
@@ -2081,7 +2088,7 @@ public class Drone implements AutoCloseable {
     /**
      * Turns the drone right by the specified number of degrees using the default timeout.
      * <p>
-     * This overload uses a default timeout of 3 seconds for the turn.
+     * This overload uses a default timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds for the turn.
      * </p>
      *
      * @param degrees The number of degrees to turn right (0 to 179)
@@ -2089,35 +2096,35 @@ public class Drone implements AutoCloseable {
      * @educational
      * <strong>Example Usage:</strong>
      * <pre>{@code
-     * // Turn right 90 degrees (quarter turn) using the default timeout (3.0 seconds)
-     * drone.turnRight(90);
+     * // Turn right {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees (quarter turn) using the default timeout ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds)
+     * drone.turnRight({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES});
      * }
      * </pre>
      */
     public void turnRight(int degrees) {
-        turnRight(degrees, 3.0);
+        turnRight(degrees, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS);
     }
 
     /**
-     * Turns the drone right by the default number of degrees (90) using the default timeout.
+     * Turns the drone right by the default number of degrees ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES}) using the default timeout.
      * <p>
-     * This overload uses a default turn of 90 degrees and a timeout of 3 seconds.
+     * This overload uses a default turn of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degrees and a timeout of {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds.
      * </p>
      *
      * @see #turnRight(int, double)
      * @educational
      * <strong>Example Usage:</strong>
      * <pre>{@code
-     * // Default 90 degree right turn (uses default timeout 3.0 seconds)
+     * // Default {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_DEGREES} degree right turn (uses default timeout {@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds)
      * drone.turnRight();
      * 
-     * // Turn right 45 degrees (quarter turn) using the default timeout (3.0 seconds)
+     * // Turn right 45 degrees (quarter turn) using the default timeout ({@value com.otabi.jcodroneedu.DroneSystem.FlightControlConstants#DEFAULT_TURN_TIMEOUT_SECONDS} seconds)
      * drone.turnRight(45);
      * }
      * </pre>
      */
     public void turnRight() {
-        turnRight(90, 3.0);
+        turnRight(DroneSystem.FlightControlConstants.DEFAULT_TURN_DEGREES, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS);
     }
 
     // =================================================================================

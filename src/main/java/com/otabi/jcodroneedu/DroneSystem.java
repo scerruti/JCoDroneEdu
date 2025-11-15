@@ -1154,9 +1154,6 @@ public class DroneSystem
         /** Polling interval for state checks during takeoff/landing */
         public static final long POLLING_INTERVAL_MS = 10;
         
-        /** Brief hover duration for reset move values operation */
-        public static final double RESET_HOVER_DURATION_SECONDS = 0.01;
-        
         // Rate limiting
         /** Maximum commands per second for control loop rate limiting */
         public static final double COMMANDS_PER_SECOND = 50.0;
@@ -1168,6 +1165,28 @@ public class DroneSystem
         // Reset operation defaults
         /** Default number of attempts for reset move values operation */
         public static final int RESET_MOVE_VALUES_DEFAULT_ATTEMPTS = 3;
+        
+        // Turn operation defaults
+        /** Default proportional gain for turnDegree methods (matches legacy Python default) */
+        public static final double DEFAULT_TURN_P_VALUE = 10.0;
+        
+        /** Default timeout in seconds for turn operations */
+        public static final double DEFAULT_TURN_TIMEOUT_SECONDS = 3.0;
+        
+        /** Default turn angle in degrees for parameterless turnDegree() */
+        public static final int DEFAULT_TURN_DEGREES = 90;
+        
+        // Movement operation defaults
+        /** Default movement speed in m/s (matches Python default) */
+        public static final double DEFAULT_MOVEMENT_SPEED_MPS = 0.5;
+        
+        // Hover operation defaults
+        /** 
+         * Brief hover duration in seconds (0.01s = 10ms).
+         * Used for stabilization in resetMoveValues() and as the default for parameterless hover().
+         * Matches Python implementation.
+         */
+        public static final double DEFAULT_HOVER_DURATION_SECONDS = 0.01;
     }
 
     /**
