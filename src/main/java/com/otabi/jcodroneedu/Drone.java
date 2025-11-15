@@ -4643,41 +4643,26 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Performs a flip maneuver in the default direction (back).
+     * Requires battery level above 50% for safety.
+     * Based on Python CoDrone EDU flip() method.
+     * 
+     * @apiNote Delegates to {@link FlightController#flip(String)} using default direction "back"
+     */
+    public void flip() {
+        flightController.flip("back");
+    }
+
+    /**
      * Performs a flip maneuver in the specified direction.
      * Requires battery level above 50% for safety.
      * Based on Python CoDrone EDU flip() method.
      * 
      * @param direction The flip direction: "front", "back", "left", "right"
+     * @apiNote Delegates to {@link FlightController#flip(String)}
      */
     public void flip(String direction) {
-        // Check battery level for safety
-        int battery = getBattery();
-        if (battery < 50) {
-            System.out.println("Warning: Unable to perform flip; battery level is below 50%.");
-            // TODO: Add buzzer warning when buzzer methods are implemented
-            return;
-        }
-        
-        FlightController.FlightEvent flipMode;
-        switch (direction.toLowerCase()) {
-            case "back":
-                flipMode = FlightController.FlightEvent.FLIP_REAR;
-                break;
-            case "front":
-                flipMode = FlightController.FlightEvent.FLIP_FRONT;
-                break;
-            case "right":
-                flipMode = FlightController.FlightEvent.FLIP_RIGHT;
-                break;
-            case "left":
-                flipMode = FlightController.FlightEvent.FLIP_LEFT;
-                break;
-            default:
-                System.out.println("Invalid flip direction. Use: front, back, left, or right");
-                return;
-        }
-        
-        triggerFlightEvent(flipMode);
+        flightController.flip(direction);
     }
 
     /**

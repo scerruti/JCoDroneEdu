@@ -139,6 +139,48 @@ public class FlightController {
     }
 
     /**
+     * Performs a flip maneuver in the specified direction.
+     * Requires battery level above 50% for safety.
+     * Based on Python CoDrone EDU flip() method.
+     * 
+     * @param direction The flip direction: "front", "back", "left", "right"
+     */
+    public void flip(String direction) {
+        // Check battery level for safety
+        int battery = drone.getBattery();
+        if (battery < 50) {
+            log.warn("Unable to perform flip; battery level is below 50%.");
+            // Play warning tones on controller buzzer (matching Python implementation)
+            drone.controllerBuzzer(587, 100);
+            drone.controllerBuzzer(554, 100);
+            drone.controllerBuzzer(523, 100);
+            drone.controllerBuzzer(494, 150);
+            return;
+        }
+        
+        FlightEvent flipMode;
+        switch (direction.toLowerCase()) {
+            case "back":
+                flipMode = FlightEvent.FLIP_REAR;
+                break;
+            case "front":
+                flipMode = FlightEvent.FLIP_FRONT;
+                break;
+            case "right":
+                flipMode = FlightEvent.FLIP_RIGHT;
+                break;
+            case "left":
+                flipMode = FlightEvent.FLIP_LEFT;
+                break;
+            default:
+                System.out.println("Invalid flip direction. Use: front, back, left, or right");
+                return;
+        }
+        
+        triggerFlightEvent(flipMode);
+    }
+
+    /**
      * Commands the drone to hover in place for a specific duration by sending a single
      * command to cease all movement and then pausing the thread.
      * @param durationSeconds The duration to hover, in seconds (matching Python behavior).
