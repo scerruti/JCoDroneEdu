@@ -987,15 +987,25 @@ public class FlightController {
      * @since 1.0
      */
     public int getBattery() {
-        log.debug("Getting battery level");
-        
         // Request fresh state data
         drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null) {
             int battery = state.getBattery() & 0xFF; // Convert unsigned byte to int
-            log.debug("Battery level: {}%", battery);
+            
+            // Use TRACE for repetitive polling (suppressed by default)
+            if (log.isTraceEnabled()) {
+                log.trace("Battery level: {}%", battery);
+            }
+            
+            // Warn on critical thresholds
+            if (battery < 20) {
+                log.warn("Battery critically low: {}%. Land immediately.", battery);
+            } else if (battery < 50) {
+                log.info("Battery low: {}%. Plan landing soon.", battery);
+            }
+            
             return battery;
         } else {
             log.warn("State data not available for battery reading");
@@ -1011,15 +1021,18 @@ public class FlightController {
      * @since 1.0
      */
     public String getFlightState() {
-        log.debug("Getting flight state");
-        
         // Request fresh state data
         drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null && state.getModeFlight() != null) {
             String flightState = state.getModeFlight().name();
-            log.debug("Flight state: {}", flightState);
+            
+            // Use TRACE for repetitive polling (suppressed by default)
+            if (log.isTraceEnabled()) {
+                log.trace("Flight state: {}", flightState);
+            }
+            
             return flightState;
         } else {
             log.warn("State data not available for flight state reading");
@@ -1035,15 +1048,18 @@ public class FlightController {
      * @since 1.0
      */
     public String getMovementState() {
-        log.debug("Getting movement state");
-        
         // Request fresh state data
         drone.sendRequestWait(DataType.State);
         
         State state = drone.getDroneStatus().getState();
         if (state != null && state.getModeMovement() != null) {
             String movementState = state.getModeMovement().name();
-            log.debug("Movement state: {}", movementState);
+            
+            // Use TRACE for repetitive polling (suppressed by default)
+            if (log.isTraceEnabled()) {
+                log.trace("Movement state: {}", movementState);
+            }
+            
             return movementState;
         } else {
             log.warn("State data not available for movement state reading");
@@ -1084,7 +1100,10 @@ public class FlightController {
      * @since 1.0
      */
     public double getFrontRange(String unit) {
-        log.debug("Getting front range in {}", unit);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Getting front range in {}", unit);
+        }
         return telemetry.getFrontRange(unit);
     }
 
@@ -1108,7 +1127,10 @@ public class FlightController {
      * @since 1.0
      */
     public double getBottomRange(String unit) {
-        log.debug("Getting bottom range in {}", unit);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Getting bottom range in {}", unit);
+        }
         return telemetry.getBottomRange(unit);
     }
 
@@ -1132,7 +1154,10 @@ public class FlightController {
      * @since 1.0
      */
     public double getPosX(String unit) {
-        log.debug("Getting X position in {}", unit);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Getting X position in {}", unit);
+        }
         return telemetry.getPosX(unit);
     }
 
@@ -1156,7 +1181,10 @@ public class FlightController {
      * @since 1.0
      */
     public double getPosY(String unit) {
-        log.debug("Getting Y position in {}", unit);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Getting Y position in {}", unit);
+        }
         return telemetry.getPosY(unit);
     }
 
@@ -1180,7 +1208,10 @@ public class FlightController {
      * @since 1.0
      */
     public double getPosZ(String unit) {
-        log.debug("Getting Z position in {}", unit);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Getting Z position in {}", unit);
+        }
         return telemetry.getPosZ(unit);
     }
 
@@ -1203,9 +1234,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAccelX() {
-        log.debug("Getting X acceleration");
         double g = telemetry.getAccelX_G();
-        log.debug("X acceleration: {} G", g);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("X acceleration: {} G", g);
+        }
         return g;
     }
 
@@ -1217,9 +1250,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAccelY() {
-        log.debug("Getting Y acceleration");
         double g = telemetry.getAccelY_G();
-        log.debug("Y acceleration: {} G", g);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Y acceleration: {} G", g);
+        }
         return g;
     }
 
@@ -1231,9 +1266,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAccelZ() {
-        log.debug("Getting Z acceleration");
         double g = telemetry.getAccelZ_G();
-        log.debug("Z acceleration: {} G", g);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Z acceleration: {} G", g);
+        }
         return g;
     }
 
@@ -1245,9 +1282,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAngleX() {
-        log.debug("Getting X angle (roll)");
         double deg = telemetry.getAngleX_Deg();
-        log.debug("X angle (roll): {} degrees", deg);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("X angle (roll): {} degrees", deg);
+        }
         return deg;
     }
 
@@ -1259,9 +1298,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAngleY() {
-        log.debug("Getting Y angle (pitch)");
         double deg = telemetry.getAngleY_Deg();
-        log.debug("Y angle (pitch): {} degrees", deg);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Y angle (pitch): {} degrees", deg);
+        }
         return deg;
     }
 
@@ -1273,9 +1314,11 @@ public class FlightController {
      * @since 1.0
      */
     public double getAngleZ() {
-        log.debug("Getting Z angle (yaw)");
         double deg = telemetry.getAngleZ_Deg();
-        log.debug("Z angle (yaw): {} degrees", deg);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            log.trace("Z angle (yaw): {} degrees", deg);
+        }
         return deg;
     }
 
@@ -1300,12 +1343,14 @@ public class FlightController {
      * @educational This demonstrates array usage and coordinate systems
      */
     public int[] getAccel() {
-        log.debug("Getting acceleration array data");
         int[] accelArray = telemetry.getAccelRaw();
-        double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-        double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-        double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-        log.debug("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
+        // Use TRACE for repetitive polling (suppressed by default)
+        if (log.isTraceEnabled()) {
+            double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+            log.trace("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
+        }
         return accelArray;
     }
 
