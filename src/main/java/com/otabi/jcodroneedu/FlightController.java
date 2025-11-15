@@ -19,10 +19,6 @@ import java.util.concurrent.TimeUnit;
  * Manages the direct flight control and flight-related commands for the drone.
  */
 public class FlightController {
-        /**
-         * Default proportional gain for turnDegree methods (matches legacy Python default).
-         */
-        public static final double DEFAULT_TURN_P_VALUE = 10.0;
     private static final Logger log = LogManager.getLogger(FlightController.class);
     
     private final Drone drone;
@@ -159,7 +155,7 @@ public class FlightController {
      */
     public void resetMoveValues(int attempts) {
         for (int i = 0; i < attempts; i++) {
-            hover(DroneSystem.FlightControlConstants.RESET_HOVER_DURATION_SECONDS); // Send a brief 10ms hover command
+            hover(DroneSystem.FlightControlConstants.DEFAULT_HOVER_DURATION_SECONDS); // Send a brief 10ms hover command
         }
     }
 
@@ -888,7 +884,7 @@ public class FlightController {
         // For educational simplicity, we'll use a direct approach
         
         // Use positive degree for left turn (matches Python convention)
-        turnDegree(degrees, timeout, DEFAULT_TURN_P_VALUE);
+        turnDegree(degrees, timeout, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
     }
 
     /**
@@ -929,7 +925,7 @@ public class FlightController {
         degrees = Math.min(179, Math.abs(degrees));
         
         // Use negative degree for right turn (matches Python convention)
-        turnDegree(-degrees, timeout, DEFAULT_TURN_P_VALUE);
+        turnDegree(-degrees, timeout, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
     }
 
 
