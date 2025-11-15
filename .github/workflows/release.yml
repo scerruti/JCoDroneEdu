@@ -108,31 +108,11 @@ jobs:
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Prepare release token (prefer RELEASE_PAT)
-        id: prep_token
-        env:
-          # bring secrets into the step env (they're masked)
-          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Do not echo tokens to stdout. Write only to GITHUB_OUTPUT.
-          if [ -n "${RELEASE_PAT}" ]; then
-            echo "token=${RELEASE_PAT}" >> $GITHUB_OUTPUT
-            echo "pat_present=true" >> $GITHUB_OUTPUT
-          else
-            echo "token=${GITHUB_TOKEN}" >> $GITHUB_OUTPUT
-            echo "pat_present=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          # set GITHUB_TOKEN for the action from the prepared output
-          GITHUB_TOKEN: ${{ steps.prep_token.outputs.token }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.get_version.outputs.VERSION) }}
-          release_name: CoDrone EDU Java v${{ steps.get_version.outputs.VERSION }}
+          name: CoDrone EDU Java v${{ steps.get_version.outputs.VERSION }}
           body: |
             ## 📚 CoDrone EDU Java Library v${{ steps.get_version.outputs.VERSION }}
             
@@ -160,46 +140,12 @@ jobs:
             Download the teacher edition JAR and add to your project classpath for access to testing framework.
           draft: false
           prerelease: ${{ contains(steps.get_version.outputs.VERSION, 'SNAPSHOT') || contains(steps.get_version.outputs.VERSION, 'alpha') || contains(steps.get_version.outputs.VERSION, 'beta') }}
-
-      - name: Upload Student JAR
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.prep_token.outputs.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.student || format('./build/libs/JCoDroneEdu-{0}-student.jar', steps.get_version.outputs.VERSION) }}
-          asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-student.jar
-          asset_content_type: application/java-archive
-
-      - name: Upload Teacher JAR
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.prep_token.outputs.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.teacher || format('./build/libs/JCoDroneEdu-{0}-teacher.jar', steps.get_version.outputs.VERSION) }}
-          asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-teacher.jar
-          asset_content_type: application/java-archive
-
-      - name: Upload Javadoc JAR
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.prep_token.outputs.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.javadoc || format('./build/libs/JCoDroneEdu-{0}-javadoc.jar', steps.get_version.outputs.VERSION) }}
-          asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-javadoc.jar
-          asset_content_type: application/java-archive
-
-      - name: Upload Sources JAR
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ steps.prep_token.outputs.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_artifacts.outputs.sources || format('./build/libs/JCoDroneEdu-{0}-sources.jar', steps.get_version.outputs.VERSION) }}
-          asset_name: codrone-edu-java-${{ steps.get_version.outputs.VERSION }}-sources.jar
-          asset_content_type: application/java-archive
+          files: |
+            ${{ steps.find_artifacts.outputs.student || format('./build/libs/JCoDroneEdu-{0}-student.jar', steps.get_version.outputs.VERSION) }}
+            ${{ steps.find_artifacts.outputs.teacher || format('./build/libs/JCoDroneEdu-{0}-teacher.jar', steps.get_version.outputs.VERSION) }}
+            ${{ steps.find_artifacts.outputs.javadoc || format('./build/libs/JCoDroneEdu-{0}-javadoc.jar', steps.get_version.outputs.VERSION) }}
+            ${{ steps.find_artifacts.outputs.sources || format('./build/libs/JCoDroneEdu-{0}-sources.jar', steps.get_version.outputs.VERSION) }}
+          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Publish to Maven Central
         if: ${{ !contains(steps.get_version.outputs.VERSION, 'SNAPSHOT') }}
