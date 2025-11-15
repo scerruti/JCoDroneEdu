@@ -1371,7 +1371,7 @@ public class Drone implements AutoCloseable {
      * @param duration Duration in seconds
      */
     public void go(String direction, int duration) {
-        flightController.go(direction, duration);
+        go(direction, 50, duration);
     }
     
     /**
@@ -1383,7 +1383,7 @@ public class Drone implements AutoCloseable {
      *                  or use {@link DroneSystem.DirectionConstants} for type safety
      */
     public void go(String direction) {
-        flightController.go(direction);
+        go(direction, 50, 1);
     }
 
     // ========================================
@@ -1428,17 +1428,54 @@ public class Drone implements AutoCloseable {
     }
     
     /**
-     * Move forward with default units (cm) and speed (0.5 m/s).
+     * Move forward a specific distance using default units and speed.
+     * <p>
+     * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_forward(distance)} in Python.
+     * </p>
+     * <ul>
+     *   <li>Default units: centimeters ("cm")</li>
+     *   <li>Default speed: 0.5 m/s</li>
+     * </ul>
+     * <p>
+     * Example:
+     * <pre>
+     * drone.moveForward(50); // Moves 50 cm forward at 0.5 m/s
+     * </pre>
+     * </p>
+     * @param distance The distance to move forward (in centimeters)
+     * @see #moveForward(double, String, double)
+     * @educational
+     * @pythonEquivalent move_forward(distance)
      */
     public void moveForward(double distance) {
-        flightController.moveForward(distance);
+        moveForward(distance, "cm");
     }
-    
+
     /**
-     * Move forward with specified units and default speed (0.5 m/s).
+     * Move forward a specific distance with specified units and default speed.
+     * <p>
+     * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_forward(distance, units)} in Python.
+     * </p>
+     * <ul>
+     *   <li>Default speed: 0.5 m/s</li>
+     * </ul>
+     * <p>
+     * Example:
+     * <pre>
+     * drone.moveForward(2, "m"); // Moves 2 meters forward at 0.5 m/s
+     * </pre>
+     * </p>
+     * @param distance The distance to move forward
+     * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+     *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+     *              {@link DroneSystem.UnitConversion#UNIT_METERS}
+     * @see #moveForward(double, String, double)
+     * @educational
+     * @pythonEquivalent move_forward(distance, units)
      */
     public void moveForward(double distance, String units) {
-        flightController.moveForward(distance, units);
+        moveForward(distance, units, 0.5);
     }
     
     /**
@@ -1467,14 +1504,57 @@ public class Drone implements AutoCloseable {
      * Move backward with default units (cm) and speed (0.5 m/s).
      */
     public void moveBackward(double distance) {
-        flightController.moveBackward(distance);
+        /**
+         * Move backward a specific distance using default units and speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_backward(distance)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default units: centimeters ("cm")</li>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveBackward(50); // Moves 50 cm backward at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move backward (in centimeters)
+         * @see #moveBackward(double, String, double)
+         * @educational
+         * @pythonEquivalent move_backward(distance)
+         */
+        moveBackward(distance, "cm");
     }
     
     /**
      * Move backward with specified units and default speed (0.5 m/s).
      */
     public void moveBackward(double distance, String units) {
-        flightController.moveBackward(distance, units);
+        /**
+         * Move backward a specific distance with specified units and default speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_backward(distance, units)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveBackward(2, "m"); // Moves 2 meters backward at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move backward
+         * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+         *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_METERS}
+         * @see #moveBackward(double, String, double)
+         * @educational
+         * @pythonEquivalent move_backward(distance, units)
+         */
+        moveBackward(distance, units, 0.5);
     }
     
     /**
@@ -1503,14 +1583,57 @@ public class Drone implements AutoCloseable {
      * Move left with default units (cm) and speed (0.5 m/s).
      */
     public void moveLeft(double distance) {
-        flightController.moveLeft(distance);
+        /**
+         * Move left a specific distance using default units and speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_left(distance)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default units: centimeters ("cm")</li>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveLeft(30); // Moves 30 cm left at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move left (in centimeters)
+         * @see #moveLeft(double, String, double)
+         * @educational
+         * @pythonEquivalent move_left(distance)
+         */
+        moveLeft(distance, "cm");
     }
     
     /**
      * Move left with specified units and default speed (0.5 m/s).
      */
     public void moveLeft(double distance, String units) {
-        flightController.moveLeft(distance, units);
+        /**
+         * Move left a specific distance with specified units and default speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_left(distance, units)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveLeft(1.5, "m"); // Moves 1.5 meters left at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move left
+         * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+         *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_METERS}
+         * @see #moveLeft(double, String, double)
+         * @educational
+         * @pythonEquivalent move_left(distance, units)
+         */
+        moveLeft(distance, units, 0.5);
     }
     
     /**
@@ -1539,14 +1662,57 @@ public class Drone implements AutoCloseable {
      * Move right with default units (cm) and speed (0.5 m/s).
      */
     public void moveRight(double distance) {
-        flightController.moveRight(distance);
+        /**
+         * Move right a specific distance using default units and speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_right(distance)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default units: centimeters ("cm")</li>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveRight(40); // Moves 40 cm right at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move right (in centimeters)
+         * @see #moveRight(double, String, double)
+         * @educational
+         * @pythonEquivalent move_right(distance)
+         */
+        moveRight(distance, "cm");
     }
     
     /**
      * Move right with specified units and default speed (0.5 m/s).
      */
     public void moveRight(double distance, String units) {
-        flightController.moveRight(distance, units);
+        /**
+         * Move right a specific distance with specified units and default speed.
+         * <p>
+         * <strong>Python API Compatibility:</strong> Equivalent to {@code drone.move_right(distance, units)} in Python.
+         * </p>
+         * <ul>
+         *   <li>Default speed: 0.5 m/s</li>
+         * </ul>
+         * <p>
+         * Example:
+         * <pre>
+         * drone.moveRight(2, "m"); // Moves 2 meters right at 0.5 m/s
+         * </pre>
+         * </p>
+         * @param distance The distance to move right
+         * @param units The unit: {@link DroneSystem.UnitConversion#UNIT_CENTIMETERS} (default), 
+         *              {@link DroneSystem.UnitConversion#UNIT_INCHES}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_FEET}, 
+         *              {@link DroneSystem.UnitConversion#UNIT_METERS}
+         * @see #moveRight(double, String, double)
+         * @educational
+         * @pythonEquivalent move_right(distance, units)
+         */
+        moveRight(distance, units, 0.5);
     }
     
     /**

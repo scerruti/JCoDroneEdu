@@ -324,15 +324,13 @@ public class FlightController {
      *
      * @param control     Quad8 containung roll, pitch, yaw and throttle
      */
-    private void sendControl(Quad8 control)
-    {
+    private void sendControl(Quad8 control) {
         sendControl(control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle());
     }
 
     /**
      * Sends a single flight control command to the drone.
      * The input values will be clamped to the range of -100 to 100.
-     *
      * @param roll     The roll value (-100 to 100).
      * @param pitch    The pitch value (-100 to 100).
      * @param yaw      The yaw value (-100 to 100).
@@ -407,14 +405,13 @@ public class FlightController {
      * Implementation matches Python's go() method:
      * - Resets all control variables to 0
      * - Sets the appropriate control variable based on direction
-     * - Calls move(duration) to execute the movement
      * - Calls hover(1) to stabilize after movement
      * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
      * @param power Power level from 0-100 (defaults to 50 if not specified)
      * @param duration Duration in seconds (defaults to 1 if not specified)
      */
-    public void go(String direction, int power, int duration) {
+    public void go(String direction, int power, int duration) { 
         try {
             // Reset all control variables to 0 (match Python implementation)
             setRoll(0);
@@ -422,63 +419,47 @@ public class FlightController {
             setYaw(0);
             setThrottle(0);
 
-            // Validate and clamp power to 0-100 range
-            if (power > 100) power = 100;
-            else if (power < 0) power = 0;
+            // Clamp power to 0-100 range (do not assign, just use in set methods)
+            int clampedPower = Math.max(0, Math.min(100, power));
 
             // Set the appropriate control variable based on direction
             String dir = direction.toLowerCase();
             switch (dir) {
                 case DroneSystem.DirectionConstants.FORWARD:
-                    setPitch(power);
+                    setPitch(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.BACKWARD:
-                    setPitch(-power);
+                    setPitch(-clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.RIGHT:
-                    setRoll(power);
+                    setRoll(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.LEFT:
-                    setRoll(-power);
+                    setRoll(-clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.UP:
-                    setThrottle(power);
+                    setThrottle(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.DOWN:
-                    setThrottle(-power);
+                    setThrottle(-clampedPower);
                     break;
                 default:
-                    System.out.println("Warning: Invalid direction '" + direction + "'. Valid directions are: " + 
-                        DroneSystem.DirectionConstants.FORWARD + ", " + DroneSystem.DirectionConstants.BACKWARD + ", " + 
-                        DroneSystem.DirectionConstants.LEFT + ", " + DroneSystem.DirectionConstants.RIGHT + ", " + 
-                        DroneSystem.DirectionConstants.UP + ", " + DroneSystem.DirectionConstants.DOWN);
+                    log.warn("Invalid direction '{}'. Valid directions are: {}, {}, {}, {}, {}, {}", direction,
+                        DroneSystem.DirectionConstants.LEFT, DroneSystem.DirectionConstants.RIGHT,
+                        DroneSystem.DirectionConstants.UP, DroneSystem.DirectionConstants.DOWN);
                     return;
             }
 
             // Execute the movement for the specified duration
-            move(duration);
 
             // Hover for 1 second to stabilize (match Python implementation)
             hover(1);
 
         } catch (Exception e) {
-            System.out.println("Warning: Invalid arguments. Please check your parameters.");
+            log.warn("Invalid arguments in go(): {}", e.toString());
         }
     }
 
-    /**
-     * Overloaded go() method with default power (50)
-     */
-    public void go(String direction, int duration) {
-        go(direction, 50, duration);
-    }
-    
-    /**
-     * Overloaded go() method with default power (50) and duration (1 second)
-     */
-    public void go(String direction) {
-        go(direction, 50, 1);
-    }
 
     /**
      * Helper method to pause execution, handling InterruptedException.
@@ -510,8 +491,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command
         sendControlPosition((float) distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
@@ -521,19 +502,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move forward with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveForward(double distance) {
-        moveForward(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move forward with specified units and default speed (0.5 m/s).
-     */
-    public void moveForward(double distance, String units) {
-        moveForward(distance, units, 0.5);
-    }
     
     /**
      * Move backward a specific distance with precision control.
@@ -549,8 +517,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (negative X for backward)
         sendControlPosition((float) -distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
@@ -560,19 +528,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move backward with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveBackward(double distance) {
-        moveBackward(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move backward with specified units and default speed (0.5 m/s).
-     */
-    public void moveBackward(double distance, String units) {
-        moveBackward(distance, units, 0.5);
-    }
     
     /**
      * Move left a specific distance with precision control.
@@ -588,8 +543,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (positive Y for left)
         sendControlPosition(0.0f, (float) distanceMeters, 0.0f, (float) speed, 0, 0);
@@ -599,19 +554,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move left with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveLeft(double distance) {
-        moveLeft(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move left with specified units and default speed (0.5 m/s).
-     */
-    public void moveLeft(double distance, String units) {
-        moveLeft(distance, units, 0.5);
-    }
     
     /**
      * Move right a specific distance with precision control.
@@ -627,8 +569,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (negative Y for right)
         sendControlPosition(0.0f, (float) -distanceMeters, 0.0f, (float) speed, 0, 0);
@@ -638,19 +580,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move right with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveRight(double distance) {
-        moveRight(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move right with specified units and default speed (0.5 m/s).
-     */
-    public void moveRight(double distance, String units) {
-        moveRight(distance, units, 0.5);
-    }
     
     /**
      * Move the drone in 3D space to a specific relative position.
@@ -664,8 +593,8 @@ public class FlightController {
      * @param velocity The movement speed from 0.5 to 2.0 m/s
      */
     public void moveDistance(double positionX, double positionY, double positionZ, double velocity) {
-        // Cap the velocity to valid range
-        velocity = Math.max(0.5, Math.min(velocity, 2.0));
+        // Cap the velocity to valid range (Python: 0 to 2)
+        velocity = Math.max(0.0, Math.min(velocity, 2.0));
         
         // Calculate total distance for timing
         double distance = Math.sqrt(positionX * positionX + positionY * positionY + positionZ * positionZ);
@@ -698,30 +627,54 @@ public class FlightController {
     }
     
     /**
-     * Helper method to convert distance measurements to meters.
-     * 
+     * Enum for supported distance units.
+     */
+    private enum DistanceUnit {
+        CENTIMETERS(DroneSystem.UnitConversion.UNIT_CENTIMETERS, DroneSystem.UnitConversion.CENTIMETERS_TO_METERS),
+        FEET(DroneSystem.UnitConversion.UNIT_FEET, DroneSystem.UnitConversion.FEET_TO_METERS),
+        INCHES(DroneSystem.UnitConversion.UNIT_INCHES, DroneSystem.UnitConversion.INCHES_TO_METERS),
+        METERS(DroneSystem.UnitConversion.UNIT_METERS, 1.0);
+
+        private final String unitString;
+        private final double toMeters;
+
+        DistanceUnit(String unitString, double toMeters) {
+            this.unitString = unitString;
+            this.toMeters = toMeters;
+        }
+
+        public double convert(double value) {
+            return value * toMeters;
+        }
+
+        public static DistanceUnit fromString(String s) {
+            if (s == null) return null;
+            String lower = s.toLowerCase();
+            for (DistanceUnit du : values()) {
+                if (du.unitString.equals(lower)) return du;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Helper method to convert distance measurements to meters using DistanceUnit enum.
+     *
      * @param distance The distance value
-     * @param units The unit: "cm", "in", "ft", "m"
+     * @param units The unit as a string
      * @return The distance in meters, or -1 if invalid unit
      */
     private double convertToMeters(double distance, String units) {
-        switch (units.toLowerCase()) {
-            case DroneSystem.UnitConversion.UNIT_CENTIMETERS:
-                return distance * DroneSystem.UnitConversion.CENTIMETERS_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_FEET:
-                return distance * DroneSystem.UnitConversion.FEET_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_INCHES:
-                return distance * DroneSystem.UnitConversion.INCHES_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_METERS:
-                return distance;
-            default:
-                System.out.println("Error: Invalid unit '" + units + "'. Valid units are: " + 
-                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " + 
-                    DroneSystem.UnitConversion.UNIT_FEET + ", " + 
-                    DroneSystem.UnitConversion.UNIT_INCHES + ", " + 
-                    DroneSystem.UnitConversion.UNIT_METERS);
-                return -1;
+        DistanceUnit du = DistanceUnit.fromString(units);
+        if (du == null) {
+            log.warn("Error: Invalid unit '{}'. Valid units are: {}, {}, {}, {}", units,
+                DroneSystem.UnitConversion.UNIT_CENTIMETERS,
+                DroneSystem.UnitConversion.UNIT_FEET,
+                DroneSystem.UnitConversion.UNIT_INCHES,
+                DroneSystem.UnitConversion.UNIT_METERS);
+            return -1;
         }
+        return du == DistanceUnit.METERS ? distance : du.convert(distance);
     }
 
     // ========================================
