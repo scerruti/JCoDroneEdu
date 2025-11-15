@@ -4647,10 +4647,10 @@ public class Drone implements AutoCloseable {
      * Requires battery level above 50% for safety.
      * Based on Python CoDrone EDU flip() method.
      * 
-     * @apiNote Delegates to {@link FlightController#flip(String)} using default direction "back"
+     * @apiNote Delegates to {@link #flip(String)} using default direction
      */
     public void flip() {
-        flightController.flip("back");
+        flip(DroneSystem.FlightControlConstants.DEFAULT_FLIP_DIRECTION);
     }
 
     /**
