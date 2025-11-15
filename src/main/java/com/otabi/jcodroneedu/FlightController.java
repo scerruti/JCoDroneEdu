@@ -684,30 +684,54 @@ public class FlightController {
     }
     
     /**
-     * Helper method to convert distance measurements to meters.
-     * 
+     * Enum for supported distance units.
+     */
+    private enum DistanceUnit {
+        CENTIMETERS(DroneSystem.UnitConversion.UNIT_CENTIMETERS, DroneSystem.UnitConversion.CENTIMETERS_TO_METERS),
+        FEET(DroneSystem.UnitConversion.UNIT_FEET, DroneSystem.UnitConversion.FEET_TO_METERS),
+        INCHES(DroneSystem.UnitConversion.UNIT_INCHES, DroneSystem.UnitConversion.INCHES_TO_METERS),
+        METERS(DroneSystem.UnitConversion.UNIT_METERS, 1.0);
+
+        private final String unitString;
+        private final double toMeters;
+
+        DistanceUnit(String unitString, double toMeters) {
+            this.unitString = unitString;
+            this.toMeters = toMeters;
+        }
+
+        public double convert(double value) {
+            return value * toMeters;
+        }
+
+        public static DistanceUnit fromString(String s) {
+            if (s == null) return null;
+            String lower = s.toLowerCase();
+            for (DistanceUnit du : values()) {
+                if (du.unitString.equals(lower)) return du;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Helper method to convert distance measurements to meters using DistanceUnit enum.
+     *
      * @param distance The distance value
-     * @param units The unit: "cm", "in", "ft", "m"
+     * @param units The unit as a string
      * @return The distance in meters, or -1 if invalid unit
      */
     private double convertToMeters(double distance, String units) {
-        switch (units.toLowerCase()) {
-            case DroneSystem.UnitConversion.UNIT_CENTIMETERS:
-                return distance * DroneSystem.UnitConversion.CENTIMETERS_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_FEET:
-                return distance * DroneSystem.UnitConversion.FEET_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_INCHES:
-                return distance * DroneSystem.UnitConversion.INCHES_TO_METERS;
-            case DroneSystem.UnitConversion.UNIT_METERS:
-                return distance;
-            default:
-                System.out.println("Error: Invalid unit '" + units + "'. Valid units are: " + 
-                    DroneSystem.UnitConversion.UNIT_CENTIMETERS + ", " + 
-                    DroneSystem.UnitConversion.UNIT_FEET + ", " + 
-                    DroneSystem.UnitConversion.UNIT_INCHES + ", " + 
-                    DroneSystem.UnitConversion.UNIT_METERS);
-                return -1;
+        DistanceUnit du = DistanceUnit.fromString(units);
+        if (du == null) {
+            log.warn("Error: Invalid unit '{}'. Valid units are: {}, {}, {}, {}", units,
+                DroneSystem.UnitConversion.UNIT_CENTIMETERS,
+                DroneSystem.UnitConversion.UNIT_FEET,
+                DroneSystem.UnitConversion.UNIT_INCHES,
+                DroneSystem.UnitConversion.UNIT_METERS);
+            return -1;
         }
+        return du == DistanceUnit.METERS ? distance : du.convert(distance);
     }
 
     // ========================================
