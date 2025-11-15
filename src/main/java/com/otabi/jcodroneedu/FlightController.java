@@ -325,14 +325,14 @@ public class FlightController {
      * @param control     Quad8 containung roll, pitch, yaw and throttle
      */
     private void sendControl(Quad8 control)
-    {
+               moveForward(distance, "cm", 0.5);
         sendControl(control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle());
     }
 
     /**
      * Sends a single flight control command to the drone.
      * The input values will be clamped to the range of -100 to 100.
-     *
+               moveForward(distance, units, 0.5);
      * @param roll     The roll value (-100 to 100).
      * @param pitch    The pitch value (-100 to 100).
      * @param yaw      The yaw value (-100 to 100).
@@ -366,14 +366,14 @@ public class FlightController {
      * @param yaw      The yaw value (-100 to 100).
      * @param throttle The throttle value (-100 to 100).
      * @param timeMs   The duration to send commands for, in milliseconds.
-     */
+               moveBackward(distance, "cm", 0.5);
     public void sendControlWhile(int roll, int pitch, int yaw, int throttle, long timeMs) {
         if (timeMs <= 0) return;
         long endTime = System.currentTimeMillis() + timeMs;
         while (System.currentTimeMillis() < endTime) {
             controlLoopRateLimiter.acquire();
             sendControl(roll, pitch, yaw, throttle);
-        }
+               moveBackward(distance, units, 0.5);
         sendControl(0, 0, 0, 0);
     }
 
@@ -407,14 +407,14 @@ public class FlightController {
      * Implementation matches Python's go() method:
      * - Resets all control variables to 0
      * - Sets the appropriate control variable based on direction
-     * - Calls move(duration) to execute the movement
+               moveLeft(distance, "cm", 0.5);
      * - Calls hover(1) to stabilize after movement
      * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
      * @param power Power level from 0-100 (defaults to 50 if not specified)
      * @param duration Duration in seconds (defaults to 1 if not specified)
      */
-    public void go(String direction, int power, int duration) {
+               moveLeft(distance, units, 0.5);
         try {
             // Reset all control variables to 0 (match Python implementation)
             setRoll(0);
@@ -422,63 +422,49 @@ public class FlightController {
             setYaw(0);
             setThrottle(0);
 
-            // Validate and clamp power to 0-100 range
-            if (power > 100) power = 100;
-            else if (power < 0) power = 0;
+            // Clamp power to 0-100 range (do not assign, just use in set methods)
+            int clampedPower = Math.max(0, Math.min(100, power));
 
             // Set the appropriate control variable based on direction
             String dir = direction.toLowerCase();
             switch (dir) {
                 case DroneSystem.DirectionConstants.FORWARD:
-                    setPitch(power);
+                    setPitch(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.BACKWARD:
-                    setPitch(-power);
+                    setPitch(-clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.RIGHT:
-                    setRoll(power);
+                    setRoll(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.LEFT:
-                    setRoll(-power);
+                    setRoll(-clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.UP:
-                    setThrottle(power);
+                    setThrottle(clampedPower);
                     break;
                 case DroneSystem.DirectionConstants.DOWN:
-                    setThrottle(-power);
+                    setThrottle(-clampedPower);
                     break;
                 default:
-                    System.out.println("Warning: Invalid direction '" + direction + "'. Valid directions are: " + 
-                        DroneSystem.DirectionConstants.FORWARD + ", " + DroneSystem.DirectionConstants.BACKWARD + ", " + 
-                        DroneSystem.DirectionConstants.LEFT + ", " + DroneSystem.DirectionConstants.RIGHT + ", " + 
-                        DroneSystem.DirectionConstants.UP + ", " + DroneSystem.DirectionConstants.DOWN);
+                    log.warn("Invalid direction '{}'. Valid directions are: {}, {}, {}, {}, {}, {}", direction,
+               moveRight(distance, "cm", 0.5);
+                        DroneSystem.DirectionConstants.LEFT, DroneSystem.DirectionConstants.RIGHT,
+                        DroneSystem.DirectionConstants.UP, DroneSystem.DirectionConstants.DOWN);
                     return;
             }
 
             // Execute the movement for the specified duration
-            move(duration);
+               moveRight(distance, units, 0.5);
 
             // Hover for 1 second to stabilize (match Python implementation)
             hover(1);
 
         } catch (Exception e) {
-            System.out.println("Warning: Invalid arguments. Please check your parameters.");
+            log.warn("Invalid arguments in go(): {}", e.toString());
         }
     }
 
-    /**
-     * Overloaded go() method with default power (50)
-     */
-    public void go(String direction, int duration) {
-        go(direction, 50, duration);
-    }
-    
-    /**
-     * Overloaded go() method with default power (50) and duration (1 second)
-     */
-    public void go(String direction) {
-        go(direction, 50, 1);
-    }
 
     /**
      * Helper method to pause execution, handling InterruptedException.
