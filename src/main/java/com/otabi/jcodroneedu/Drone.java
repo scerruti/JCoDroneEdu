@@ -1638,10 +1638,69 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Overloaded turn method with default 1 second duration.
+     * Overloaded turn methods
+     */
+
+     
+    /**
+     * Turns the drone in the yaw direction at the specified power.
+     * <p>
+     * This is a convenience overload for {@link #turn(int, Double)} that turns with the given power
+     * for a single control command (no duration specified).
+     * </p>
+     *
+     * @param power The turning power (-100 to 100). Positive values turn left, negative values turn right.
+     * @see #turn(int, Double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn left at 60% power
+     * drone.turn(60);
+     * // Turn right at 40% power
+     * drone.turn(-40);
+     * }</pre>
      */
     public void turn(int power) {
-        turn(power, 1.0);
+        turn(power, null);
+    }
+
+    /**
+     * Turns the drone in the yaw direction at default power (50%) for the specified duration.
+     * <p>
+     * This is a convenience overload for {@link #turn(int, Double)} that turns with default power
+     * for the given number of seconds.
+     * </p>
+     *
+     * @param seconds The duration to turn in seconds.
+     * @see #turn(int, Double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn left for 2 seconds at default power
+     * drone.turn(2.0);
+     * }</pre>
+     */
+    public void turn(Double seconds) {
+        turn(50, seconds);
+    }
+
+    /**
+     * Turns the drone in the yaw direction at default power (50%) for a single control command.
+     * <p>
+     * This is a convenience overload for {@link #turn(int, Double)} that turns with default power
+     * and no duration specified.
+     * </p>
+     *
+     * @see #turn(int, Double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Quick default turn
+     * drone.turn();
+     * }</pre>
+     */
+    public void turn() {
+        turn(50, null);
     }
 
     /**
@@ -1657,7 +1716,7 @@ public class Drone implements AutoCloseable {
      * @param degree The target heading in degrees (-180 to 180). Positive values
      *               are relative left turns, negative values are relative right turns.
      * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
-     * @param pValue Proportional gain for the control system (default: 10.0)
+    * @param pValue Proportional gain for the control system (default: {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE})
      * 
      * @since 1.0
      * @see #turnLeft(int)
@@ -1682,17 +1741,60 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Overloaded turnDegree with default timeout.
+     * Turns the drone to a specific degree relative to its initial heading with a custom timeout.
+     * <p>
+    * This overload uses the default proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}) for the control system.
+     * </p>
+     *
+     * @param degree The target heading in degrees (-180 to 180). Positive values are left turns, negative are right turns.
+     * @param timeout Maximum time in seconds to attempt the turn (default: 3.0)
+     * @see #turnDegree(int, double, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn 45 degrees right with custom timeout
+     * drone.turnDegree(-45, 5.0);
+     * }</pre>
      */
     public void turnDegree(int degree, double timeout) {
-        flightController.turnDegree(degree, timeout);
+        turnDegree(degree, timeout, FlightController.DEFAULT_TURN_P_VALUE);
     }
 
     /**
-     * Overloaded turnDegree with default timeout and pValue.
+     * Turns the drone to a specific degree relative to its initial heading using default timeout and proportional gain.
+     * <p>
+    * This overload uses a default timeout of 3 seconds and proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}).
+     * </p>
+     *
+     * @param degree The target heading in degrees (-180 to 180). Positive values are left turns, negative are right turns.
+     * @see #turnDegree(int, double, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn exactly 90 degrees left
+     * drone.turnDegree(90);
+     * }</pre>
      */
     public void turnDegree(int degree) {
-        flightController.turnDegree(degree);
+        turnDegree(degree, 3, FlightController.DEFAULT_TURN_P_VALUE);
+    }
+
+    /**
+     * Turns the drone 90 degrees left using default timeout and proportional gain.
+     * <p>
+    * This overload uses a default turn of 90 degrees, timeout of 3 seconds, and proportional gain (pValue = {@value com.otabi.jcodroneedu.FlightController#DEFAULT_TURN_P_VALUE}).
+     * </p>
+     *
+     * @see #turnDegree(int, double, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Default 90 degree left turn
+     * drone.turnDegree();
+     * }</pre>
+     */
+    public void turnDegree() {
+        turnDegree(90, 3, FlightController.DEFAULT_TURN_P_VALUE);
     }
 
     /**
@@ -1715,26 +1817,61 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      * <strong>Example Usage:</strong>
-     * <pre>{@code
-     * // Turn left 90 degrees (quarter turn)
-     * drone.turnLeft(90);
-     * 
-     * // Turn left 45 degrees with longer timeout
-     * drone.turnLeft(45, 5.0);
-     * 
-     * // Small adjustment turn
-     * drone.turnLeft(15);
-     * }</pre>
+    * <pre>{@code
+    * // Turn left 45 degrees with a 5 second timeout
+    * drone.turnLeft(45, 5.0);
+    * 
+    * // Turn left 120 degrees with a 2.5 second timeout
+    * drone.turnLeft(120, 2.5);
+    * 
+    * // Small adjustment turn
+    * drone.turnLeft(10, 1.0);
+    * }</pre>
      */
     public void turnLeft(int degrees, double timeout) {
-        flightController.turnLeft(degrees, timeout);
+        // Ensure positive degree value and cap at 179
+        degrees = Math.min(179, Math.abs(degrees));
+        // Use positive degree for left turn (matches Python convention)
+        turnDegree(degrees, timeout);
     }
 
     /**
-     * Overloaded turnLeft with default timeout.
+     * Turns the drone left by the specified number of degrees using the default timeout.
+     * <p>
+     * This overload uses a default timeout of 3 seconds for the turn.
+     * </p>
+     *
+     * @param degrees The number of degrees to turn left (0 to 179)
+     * @see #turnLeft(int, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+    * <pre>{@code
+    * // Turn left 60 degrees (quarter turn) using the default timeout (3.0 seconds)
+    * drone.turnLeft(60);
+    * }
+    * </pre>
      */
     public void turnLeft(int degrees) {
-        flightController.turnLeft(degrees);
+        turnLeft(degrees, 3.0);
+    }
+
+    /**
+     * Turns the drone left 90 degrees using the default timeout.
+     * <p>
+     * This overload uses a default turn of 90 degrees and a timeout of 3 seconds.
+     * </p>
+     *
+     * @see #turnLeft(int, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+    * <pre>{@code
+    * // Default 90 degree left turn (uses default timeout 3.0 seconds)
+    * drone.turnLeft();
+    * }
+    * </pre>
+     */
+    public void turnLeft() {
+        turnLeft(90, 3.0);
     }
 
     /**
@@ -1757,26 +1894,64 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      * <strong>Example Usage:</strong>
-     * <pre>{@code
-     * // Turn right 90 degrees (quarter turn)
-     * drone.turnRight(90);
-     * 
-     * // Turn right 45 degrees with longer timeout
-     * drone.turnRight(45, 5.0);
-     * 
-     * // Small adjustment turn
-     * drone.turnRight(15);
-     * }</pre>
+    * <pre>{@code
+    * // Turn right 60 degrees with a 4 second timeout
+    * drone.turnRight(60, 4.0);
+    * 
+    * // Turn right 120 degrees with a 2.5 second timeout
+    * drone.turnRight(120, 2.5);
+    * 
+    * // Small adjustment turn
+    * drone.turnRight(10, 1.0);
+    * }</pre>
      */
     public void turnRight(int degrees, double timeout) {
-        flightController.turnRight(degrees, timeout);
+        // Ensure positive degree value and cap at 179
+        degrees = Math.min(179, Math.abs(degrees));
+        // Use negative degree for right turn (matches Python convention)
+        turnDegree(-degrees, timeout);
     }
 
     /**
-     * Overloaded turnRight with default timeout.
+     * Turns the drone right by the specified number of degrees using the default timeout.
+     * <p>
+     * This overload uses a default timeout of 3 seconds for the turn.
+     * </p>
+     *
+     * @param degrees The number of degrees to turn right (0 to 179)
+     * @see #turnRight(int, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Turn right 90 degrees (quarter turn) using the default timeout (3.0 seconds)
+     * drone.turnRight(90);
+     * }
+     * </pre>
      */
     public void turnRight(int degrees) {
-        flightController.turnRight(degrees);
+        turnRight(degrees, 3.0);
+    }
+
+    /**
+     * Turns the drone right by the default number of degrees (90) using the default timeout.
+     * <p>
+     * This overload uses a default turn of 90 degrees and a timeout of 3 seconds.
+     * </p>
+     *
+     * @see #turnRight(int, double)
+     * @educational
+     * <strong>Example Usage:</strong>
+     * <pre>{@code
+     * // Default 90 degree right turn (uses default timeout 3.0 seconds)
+     * drone.turnRight();
+     * 
+     * // Turn right 45 degrees (quarter turn) using the default timeout (3.0 seconds)
+     * drone.turnRight(45);
+     * }
+     * </pre>
+     */
+    public void turnRight() {
+        turnRight(90, 3.0);
     }
 
     // =================================================================================

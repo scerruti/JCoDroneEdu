@@ -19,6 +19,10 @@ import java.util.concurrent.TimeUnit;
  * Manages the direct flight control and flight-related commands for the drone.
  */
 public class FlightController {
+        /**
+         * Default proportional gain for turnDegree methods (matches legacy Python default).
+         */
+        public static final double DEFAULT_TURN_P_VALUE = 10.0;
     private static final Logger log = LogManager.getLogger(FlightController.class);
     
     private final Drone drone;
@@ -417,11 +421,11 @@ public class FlightController {
             setPitch(0);
             setYaw(0);
             setThrottle(0);
-            
+
             // Validate and clamp power to 0-100 range
             if (power > 100) power = 100;
             else if (power < 0) power = 0;
-            
+
             // Set the appropriate control variable based on direction
             String dir = direction.toLowerCase();
             switch (dir) {
@@ -450,18 +454,18 @@ public class FlightController {
                         DroneSystem.DirectionConstants.UP + ", " + DroneSystem.DirectionConstants.DOWN);
                     return;
             }
-            
+
             // Execute the movement for the specified duration
             move(duration);
-            
+
             // Hover for 1 second to stabilize (match Python implementation)
             hover(1);
-            
+
         } catch (Exception e) {
             System.out.println("Warning: Invalid arguments. Please check your parameters.");
         }
     }
-    
+
     /**
      * Overloaded go() method with default power (50)
      */
@@ -748,8 +752,6 @@ public class FlightController {
      * @throws IllegalArgumentException if power is outside valid range
      * 
      * @since 1.0
-     * @see #turnLeft(int)
-     * @see #turnRight(int)
      * @see #turnDegree(int)
      * 
      * @educational
@@ -811,8 +813,6 @@ public class FlightController {
      * @throws IllegalArgumentException if degree is outside valid range
      * 
      * @since 1.0
-     * @see #turnLeft(int)
-     * @see #turnRight(int)
      * @see #turn(int, Double)
      * 
      * @educational
@@ -828,57 +828,70 @@ public class FlightController {
      * drone.turnDegree(180, 4.0, 15.0); // Faster, more aggressive turning
      * }</pre>
      * 
-     * @apiNote This method requires access to the drone's current angle sensor data.
-     * For educational purposes, a simplified version is provided that may not have
-     * full sensor integration yet.
+     * @apiNote This method uses real-time sensor feedback (getAngleZ) and a proportional control loop.
+        * <p><b>Note:</b> The <code>p_value</code> parameter controls the aggressiveness of the turn. There is a discrepancy between the Python documentation (which suggests values in the range 0.5–1.5) and the default value used here (10.0). In practice, a value of 10.0 is likely too high for most cases and will cause the power to saturate at ±100 for typical turns. Lower values (closer to 1.0) are recommended for smooth, proportional control. Additionally, at low power levels (below ±15), the drone may not respond due to either Java-side or hardware dead zones; further testing is needed to determine the cause. Adjust <code>p_value</code> and test with your hardware for best results.</p>
      */
     public void turnDegree(int degree, double timeout, double pValue) {
         // Clamp degree to valid range (-180 to 180)
         degree = Math.max(-180, Math.min(180, degree));
         
-        // Brief hover to ensure drone is stable before turning
-        hover(0.01);
+        // Get initial yaw angle
+        double initialYaw = getAngleZ();
+        double targetYaw = normalizeAngle(initialYaw + degree);
+        long startTime = System.currentTimeMillis();
+        long timeoutMs = (long) (timeout * 1000);
         
-        // For educational implementation: simplified algorithm
-        // In full implementation, this would use real sensor data from Motion class
-        
-        // Calculate approximate turning time based on degree and power
-        // This is a simplified approach for educational purposes
-        double estimatedTurnTime = Math.abs(degree) / 90.0; // Rough estimate: 1 second per 90 degrees
-        int turnPower = (int) Math.min(100, Math.max(20, Math.abs(degree) * pValue / 10));
-        
-        if (degree > 0) {
-            // Turn left (positive degrees)
-            sendControlWhile(0, 0, turnPower, 0, (long)(estimatedTurnTime * 1000));
-        } else {
-            // Turn right (negative degrees)  
-            sendControlWhile(0, 0, -turnPower, 0, (long)(estimatedTurnTime * 1000));
+        // Proportional control loop
+        while (true) {
+            double currentYaw = getAngleZ();
+            double error = shortestAngleDiff(targetYaw, currentYaw);
+            
+            // Stop if within 2 degrees or timeout
+            if (Math.abs(error) < 2.0 || (System.currentTimeMillis() - startTime) > timeoutMs) {
+                break;
+            }
+            
+            // Proportional control: power = error * pValue
+            int power = (int) Math.round(error * pValue);
+            // Clamp power to avoid dead zone and excessive speed
+            if (Math.abs(power) < 15) {
+                power = (power > 0) ? 15 : (power < 0 ? -15 : 0);
+            }
+            power = Math.max(-100, Math.min(100, power));
+            
+            // Send yaw control
+            sendControl(0, 0, power, 0);
+            
+            // Small delay for control loop (20ms)
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
-        
-        // Stop any movement and stabilize
+        // Stop and stabilize
         hover(0.05);
-        
-        // TODO: Implement full proportional control when Motion sensor access is available
-        // This would include:
-        // - Reading current angle from Motion.angleYaw
-        // - Calculating shortest angular path
-        // - Applying proportional control loop
-        // - Real-time error correction until target is reached
     }
 
     /**
-     * Overloaded turnDegree with default timeout.
+     * Normalize angle to [-180, 180) degrees.
      */
-    public void turnDegree(int degree, double timeout) {
-        turnDegree(degree, timeout, 10.0);
+    private double normalizeAngle(double angle) {
+        angle = angle % 360.0;
+        if (angle >= 180.0) angle -= 360.0;
+        if (angle < -180.0) angle += 360.0;
+        return angle;
     }
 
     /**
-     * Overloaded turnDegree with default timeout and pValue.
+     * Compute shortest signed angle difference (target - current), result in [-180, 180).
      */
-    public void turnDegree(int degree) {
-        turnDegree(degree, 3.0, 10.0);
+    private double shortestAngleDiff(double target, double current) {
+        double diff = normalizeAngle(target - current);
+        return diff;
     }
+
 
     /**
      * Turns the drone left by the specified number of degrees.
@@ -922,14 +935,7 @@ public class FlightController {
         // For educational simplicity, we'll use a direct approach
         
         // Use positive degree for left turn (matches Python convention)
-        turnDegree(degrees, timeout);
-    }
-
-    /**
-     * Overloaded turnLeft with default timeout.
-     */
-    public void turnLeft(int degrees) {
-        turnLeft(degrees, 3.0);
+        turnDegree(degrees, timeout, DEFAULT_TURN_P_VALUE);
     }
 
     /**
@@ -970,15 +976,10 @@ public class FlightController {
         degrees = Math.min(179, Math.abs(degrees));
         
         // Use negative degree for right turn (matches Python convention)
-        turnDegree(-degrees, timeout);
+        turnDegree(-degrees, timeout, DEFAULT_TURN_P_VALUE);
     }
 
-    /**
-     * Overloaded turnRight with default timeout.
-     */
-    public void turnRight(int degrees) {
-        turnRight(degrees, 3.0);
-    }
+
 
     // =================================================================================
     // SENSOR DATA ACCESS METHODS
