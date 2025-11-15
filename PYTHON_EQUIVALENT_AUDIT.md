@@ -337,9 +337,40 @@ All 15 locations identified and URLs prepared. Agent can update all files in one
 
 ---
 
-**Status**: Audit complete, ready for Phase 1 implementation by agent.
+## 9. Agent Implementation Instructions
+
+**Complete instructions prepared in**: `AGENT_INSTRUCTIONS_PYTHON_EQUIVALENT.md`
+
+### Three-Phase Approach
+
+**Phase 1** (15 annotations):
+- Enhance existing `@pythonEquivalent` tags with new `@pythonReference` URLs
+- All 15 locations identified with URLs ready
+
+**Phase 2** (~90 annotations):
+- Add BOTH `@pythonEquivalent` AND `@pythonReference` tags to all other aligned methods
+- Complete mapping table provided with all methods, Python functions, and robolink anchors
+
+**Phase 3** (~3 annotations):
+- Handle deprecated methods with both tags plus deprecation notes
+
+### What Agent Should Do
+
+1. Read `AGENT_INSTRUCTIONS_PYTHON_EQUIVALENT.md` for complete mappings
+2. Implement all three phases in parallel batches
+3. Use `multi_replace_string_in_file` for efficiency
+4. Verify with Javadoc generation
+5. Commit each phase separately
+
+**Total Outcome**: ~108 methods with complete Python equivalent documentation and robolink reference links
+
+---
+
+**Status**: Audit complete, agent instructions prepared, ready for implementation.
 
 **Reference Files**:
+- Agent Instructions: `AGENT_INSTRUCTIONS_PYTHON_EQUIVALENT.md` (Complete task breakdown)
+- Audit Document: `PYTHON_EQUIVALENT_AUDIT.md` (This file - audit analysis)
 - Robolink Python API: https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation
 - Python Changelog: https://docs.robolink.com/docs/CoDroneEDU/Python/Python-Changelog
 - Local reference: `reference/python-venv/` (v2.3)
