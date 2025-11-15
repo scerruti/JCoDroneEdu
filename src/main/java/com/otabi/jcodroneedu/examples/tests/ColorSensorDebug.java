@@ -33,7 +33,7 @@ public class ColorSensorDebug {
                 in.readLine();
 
                 // Request color data
-                System.out.println("Requesting CardColor data...");
+                System.out.println("Requesting CardColor data..."); // Removed unused DataType reference
                 drone.sendRequest(DataType.CardColor);
 
                 // Wait for data

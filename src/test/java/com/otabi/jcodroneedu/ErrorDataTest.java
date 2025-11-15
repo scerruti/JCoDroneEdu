@@ -127,10 +127,10 @@ class ErrorDataTest {
 
     @Test
     @DisplayName("Should use default delay when no delay parameter provided")
+    @SuppressWarnings("unused") // Testing method execution, not return value
     void shouldUseDefaultDelay() {
         // Given: No error data available
         // When: Calling without delay parameter
-        @SuppressWarnings("unused") // Testing method execution, not return value
         double[] errorData = drone.getErrorData(); // Uses default 0.2 second delay
         
         // Then: Should not throw exception (may return null, which is fine)

@@ -4451,10 +4451,6 @@ public class Drone implements AutoCloseable {
 
     // Legacy method names for Python compatibility (deprecated in Python but supported)
     /**
-     * @deprecated Use {@link #get_flow_velocity_x(String)} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
-    /**
      * @deprecated Use {@link #getFlowVelocityX(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
@@ -4463,10 +4459,6 @@ public class Drone implements AutoCloseable {
         return getFlowVelocityX(unit);
     }
 
-    /**
-     * @deprecated Use {@link #get_flow_velocity_x()} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
     /**
      * @deprecated Use {@link #getFlowVelocityX()} instead.
      * This method is provided for backward compatibility with older Python code.
@@ -4477,10 +4469,6 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * @deprecated Use {@link #get_flow_velocity_y(String)} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
-    /**
      * @deprecated Use {@link #getFlowVelocityY(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
@@ -4489,10 +4477,6 @@ public class Drone implements AutoCloseable {
         return getFlowVelocityY(unit);
     }
 
-    /**
-     * @deprecated Use {@link #get_flow_velocity_y()} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
     /**
      * @deprecated Use {@link #getFlowVelocityY()} instead.
      * This method is provided for backward compatibility with older Python code.

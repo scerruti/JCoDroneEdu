@@ -7,8 +7,7 @@ import com.otabi.jcodroneedu.protocol.DataType;
 import com.otabi.jcodroneedu.protocol.control.Position;
 import com.otabi.jcodroneedu.protocol.control.Quad8;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
-import com.otabi.jcodroneedu.protocol.dronestatus.Motion;
-import com.otabi.jcodroneedu.protocol.dronestatus.Range;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -1311,6 +1310,7 @@ public class FlightController {
      * @param unit The target unit ("cm", "mm", "m", or "in")
      * @return The converted value
      */
+    @SuppressWarnings("unused") // Reserved for future distance conversion API
     private double convertMillimeter(double millimeter, String unit) {
         switch (unit.toLowerCase()) {
             case "mm":
@@ -1327,6 +1327,7 @@ public class FlightController {
         }
     }
 
+    @SuppressWarnings("unused") // Reserved for future distance conversion API
     private double convertMeter(double meter, String unit) {
         switch (unit.toLowerCase()) {
             case "m":
