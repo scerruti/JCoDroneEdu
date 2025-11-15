@@ -1199,6 +1199,41 @@ public class DroneSystem
         /** Timeout duration for serial port read operations */
         public static final int SERIAL_TIMEOUT_MS = 100;
         
+
+    /**
+     * Telemetry configuration: freshness windows, timeouts, and retry settings
+     * used by TelemetryService to avoid oversaturating the BLE link while
+     * serving responsive data to beginners.
+     */
+    public static class TelemetryConfig {
+        // Freshness windows (milliseconds)
+        public static final long FRESHNESS_MOTION_MS = 40;        // ~25 Hz
+        public static final long FRESHNESS_RANGE_MS = 80;         // ~12.5 Hz
+        public static final long FRESHNESS_POSITION_MS = 80;      // ~12.5 Hz
+        public static final long FRESHNESS_ALTITUDE_MS = 250;     // ~4 Hz
+        public static final long FRESHNESS_STATE_MS = 500;        // ~2 Hz
+
+        // Wait time for a fresh frame before falling back to cache (milliseconds)
+        public static final long WAIT_TIMEOUT_MS = 100;
+
+        // Pressure-specific retry behavior (Python parity)
+        public static final int PRESSURE_RETRY_COUNT = 3;
+        public static final long PRESSURE_RETRY_DELAY_MS = 50;
+
+        // Coalescing window (milliseconds) — multiple callers within this window share one request
+        public static final long COALESCE_WINDOW_MS = 20;
+
+        // Classroom-aware pacing
+        public static final boolean CLASSROOM_MODE = true;
+        public static final int JITTER_MAX_MS = 20; // random 0..20ms before sending a telemetry request
+        public static final int RSSI_WEAK_DBM = -80; // below this, scale freshness windows
+        public static final double FRESHNESS_WEAK_SCALE = 2.0; // double windows on weak links
+
+        // Failure backoff (milliseconds)
+        public static final long FAILURE_BACKOFF_BASE_MS = 250;
+        public static final long FAILURE_BACKOFF_MAX_MS = 2000;
+        public static final int FAILURE_BACKOFF_RESET_SUCCESS_COUNT = 1; // reset on first success
+    }
         // Buffer and payload limits
         /** Maximum payload size for drone messages */
         public static final int MAX_PAYLOAD_SIZE = 128;

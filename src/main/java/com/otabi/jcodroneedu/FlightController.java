@@ -24,6 +24,7 @@ public class FlightController {
     private final Drone drone;
     private final DroneStatus droneStatus;
     private final RateLimiter controlLoopRateLimiter = RateLimiter.create(DroneSystem.FlightControlConstants.COMMANDS_PER_SECOND);
+    private final TelemetryService telemetry;
 
     private final Quad8 control;
 
@@ -31,6 +32,9 @@ public class FlightController {
         this.drone = drone;
         this.droneStatus = drone.getDroneStatus(); // Get a reference to the status cache
         this.control = new Quad8();
+        TelemetryService ts = null;
+        try { ts = drone.getTelemetryService(); } catch (Exception ignored) {}
+        this.telemetry = (ts != null) ? ts : new TelemetryService(drone);
     }
 
     /**
@@ -1015,18 +1019,20 @@ public class FlightController {
      * @since 1.0
      */
     public double getHeight(String unit) {
-        return getBottomRange(unit);
+        return telemetry.getHeight(unit);
     }
 
     /**
      * Gets the current height from the ground using the bottom range sensor.
-     * 
+     * Defaults to centimeters for educational parity with Python.
+     *
      * @return Height in centimeters
-     * @since 1.0
      */
     public double getHeight() {
-        return getHeight("cm");
+        return getHeight(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the distance measured by the front range sensor.
@@ -1038,30 +1044,19 @@ public class FlightController {
      */
     public double getFrontRange(String unit) {
         log.debug("Getting front range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequestWait(DataType.Range);
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getFront(), unit);
-            log.debug("Front range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for front range reading");
-            return 0.0;
-        }
+        return telemetry.getFrontRange(unit);
     }
 
     /**
-     * Gets the distance measured by the front range sensor in centimeters.
-     * 
+     * Gets the distance measured by the front range sensor, defaulting to centimeters.
+     *
      * @return Distance in centimeters
-     * @since 1.0
      */
     public double getFrontRange() {
-        return getFrontRange("cm");
+        return getFrontRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the distance measured by the bottom range sensor (height).
@@ -1073,30 +1068,19 @@ public class FlightController {
      */
     public double getBottomRange(String unit) {
         log.debug("Getting bottom range in {}", unit);
-        
-        // Request fresh range data
-        drone.sendRequestWait(DataType.Range);
-        
-        Range range = drone.getDroneStatus().getRange();
-        if (range != null) {
-            double rangeValue = convertMillimeter(range.getBottom(), unit);
-            log.debug("Bottom range: {} {}", rangeValue, unit);
-            return rangeValue;
-        } else {
-            log.warn("Range data not available for bottom range reading");
-            return 0.0;
-        }
+        return telemetry.getBottomRange(unit);
     }
 
     /**
-     * Gets the distance measured by the bottom range sensor in centimeters.
-     * 
+     * Gets the distance measured by the bottom range sensor, defaulting to centimeters.
+     *
      * @return Distance in centimeters
-     * @since 1.0
      */
     public double getBottomRange() {
-        return getBottomRange("cm");
+        return getBottomRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the X position relative to takeoff point.
@@ -1108,30 +1092,19 @@ public class FlightController {
      */
     public double getPosX(String unit) {
         log.debug("Getting X position in {}", unit);
-        
-        // Request fresh position data
-        drone.sendRequestWait(DataType.Position);
-        
-        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
-        if (positionData != null) {
-            double posValue = convertMeter(positionData.getX(), unit);
-            log.debug("X position: {} {}", posValue, unit);
-            return posValue;
-        } else {
-            log.warn("Position data not available for X position reading");
-            return 0.0;
-        }
+        return telemetry.getPosX(unit);
     }
 
     /**
-     * Gets the X position relative to takeoff point in centimeters.
-     * 
+     * Gets the X position relative to takeoff point, defaulting to centimeters.
+     *
      * @return X position in centimeters
-     * @since 1.0
      */
     public double getPosX() {
-        return getPosX("cm");
+        return getPosX(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the Y position relative to takeoff point.
@@ -1143,30 +1116,19 @@ public class FlightController {
      */
     public double getPosY(String unit) {
         log.debug("Getting Y position in {}", unit);
-        
-        // Request fresh position data
-        drone.sendRequestWait(DataType.Position);
-        
-        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
-        if (positionData != null) {
-            double posValue = convertMeter(positionData.getY(), unit);
-            log.debug("Y position: {} {}", posValue, unit);
-            return posValue;
-        } else {
-            log.warn("Position data not available for Y position reading");
-            return 0.0;
-        }
+        return telemetry.getPosY(unit);
     }
 
     /**
-     * Gets the Y position relative to takeoff point in centimeters.
-     * 
+     * Gets the Y position relative to takeoff point, defaulting to centimeters.
+     *
      * @return Y position in centimeters
-     * @since 1.0
      */
     public double getPosY() {
-        return getPosY("cm");
+        return getPosY(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the Z position relative to takeoff point.
@@ -1178,30 +1140,19 @@ public class FlightController {
      */
     public double getPosZ(String unit) {
         log.debug("Getting Z position in {}", unit);
-        
-        // Request fresh position data
-        drone.sendRequestWait(DataType.Position);
-        
-        com.otabi.jcodroneedu.protocol.dronestatus.Position positionData = drone.getDroneStatus().getPosition();
-        if (positionData != null) {
-            double posValue = convertMeter(positionData.getZ(), unit);
-            log.debug("Z position: {} {}", posValue, unit);
-            return posValue;
-        } else {
-            log.warn("Position data not available for Z position reading");
-            return 0.0;
-        }
+        return telemetry.getPosZ(unit);
     }
 
     /**
-     * Gets the Z position relative to takeoff point in centimeters.
-     * 
+     * Gets the Z position relative to takeoff point, defaulting to centimeters.
+     *
      * @return Z position in centimeters
-     * @since 1.0
      */
     public double getPosZ() {
-        return getPosZ("cm");
+        return getPosZ(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
+
+
 
     /**
      * Gets the X-axis acceleration in G-force units.
@@ -1212,22 +1163,9 @@ public class FlightController {
      */
     public double getAccelX() {
         log.debug("Getting X acceleration");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw accelerometer data to G-force (typical scale factor)
-            // Convert raw accel -> G using canonical sensor scale
-            double accelMs2 = motion.getAccelX() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            double accelValue = accelMs2 / 9.80665; // G units
-            log.debug("X acceleration: {} G", accelValue);
-            return accelValue;
-        } else {
-            log.warn("Motion data not available for X acceleration reading");
-            return 0.0;
-        }
+        double g = telemetry.getAccelX_G();
+        log.debug("X acceleration: {} G", g);
+        return g;
     }
 
     /**
@@ -1239,21 +1177,9 @@ public class FlightController {
      */
     public double getAccelY() {
         log.debug("Getting Y acceleration");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelMs2 = motion.getAccelY() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            double accelValue = accelMs2 / 9.80665; // G units
-            log.debug("Y acceleration: {} G", accelValue);
-            return accelValue;
-        } else {
-            log.warn("Motion data not available for Y acceleration reading");
-            return 0.0;
-        }
+        double g = telemetry.getAccelY_G();
+        log.debug("Y acceleration: {} G", g);
+        return g;
     }
 
     /**
@@ -1265,21 +1191,9 @@ public class FlightController {
      */
     public double getAccelZ() {
         log.debug("Getting Z acceleration");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw accelerometer data to G-force (typical scale factor)
-            double accelMs2 = motion.getAccelZ() * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            double accelValue = accelMs2 / 9.80665; // G units
-            log.debug("Z acceleration: {} G", accelValue);
-            return accelValue;
-        } else {
-            log.warn("Motion data not available for Z acceleration reading");
-            return 0.0;
-        }
+        double g = telemetry.getAccelZ_G();
+        log.debug("Z acceleration: {} G", g);
+        return g;
     }
 
     /**
@@ -1291,20 +1205,9 @@ public class FlightController {
      */
     public double getAngleX() {
         log.debug("Getting X angle (roll)");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleRoll() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
-            log.debug("X angle (roll): {} degrees", angleValue);
-            return angleValue;
-        } else {
-            log.warn("Motion data not available for X angle reading");
-            return 0.0;
-        }
+        double deg = telemetry.getAngleX_Deg();
+        log.debug("X angle (roll): {} degrees", deg);
+        return deg;
     }
 
     /**
@@ -1316,20 +1219,9 @@ public class FlightController {
      */
     public double getAngleY() {
         log.debug("Getting Y angle (pitch)");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAnglePitch() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
-            log.debug("Y angle (pitch): {} degrees", angleValue);
-            return angleValue;
-        } else {
-            log.warn("Motion data not available for Y angle reading");
-            return 0.0;
-        }
+        double deg = telemetry.getAngleY_Deg();
+        log.debug("Y angle (pitch): {} degrees", deg);
+        return deg;
     }
 
     /**
@@ -1341,20 +1233,9 @@ public class FlightController {
      */
     public double getAngleZ() {
         log.debug("Getting Z angle (yaw)");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Convert raw angle data to degrees (typical scale factor)
-            double angleValue = motion.getAngleYaw() * DroneSystem.SensorScales.ANGLE_RAW_TO_DEG; // degrees
-            log.debug("Z angle (yaw): {} degrees", angleValue);
-            return angleValue;
-        } else {
-            log.warn("Motion data not available for Z angle reading");
-            return 0.0;
-        }
+        double deg = telemetry.getAngleZ_Deg();
+        log.debug("Z angle (yaw): {} degrees", deg);
+        return deg;
     }
 
     // =============================================================================
@@ -1379,28 +1260,12 @@ public class FlightController {
      */
     public int[] getAccel() {
         log.debug("Getting acceleration array data");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Return raw accelerometer values as integers for AP CSA compatibility
-            int[] accelArray = {
-                motion.getAccelX(), 
-                motion.getAccelY(), 
-                motion.getAccelZ()
-            };
-            // Also log scaled values (m/s^2) for easier debugging
-            double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
-            log.debug("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
-            return accelArray;
-        } else {
-            log.warn("Motion data not available for acceleration array reading");
-            return new int[]{0, 0, 0};
-        }
+        int[] accelArray = telemetry.getAccelRaw();
+        double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+        double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+        double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
+        log.debug("Acceleration array (raw): [{}, {}, {}] -> (m/s^2): [{}, {}, {}]", accelArray[0], accelArray[1], accelArray[2], ax_ms2, ay_ms2, az_ms2);
+        return accelArray;
     }
 
     /**
@@ -1416,24 +1281,9 @@ public class FlightController {
      */
     public int[] getGyro() {
         log.debug("Getting gyroscope array data");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Return gyroscope values as integers for AP CSA compatibility
-            int[] gyroArray = {
-                motion.getGyroRoll(), 
-                motion.getGyroPitch(), 
-                motion.getGyroYaw()
-            };
-            log.debug("Gyroscope array: [{}, {}, {}]", gyroArray[0], gyroArray[1], gyroArray[2]);
-            return gyroArray;
-        } else {
-            log.warn("Motion data not available for gyroscope array reading");
-            return new int[]{0, 0, 0};
-        }
+        int[] gyroArray = telemetry.getGyroRaw();
+        log.debug("Gyroscope array: [{}, {}, {}]", gyroArray[0], gyroArray[1], gyroArray[2]);
+        return gyroArray;
     }
 
     /**
@@ -1449,24 +1299,9 @@ public class FlightController {
      */
     public int[] getAngle() {
         log.debug("Getting angle array data");
-        
-        // Request fresh motion data
-        drone.sendRequestWait(DataType.Motion);
-        
-        Motion motion = drone.getDroneStatus().getMotion();
-        if (motion != null) {
-            // Return angle values as integers for AP CSA compatibility
-            int[] angleArray = {
-                motion.getAngleRoll(), 
-                motion.getAnglePitch(), 
-                motion.getAngleYaw()
-            };
-            log.debug("Angle array: [{}, {}, {}]", angleArray[0], angleArray[1], angleArray[2]);
-            return angleArray;
-        } else {
-            log.warn("Motion data not available for angle array reading");
-            return new int[]{0, 0, 0};
-        }
+        int[] angleArray = telemetry.getAngleRaw();
+        log.debug("Angle array: [{}, {}, {}]", angleArray[0], angleArray[1], angleArray[2]);
+        return angleArray;
     }
 
     /**

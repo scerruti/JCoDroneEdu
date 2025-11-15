@@ -1,3 +1,8 @@
+## Elevation API - Quick Reference Card
+
+## All Available Methods
+
+Units supported for elevation methods: `m`, `cm`, `km`, `ft`, `mi`.
 # Elevation API - Quick Reference Card
 
 ## All Available Methods
@@ -22,8 +27,8 @@ double elevation = drone.getCorrectedElevation(latitude, longitude);
 double rawElevation = drone.getUncorrectedElevation();
 
 // 5. STATE-BASED (PYTHON COMPATIBILITY)
-// Returns corrected or uncorrected based on flag
-drone.useCorrectedElevation(true);  // Enable correction
+// Returns corrected or uncorrected based on flag (explicit methods preferred)
+drone.useCorrectedElevation(true);
 double elevation = drone.getElevation();
 ```
 
@@ -82,11 +87,8 @@ When you call `getCorrectedElevation()` without arguments:
 Drone drone = new Drone();
 drone.pair();
 
-// Request sensor data
-drone.sendRequest(DataType.Altitude);
-Thread.sleep(1000);
-
 // Get elevation - automatically calibrated!
+// Freshness and pacing are handled internally by TelemetryService.
 double elevation = drone.getCorrectedElevation();
 System.out.printf("Elevation: %.2f meters\n", elevation);
 
@@ -104,13 +106,10 @@ drone.setInitialPressure();
 System.out.println("Reference set - lift drone to see change");
 
 while (true) {
-    drone.sendRequest(DataType.Altitude);
-    Thread.sleep(100);
-    
-    // Get change from reference in millimeters
+    // TelemetryService handles requesting fresh altitude frames as needed
     double heightMm = drone.getHeightFromPressure();
-    System.out.printf("Height change: %.1f mm (%.3f m)\n", 
-        heightMm, heightMm / 1000.0);
+    System.out.printf("Height change: %.1f mm (%.3f m)\n", heightMm, heightMm / 1000.0);
+    Thread.sleep(100);
 }
 ```
 
@@ -118,10 +117,11 @@ while (true) {
 
 | Python Method | Java Equivalent |
 |--------------|-----------------|
-| `drone.get_height()` | `drone.getElevation()` (after `useCorrectedElevation()`) |
+| `drone.get_height(unit)` | `drone.getHeight(unit)` (alias of bottom range; defaults to cm) |
 | `drone.set_initial_pressure()` | `drone.setInitialPressure()` |
 | `drone.height_from_pressure()` | `drone.getHeightFromPressure()` |
 | `drone.height_from_pressure(b, m)` | `drone.getHeightFromPressure(b, m)` |
+| `drone.get_elevation(unit)` | `drone.getElevation(unit)` (respects corrected toggle) |
 
 ## Configuration Examples
 
@@ -166,7 +166,7 @@ WeatherService.setOSLocationProvider(new LocationProvider() {
 **Solution:** Find JNI library, implement `LocationProvider` interface
 
 **Problem:** Getting zero elevation  
-**Solution:** Call `drone.sendRequest(DataType.Altitude)` to request sensor data
+**Solution:** Ensure the drone is connected; TelemetryService will request altitude frames automatically when needed.
 
 **Problem:** Need exact pressure at my location  
 **Solution:** Use `getCorrectedElevation(lat, lon)` with your coordinates
@@ -179,4 +179,6 @@ WeatherService.setOSLocationProvider(new LocationProvider() {
 
 ---
 
-**💡 Pro Tip:** For most classroom use, just call `getCorrectedElevation()` - it's smart enough to figure out the rest!
+**💡 Pro Tip:** For most classroom use, just call `getCorrectedElevation()`—freshness and pacing are handled for you.
+
+Note: Telemetry configuration constants are located at `DroneSystem.CommunicationConstants.TelemetryConfig`.
