@@ -39,15 +39,9 @@ public class SerialPortManager {
         if (targetPortName == null) {
             targetPortName = findControllerPort();
             if (targetPortName == null) {
-                // Student-friendly error message
-                System.err.println("CoDrone EDU controller not found. Please ensure it's connected.");
-                // Developer logging
                 log.error("CoDrone EDU controller not found. Please ensure it's connected.");
                 throw new DroneNotFoundException(portName);
             }
-            // Student-friendly success message
-            System.out.printf("Detected CoDrone EDU controller at port %s.\n", targetPortName);
-            // Developer logging
             log.info("Detected CoDrone EDU controller at port {}", targetPortName);
         }
 
@@ -59,9 +53,6 @@ public class SerialPortManager {
             serialPort.setNumDataBits(8);
 
             if (!serialPort.openPort()) {
-                // Student-friendly error message
-                System.err.println("Failed to open serial port. Check permissions or if it's in use.");
-                // Developer logging
                 log.error("Failed to open serial port. Check permissions or if it's in use.");
                 return false;
             }
@@ -69,16 +60,10 @@ public class SerialPortManager {
             serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, DroneSystem.CommunicationConstants.SERIAL_TIMEOUT_MS, 0);
             inputStream = serialPort.getInputStream();
             startReaderThread();
-            // Student-friendly success message
-            System.out.printf("Connected to %s.\n", targetPortName);
-            // Developer logging
             log.info("Connected to {}", targetPortName);
             return true;
 
         } catch (Exception e) {
-            // Student-friendly error message
-            System.err.println("Error connecting to device: " + e.getMessage());
-            // Developer logging
             log.error("Error connecting to device: {}", e.getMessage(), e);
             disconnect();
             return false;

@@ -15,6 +15,11 @@ package com.otabi.jcodroneedu.patterns;
  * - Practice combining simple patterns into complex behaviors
  * - Develop confidence with external dependencies
  * 
+ * NOTE ON LOGGING & OUTPUT:
+ * This example code uses System.out.println() for clear, student-friendly output.
+ * The underlying library (com.otabi.jcodroneedu) uses professional logging (Log4j2)
+ * that can be configured for debugging. See docs/LOGGING_GUIDE.md for details.
+ * 
  * @author Stephen Cerruti
  * @version 1.0.0
  */
