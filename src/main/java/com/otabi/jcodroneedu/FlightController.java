@@ -324,15 +324,13 @@ public class FlightController {
      *
      * @param control     Quad8 containung roll, pitch, yaw and throttle
      */
-    private void sendControl(Quad8 control)
-               moveForward(distance, "cm", 0.5);
+    private void sendControl(Quad8 control) {
         sendControl(control.getRoll(), control.getPitch(), control.getYaw(), control.getThrottle());
     }
 
     /**
      * Sends a single flight control command to the drone.
      * The input values will be clamped to the range of -100 to 100.
-               moveForward(distance, units, 0.5);
      * @param roll     The roll value (-100 to 100).
      * @param pitch    The pitch value (-100 to 100).
      * @param yaw      The yaw value (-100 to 100).
@@ -366,14 +364,14 @@ public class FlightController {
      * @param yaw      The yaw value (-100 to 100).
      * @param throttle The throttle value (-100 to 100).
      * @param timeMs   The duration to send commands for, in milliseconds.
-               moveBackward(distance, "cm", 0.5);
+     */
     public void sendControlWhile(int roll, int pitch, int yaw, int throttle, long timeMs) {
         if (timeMs <= 0) return;
         long endTime = System.currentTimeMillis() + timeMs;
         while (System.currentTimeMillis() < endTime) {
             controlLoopRateLimiter.acquire();
             sendControl(roll, pitch, yaw, throttle);
-               moveBackward(distance, units, 0.5);
+        }
         sendControl(0, 0, 0, 0);
     }
 
@@ -407,14 +405,13 @@ public class FlightController {
      * Implementation matches Python's go() method:
      * - Resets all control variables to 0
      * - Sets the appropriate control variable based on direction
-               moveLeft(distance, "cm", 0.5);
      * - Calls hover(1) to stabilize after movement
      * 
      * @param direction String direction: "forward", "backward", "left", "right", "up", "down"
      * @param power Power level from 0-100 (defaults to 50 if not specified)
      * @param duration Duration in seconds (defaults to 1 if not specified)
      */
-               moveLeft(distance, units, 0.5);
+    public void go(String direction, int power, int duration) { 
         try {
             // Reset all control variables to 0 (match Python implementation)
             setRoll(0);
@@ -448,14 +445,12 @@ public class FlightController {
                     break;
                 default:
                     log.warn("Invalid direction '{}'. Valid directions are: {}, {}, {}, {}, {}, {}", direction,
-               moveRight(distance, "cm", 0.5);
                         DroneSystem.DirectionConstants.LEFT, DroneSystem.DirectionConstants.RIGHT,
                         DroneSystem.DirectionConstants.UP, DroneSystem.DirectionConstants.DOWN);
                     return;
             }
 
             // Execute the movement for the specified duration
-               moveRight(distance, units, 0.5);
 
             // Hover for 1 second to stabilize (match Python implementation)
             hover(1);
@@ -496,8 +491,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command
         sendControlPosition((float) distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
@@ -507,19 +502,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move forward with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveForward(double distance) {
-        moveForward(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move forward with specified units and default speed (0.5 m/s).
-     */
-    public void moveForward(double distance, String units) {
-        moveForward(distance, units, 0.5);
-    }
     
     /**
      * Move backward a specific distance with precision control.
@@ -535,8 +517,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (negative X for backward)
         sendControlPosition((float) -distanceMeters, 0.0f, 0.0f, (float) speed, 0, 0);
@@ -546,19 +528,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move backward with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveBackward(double distance) {
-        moveBackward(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move backward with specified units and default speed (0.5 m/s).
-     */
-    public void moveBackward(double distance, String units) {
-        moveBackward(distance, units, 0.5);
-    }
     
     /**
      * Move left a specific distance with precision control.
@@ -574,8 +543,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (positive Y for left)
         sendControlPosition(0.0f, (float) distanceMeters, 0.0f, (float) speed, 0, 0);
@@ -585,19 +554,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move left with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveLeft(double distance) {
-        moveLeft(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move left with specified units and default speed (0.5 m/s).
-     */
-    public void moveLeft(double distance, String units) {
-        moveLeft(distance, units, 0.5);
-    }
     
     /**
      * Move right a specific distance with precision control.
@@ -613,8 +569,8 @@ public class FlightController {
         double distanceMeters = convertToMeters(distance, units);
         if (distanceMeters < 0) return; // Invalid unit conversion
         
-        // Cap the speed to valid range
-        speed = Math.max(0.5, Math.min(speed, 2.0));
+        // Cap the speed to valid range (Python: 0 to 2)
+        speed = Math.max(0.0, Math.min(speed, 2.0));
         
         // Send position control command (negative Y for right)
         sendControlPosition(0.0f, (float) -distanceMeters, 0.0f, (float) speed, 0, 0);
@@ -624,19 +580,6 @@ public class FlightController {
         sleep((long) (delay * 1000));
     }
     
-    /**
-     * Move right with default units (cm) and speed (0.5 m/s).
-     */
-    public void moveRight(double distance) {
-        moveRight(distance, "cm", 0.5);
-    }
-    
-    /**
-     * Move right with specified units and default speed (0.5 m/s).
-     */
-    public void moveRight(double distance, String units) {
-        moveRight(distance, units, 0.5);
-    }
     
     /**
      * Move the drone in 3D space to a specific relative position.
@@ -650,8 +593,8 @@ public class FlightController {
      * @param velocity The movement speed from 0.5 to 2.0 m/s
      */
     public void moveDistance(double positionX, double positionY, double positionZ, double velocity) {
-        // Cap the velocity to valid range
-        velocity = Math.max(0.5, Math.min(velocity, 2.0));
+        // Cap the velocity to valid range (Python: 0 to 2)
+        velocity = Math.max(0.0, Math.min(velocity, 2.0));
         
         // Calculate total distance for timing
         double distance = Math.sqrt(positionX * positionX + positionY * positionY + positionZ * positionZ);
