@@ -44,16 +44,3 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-
-### Python Reference Code ###
-# Include Python reference code for comparison but ignore Python cache files
-reference/python-codrone-edu/**/__pycache__/
-reference/python-codrone-edu/**/*.pyc
-reference/python-codrone-edu/**/*.pyo
-reference/python-codrone-edu/**/*.egg-info/
-
-### Python Virtual Environment ###
-# Gradle-managed Python environment for library updates
-python-venv/
-*.pyc
-__pycache__/
