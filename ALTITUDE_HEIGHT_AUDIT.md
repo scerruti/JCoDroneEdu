@@ -540,3 +540,22 @@ def _get_drone_temperature_desktop(self, unit="C"):
 3. Add missing wrappers (fixes parity)
 4. Rewrite docs for grade 9 (fixes learning)
 5. Add unit tests (validates fixes)
+
+---
+
+## 8. Current Status (Nov 15, 2025)
+
+- Centralized telemetry: Introduced `TelemetryService` to request, cache, and convert sensor data (Range/Position/Altitude/Motion/etc.).
+    - Freshness-aware caching, single-flight coalescing, RSSI-aware scaling, classroom jitter, and bounded pressure retries implemented.
+    - Configuration lives at `DroneSystem.CommunicationConstants.TelemetryConfig` (not `DroneSystem.TelemetryConfig`).
+- API surface alignment:
+    - `Drone` exposes student-facing overloads and delegates to `TelemetryService` for height, front/bottom range, and position.
+    - `FlightController` retains no-arg overloads for height/range/position that default to centimeters (to preserve educational parity and tests), but also delegates to `TelemetryService`.
+- Pressure parity: Java now performs bounded retries on zero pressure values to match Python behavior without arbitrary sleeps.
+- Height vs Elevation: `getHeight[()]` remains an alias of bottom range (ground distance). `getElevation()` returns un/ corrected altitude (sea-level reference) depending on `useCorrectedElevation` toggle; explicit `getUncorrectedElevation()`/`getCorrectedElevation()` are recommended.
+- Developer note: Documentation and examples should avoid explicit `sendRequest`/sleep patterns; `TelemetryService` handles freshness automatically.
+
+Action items remaining (tracked):
+- Consider removing or deprecating `useCorrectedElevation(boolean)` and prefer explicit methods everywhere.
+- Optionally route elevation reads through `TelemetryService` to unify freshness for barometer frames.
+- Update quick references and teacher docs to clarify “height (ground distance) vs elevation (sea-level)” with 9th-grade vocabulary.

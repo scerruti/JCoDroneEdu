@@ -24,6 +24,7 @@ public class FlightController {
     private final Drone drone;
     private final DroneStatus droneStatus;
     private final RateLimiter controlLoopRateLimiter = RateLimiter.create(DroneSystem.FlightControlConstants.COMMANDS_PER_SECOND);
+    private final TelemetryService telemetry;
 
     private final Quad8 control;
 
@@ -31,6 +32,9 @@ public class FlightController {
         this.drone = drone;
         this.droneStatus = drone.getDroneStatus(); // Get a reference to the status cache
         this.control = new Quad8();
+        TelemetryService ts = null;
+        try { ts = drone.getTelemetryService(); } catch (Exception ignored) {}
+        this.telemetry = (ts != null) ? ts : new TelemetryService(drone);
     }
 
     /**
@@ -1015,7 +1019,17 @@ public class FlightController {
      * @since 1.0
      */
     public double getHeight(String unit) {
-        return drone.getTelemetryService().getHeight(unit);
+        return telemetry.getHeight(unit);
+    }
+
+    /**
+     * Gets the current height from the ground using the bottom range sensor.
+     * Defaults to centimeters for educational parity with Python.
+     *
+     * @return Height in centimeters
+     */
+    public double getHeight() {
+        return getHeight(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1030,7 +1044,16 @@ public class FlightController {
      */
     public double getFrontRange(String unit) {
         log.debug("Getting front range in {}", unit);
-        return drone.getTelemetryService().getFrontRange(unit);
+        return telemetry.getFrontRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the front range sensor, defaulting to centimeters.
+     *
+     * @return Distance in centimeters
+     */
+    public double getFrontRange() {
+        return getFrontRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1045,7 +1068,16 @@ public class FlightController {
      */
     public double getBottomRange(String unit) {
         log.debug("Getting bottom range in {}", unit);
-        return drone.getTelemetryService().getBottomRange(unit);
+        return telemetry.getBottomRange(unit);
+    }
+
+    /**
+     * Gets the distance measured by the bottom range sensor, defaulting to centimeters.
+     *
+     * @return Distance in centimeters
+     */
+    public double getBottomRange() {
+        return getBottomRange(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1060,7 +1092,16 @@ public class FlightController {
      */
     public double getPosX(String unit) {
         log.debug("Getting X position in {}", unit);
-        return drone.getTelemetryService().getPosX(unit);
+        return telemetry.getPosX(unit);
+    }
+
+    /**
+     * Gets the X position relative to takeoff point, defaulting to centimeters.
+     *
+     * @return X position in centimeters
+     */
+    public double getPosX() {
+        return getPosX(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1075,7 +1116,16 @@ public class FlightController {
      */
     public double getPosY(String unit) {
         log.debug("Getting Y position in {}", unit);
-        return drone.getTelemetryService().getPosY(unit);
+        return telemetry.getPosY(unit);
+    }
+
+    /**
+     * Gets the Y position relative to takeoff point, defaulting to centimeters.
+     *
+     * @return Y position in centimeters
+     */
+    public double getPosY() {
+        return getPosY(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1090,7 +1140,16 @@ public class FlightController {
      */
     public double getPosZ(String unit) {
         log.debug("Getting Z position in {}", unit);
-        return drone.getTelemetryService().getPosZ(unit);
+        return telemetry.getPosZ(unit);
+    }
+
+    /**
+     * Gets the Z position relative to takeoff point, defaulting to centimeters.
+     *
+     * @return Z position in centimeters
+     */
+    public double getPosZ() {
+        return getPosZ(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
     }
 
 
@@ -1104,7 +1163,7 @@ public class FlightController {
      */
     public double getAccelX() {
         log.debug("Getting X acceleration");
-        double g = drone.getTelemetryService().getAccelX_G();
+        double g = telemetry.getAccelX_G();
         log.debug("X acceleration: {} G", g);
         return g;
     }
@@ -1118,7 +1177,7 @@ public class FlightController {
      */
     public double getAccelY() {
         log.debug("Getting Y acceleration");
-        double g = drone.getTelemetryService().getAccelY_G();
+        double g = telemetry.getAccelY_G();
         log.debug("Y acceleration: {} G", g);
         return g;
     }
@@ -1132,7 +1191,7 @@ public class FlightController {
      */
     public double getAccelZ() {
         log.debug("Getting Z acceleration");
-        double g = drone.getTelemetryService().getAccelZ_G();
+        double g = telemetry.getAccelZ_G();
         log.debug("Z acceleration: {} G", g);
         return g;
     }
@@ -1146,7 +1205,7 @@ public class FlightController {
      */
     public double getAngleX() {
         log.debug("Getting X angle (roll)");
-        double deg = drone.getTelemetryService().getAngleX_Deg();
+        double deg = telemetry.getAngleX_Deg();
         log.debug("X angle (roll): {} degrees", deg);
         return deg;
     }
@@ -1160,7 +1219,7 @@ public class FlightController {
      */
     public double getAngleY() {
         log.debug("Getting Y angle (pitch)");
-        double deg = drone.getTelemetryService().getAngleY_Deg();
+        double deg = telemetry.getAngleY_Deg();
         log.debug("Y angle (pitch): {} degrees", deg);
         return deg;
     }
@@ -1174,7 +1233,7 @@ public class FlightController {
      */
     public double getAngleZ() {
         log.debug("Getting Z angle (yaw)");
-        double deg = drone.getTelemetryService().getAngleZ_Deg();
+        double deg = telemetry.getAngleZ_Deg();
         log.debug("Z angle (yaw): {} degrees", deg);
         return deg;
     }
@@ -1201,7 +1260,7 @@ public class FlightController {
      */
     public int[] getAccel() {
         log.debug("Getting acceleration array data");
-        int[] accelArray = drone.getTelemetryService().getAccelRaw();
+        int[] accelArray = telemetry.getAccelRaw();
         double ax_ms2 = accelArray[0] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
         double ay_ms2 = accelArray[1] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
         double az_ms2 = accelArray[2] * DroneSystem.SensorScales.ACCEL_RAW_TO_MS2;
@@ -1222,7 +1281,7 @@ public class FlightController {
      */
     public int[] getGyro() {
         log.debug("Getting gyroscope array data");
-        int[] gyroArray = drone.getTelemetryService().getGyroRaw();
+        int[] gyroArray = telemetry.getGyroRaw();
         log.debug("Gyroscope array: [{}, {}, {}]", gyroArray[0], gyroArray[1], gyroArray[2]);
         return gyroArray;
     }
@@ -1240,7 +1299,7 @@ public class FlightController {
      */
     public int[] getAngle() {
         log.debug("Getting angle array data");
-        int[] angleArray = drone.getTelemetryService().getAngleRaw();
+        int[] angleArray = telemetry.getAngleRaw();
         log.debug("Angle array: [{}, {}, {}]", angleArray[0], angleArray[1], angleArray[2]);
         return angleArray;
     }

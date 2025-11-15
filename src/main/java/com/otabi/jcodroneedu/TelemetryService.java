@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -27,8 +28,6 @@ import java.util.concurrent.TimeoutException;
  */
 public class TelemetryService {
     private static final Logger log = LogManager.getLogger(TelemetryService.class);
-
-import java.util.concurrent.ThreadLocalRandom;
     private final Drone drone;
     private final Map<DataType, Long> lastUpdateMillis = new ConcurrentHashMap<>();
     private final Map<DataType, CompletableFuture<Void>> inFlight = new ConcurrentHashMap<>();
@@ -42,7 +41,7 @@ import java.util.concurrent.ThreadLocalRandom;
     // ---------------- Range (mm) -> converted ----------------
 
     public double getFrontRange(String unit) {
-        ensureFresh(DataType.Range, DroneSystem.TelemetryConfig.FRESHNESS_RANGE_MS);
+        ensureFresh(DataType.Range, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_RANGE_MS);
         Range range = drone.getDroneStatus().getRange();
         if (range == null) {
             log.warn("Range data not available for front range reading");
@@ -52,7 +51,7 @@ import java.util.concurrent.ThreadLocalRandom;
     }
 
     public double getBottomRange(String unit) {
-        ensureFresh(DataType.Range, DroneSystem.TelemetryConfig.FRESHNESS_RANGE_MS);
+        ensureFresh(DataType.Range, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_RANGE_MS);
         Range range = drone.getDroneStatus().getRange();
         if (range == null) {
             log.warn("Range data not available for bottom range reading");
@@ -68,7 +67,7 @@ import java.util.concurrent.ThreadLocalRandom;
     // ---------------- Position (m) -> converted ----------------
 
     public double getPosX(String unit) {
-        ensureFresh(DataType.Position, DroneSystem.TelemetryConfig.FRESHNESS_POSITION_MS);
+        ensureFresh(DataType.Position, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_POSITION_MS);
         Position p = drone.getDroneStatus().getPosition();
         if (p == null) {
             log.warn("Position data not available for X reading");
@@ -78,7 +77,7 @@ import java.util.concurrent.ThreadLocalRandom;
     }
 
     public double getPosY(String unit) {
-        ensureFresh(DataType.Position, DroneSystem.TelemetryConfig.FRESHNESS_POSITION_MS);
+        ensureFresh(DataType.Position, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_POSITION_MS);
         Position p = drone.getDroneStatus().getPosition();
         if (p == null) {
             log.warn("Position data not available for Y reading");
@@ -88,7 +87,7 @@ import java.util.concurrent.ThreadLocalRandom;
     }
 
     public double getPosZ(String unit) {
-        ensureFresh(DataType.Position, DroneSystem.TelemetryConfig.FRESHNESS_POSITION_MS);
+        ensureFresh(DataType.Position, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_POSITION_MS);
         Position p = drone.getDroneStatus().getPosition();
         if (p == null) {
             log.warn("Position data not available for Z reading");
@@ -100,7 +99,7 @@ import java.util.concurrent.ThreadLocalRandom;
     // ---------------- Altitude/Barometer snapshot (no unit helpers here yet) ----------------
 
     public Altitude getAltitudeSnapshot() {
-        ensureFresh(DataType.Altitude, DroneSystem.TelemetryConfig.FRESHNESS_ALTITUDE_MS);
+        ensureFresh(DataType.Altitude, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_ALTITUDE_MS);
         return drone.getDroneStatus().getAltitude();
     }
 
@@ -109,9 +108,9 @@ import java.util.concurrent.ThreadLocalRandom;
         Altitude alt = getAltitudeSnapshot();
         double pascals = (alt != null) ? alt.getPressure() : 0.0;
         int retries = 0;
-        while (pascals == 0.0 && retries < DroneSystem.TelemetryConfig.PRESSURE_RETRY_COUNT) {
+        while (pascals == 0.0 && retries < DroneSystem.CommunicationConstants.TelemetryConfig.PRESSURE_RETRY_COUNT) {
             try {
-                Thread.sleep(DroneSystem.TelemetryConfig.PRESSURE_RETRY_DELAY_MS);
+                Thread.sleep(DroneSystem.CommunicationConstants.TelemetryConfig.PRESSURE_RETRY_DELAY_MS);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
                 break;
@@ -186,7 +185,7 @@ import java.util.concurrent.ThreadLocalRandom;
     // ---------------- Motion snapshot and helpers ----------------
 
     public Motion getMotionSnapshot() {
-        ensureFresh(DataType.Motion, DroneSystem.TelemetryConfig.FRESHNESS_MOTION_MS);
+        ensureFresh(DataType.Motion, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_MOTION_MS);
         return drone.getDroneStatus().getMotion();
     }
 
@@ -250,27 +249,27 @@ import java.util.concurrent.ThreadLocalRandom;
     // ---------------- Other snapshots (for future expansion) ----------------
 
     public State getStateSnapshot() {
-        ensureFresh(DataType.State, DroneSystem.TelemetryConfig.FRESHNESS_STATE_MS);
+        ensureFresh(DataType.State, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_STATE_MS);
         return drone.getDroneStatus().getState();
     }
 
     public Attitude getAttitudeSnapshot() {
-        ensureFresh(DataType.Attitude, DroneSystem.TelemetryConfig.FRESHNESS_STATE_MS);
+        ensureFresh(DataType.Attitude, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_STATE_MS);
         return drone.getDroneStatus().getAttitude();
     }
 
     public Range getRangeSnapshot() {
-        ensureFresh(DataType.Range, DroneSystem.TelemetryConfig.FRESHNESS_RANGE_MS);
+        ensureFresh(DataType.Range, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_RANGE_MS);
         return drone.getDroneStatus().getRange();
     }
 
     public Position getPositionSnapshot() {
-        ensureFresh(DataType.Position, DroneSystem.TelemetryConfig.FRESHNESS_POSITION_MS);
+        ensureFresh(DataType.Position, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_POSITION_MS);
         return drone.getDroneStatus().getPosition();
     }
 
     public Flow getFlowSnapshot() {
-        ensureFresh(DataType.Flow, DroneSystem.TelemetryConfig.FRESHNESS_RANGE_MS);
+        ensureFresh(DataType.Flow, DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_RANGE_MS);
         return drone.getDroneStatus().getFlow();
     }
 
@@ -278,8 +277,21 @@ import java.util.concurrent.ThreadLocalRandom;
 
     private void ensureFresh(DataType type, long freshnessMs) {
         long now = System.currentTimeMillis();
+
+        long effectiveFreshness = freshnessMs;
+        try {
+            var lm = drone.getLinkManager();
+            var rssiObj = (lm != null) ? lm.getRssi() : null;
+            if (rssiObj != null) {
+                int rssi = rssiObj.getRssi();
+                if (rssi != 0 && rssi <= DroneSystem.CommunicationConstants.TelemetryConfig.RSSI_WEAK_DBM) {
+                    effectiveFreshness = (long) Math.ceil(freshnessMs * DroneSystem.CommunicationConstants.TelemetryConfig.FRESHNESS_WEAK_SCALE);
+                }
+            }
+        } catch (Exception ignored) {}
+
         Long last = lastUpdateMillis.get(type);
-        if (last != null && (now - last) <= freshnessMs) {
+        if (last != null && (now - last) <= effectiveFreshness) {
             return; // Fresh enough
         }
 
@@ -293,22 +305,10 @@ import java.util.concurrent.ThreadLocalRandom;
         CompletableFuture<Void> existing = inFlight.get(type);
         if (existing != null) {
             try {
-                existing.get(DroneSystem.TelemetryConfig.WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                existing.get(DroneSystem.CommunicationConstants.TelemetryConfig.WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             } catch (TimeoutException te) {
-        // Adjust freshness based on link health (RSSI)
-        long effectiveFreshness = freshnessMs;
-        try {
-            var lm = drone.getLinkManager();
-            var rssiObj = (lm != null) ? lm.getRssi() : null;
-            if (rssiObj != null) {
-                int rssi = rssiObj.getRssi();
-                if (rssi != 0 && rssi <= DroneSystem.TelemetryConfig.RSSI_WEAK_DBM) {
-                    effectiveFreshness = (long) Math.ceil(freshnessMs * DroneSystem.TelemetryConfig.FRESHNESS_WEAK_SCALE);
-                }
-            }
-        } catch (Exception ignored) {}
                 // Serve stale; refresh will complete later
             } catch (Exception e) {
                 log.debug("ensureFresh in-flight error for {}: {}", type, e.toString());
@@ -321,7 +321,7 @@ import java.util.concurrent.ThreadLocalRandom;
         if (prior != null) {
             // Another thread just started it; wait briefly
             try {
-                prior.get(DroneSystem.TelemetryConfig.WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                prior.get(DroneSystem.CommunicationConstants.TelemetryConfig.WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
             } catch (Exception ignored) {
@@ -330,6 +330,13 @@ import java.util.concurrent.ThreadLocalRandom;
         }
 
         try {
+            if (DroneSystem.CommunicationConstants.TelemetryConfig.CLASSROOM_MODE && DroneSystem.CommunicationConstants.TelemetryConfig.JITTER_MAX_MS > 0) {
+                int jitter = ThreadLocalRandom.current().nextInt(0, DroneSystem.CommunicationConstants.TelemetryConfig.JITTER_MAX_MS + 1);
+                if (jitter > 0) {
+                    try { Thread.sleep(jitter); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                }
+            }
+
             drone.sendRequestWait(type);
             lastUpdateMillis.put(type, System.currentTimeMillis());
             future.complete(null);
@@ -341,9 +348,9 @@ import java.util.concurrent.ThreadLocalRandom;
             // Failure: increment backoff
             int count = failureCounts.getOrDefault(type, 0) + 1;
             failureCounts.put(type, count);
-            long backoff = DroneSystem.TelemetryConfig.FAILURE_BACKOFF_BASE_MS;
+            long backoff = DroneSystem.CommunicationConstants.TelemetryConfig.FAILURE_BACKOFF_BASE_MS;
             // Exponential backoff capped at max
-            backoff = Math.min(DroneSystem.TelemetryConfig.FAILURE_BACKOFF_MAX_MS,
+            backoff = Math.min(DroneSystem.CommunicationConstants.TelemetryConfig.FAILURE_BACKOFF_MAX_MS,
                     backoff << Math.min(count - 1, 4)); // cap shift to avoid overflow
             nextAllowedAfterMillis.put(type, System.currentTimeMillis() + backoff);
         } finally {
@@ -365,12 +372,6 @@ import java.util.concurrent.ThreadLocalRandom;
         if (unit == null) unit = DroneSystem.UnitConversion.UNIT_CENTIMETERS;
         switch (unit.toLowerCase()) {
             case "mm":
-            if (DroneSystem.TelemetryConfig.CLASSROOM_MODE && DroneSystem.TelemetryConfig.JITTER_MAX_MS > 0) {
-                int jitter = ThreadLocalRandom.current().nextInt(0, DroneSystem.TelemetryConfig.JITTER_MAX_MS + 1);
-                if (jitter > 0) {
-                    try { Thread.sleep(jitter); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-                }
-            }
                 return millimeter;
             case "cm":
                 return millimeter / 10.0;
