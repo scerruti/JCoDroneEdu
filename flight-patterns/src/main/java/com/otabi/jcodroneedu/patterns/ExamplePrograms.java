@@ -15,57 +15,10 @@ package com.otabi.jcodroneedu.patterns;
  * - Practice combining simple patterns into complex behaviors
  * - Develop confidence with external dependencies
  * 
- * ===================================================================
- * LOGGING AND OUTPUT PHILOSOPHY FOR STUDENTS
- * ===================================================================
- * 
- * This educational codebase intentionally uses System.out.println() in
- * student-facing example programs while using professional logging
- * (Log4j2) in the library code. Here's why:
- * 
- * STUDENT EXAMPLES (this file):
- * - Use System.out.println() for clear, immediate output
- * - Simple to understand and debug
- * - Consistent with AP Computer Science Principles curriculum
- * - No dependency on logging frameworks
- * - Output always appears immediately (no configuration needed)
- * 
- * LIBRARY CODE (src/main/java/com/otabi/jcodroneedu/):
- * - Uses Log4j2 through SLF4J facade
- * - Respects log levels and can be suppressed by default
- * - Provides diagnostic output without cluttering student code
- * - Supports different logging modes:
- *   * INFO (default): Important events, battery warnings, errors
- *   * DEBUG: Connection details, calibration progress
- *   * TRACE: Sensor polling (suppressed by default)
- * 
- * CONFIGURING LIBRARY LOGGING FOR DEBUGGING:
- * 
- * See all sensor polling (development/troubleshooting):
- *   java -Djcodrone.logging.flightcontroller=TRACE ExamplePrograms basic
- * 
- * See connection details:
- *   java -Djcodrone.logging.serialport=DEBUG ExamplePrograms basic
- * 
- * See packet-level telemetry:
- *   java -Djcodrone.logging.receiver=DEBUG ExamplePrograms basic
- * 
- * WHEN TO USE EACH:
- * 
- * System.out.println():
- * - You're writing student educational code
- * - You need immediate, unfiltered output
- * - You want simplicity without dependencies
- * 
- * Logger (in library code):
- * - You're writing production/library code
- * - You need configurable verbosity levels
- * - You need both user output and developer diagnostics
- * 
- * This separation keeps student code simple while enabling powerful
- * debugging capabilities when needed.
- * 
- * ===================================================================
+ * NOTE ON LOGGING & OUTPUT:
+ * This example code uses System.out.println() for clear, student-friendly output.
+ * The underlying library (com.otabi.jcodroneedu) uses professional logging (Log4j2)
+ * that can be configured for debugging. See docs/LOGGING_GUIDE.md for details.
  * 
  * @author Stephen Cerruti
  * @version 1.0.0
