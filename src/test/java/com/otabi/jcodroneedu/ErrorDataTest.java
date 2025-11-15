@@ -127,6 +127,7 @@ class ErrorDataTest {
 
     @Test
     @DisplayName("Should use default delay when no delay parameter provided")
+    @SuppressWarnings("unused") // Testing method execution, not return value
     void shouldUseDefaultDelay() {
         // Given: No error data available
         // When: Calling without delay parameter

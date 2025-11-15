@@ -7,8 +7,7 @@ import com.otabi.jcodroneedu.protocol.DataType;
 import com.otabi.jcodroneedu.protocol.control.Position;
 import com.otabi.jcodroneedu.protocol.control.Quad8;
 import com.otabi.jcodroneedu.protocol.dronestatus.State;
-import com.otabi.jcodroneedu.protocol.dronestatus.Motion;
-import com.otabi.jcodroneedu.protocol.dronestatus.Range;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -137,6 +136,48 @@ public class FlightController {
     public void emergencyStop() {
         resetMoveValues();
         triggerFlightEvent(FlightEvent.STOP);
+    }
+
+    /**
+     * Performs a flip maneuver in the specified direction.
+     * Requires battery level above 50% for safety.
+     * Based on Python CoDrone EDU flip() method.
+     * 
+     * @param direction The flip direction: "front", "back", "left", "right"
+     */
+    public void flip(String direction) {
+        // Check battery level for safety
+        int battery = drone.getBattery();
+        if (battery < 50) {
+            log.warn("Unable to perform flip; battery level is below 50%.");
+            // Play warning tones on controller buzzer (matching Python implementation)
+            drone.controllerBuzzer(587, 100);
+            drone.controllerBuzzer(554, 100);
+            drone.controllerBuzzer(523, 100);
+            drone.controllerBuzzer(494, 150);
+            return;
+        }
+        
+        FlightEvent flipMode;
+        switch (direction.toLowerCase()) {
+            case "back":
+                flipMode = FlightEvent.FLIP_REAR;
+                break;
+            case "front":
+                flipMode = FlightEvent.FLIP_FRONT;
+                break;
+            case "right":
+                flipMode = FlightEvent.FLIP_RIGHT;
+                break;
+            case "left":
+                flipMode = FlightEvent.FLIP_LEFT;
+                break;
+            default:
+                System.out.println("Invalid flip direction. Use: front, back, left, or right");
+                return;
+        }
+        
+        triggerFlightEvent(flipMode);
     }
 
     /**
@@ -1311,6 +1352,7 @@ public class FlightController {
      * @param unit The target unit ("cm", "mm", "m", or "in")
      * @return The converted value
      */
+    @SuppressWarnings("unused") // Reserved for future distance conversion API
     private double convertMillimeter(double millimeter, String unit) {
         switch (unit.toLowerCase()) {
             case "mm":
@@ -1327,6 +1369,7 @@ public class FlightController {
         }
     }
 
+    @SuppressWarnings("unused") // Reserved for future distance conversion API
     private double convertMeter(double meter, String unit) {
         switch (unit.toLowerCase()) {
             case "m":

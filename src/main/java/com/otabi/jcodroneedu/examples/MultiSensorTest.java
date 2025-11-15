@@ -3,7 +3,6 @@ package com.otabi.jcodroneedu.examples;
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;
 import com.otabi.jcodroneedu.protocol.dronestatus.Range;
-import com.otabi.jcodroneedu.protocol.dronestatus.RawFlow;
 import com.otabi.jcodroneedu.protocol.DataType;
 
 import java.io.BufferedReader;

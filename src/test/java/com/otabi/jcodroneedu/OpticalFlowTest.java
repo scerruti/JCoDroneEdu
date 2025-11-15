@@ -125,9 +125,14 @@ public class OpticalFlowTest {
 
             assertThrows(IllegalArgumentException.class, () -> drone.getFlowVelocityY("invalid_unit"), "Should throw exception for invalid unit");
 
-            assertThrows(IllegalArgumentException.class, () -> drone.getFlowX("invalid_unit"), "Deprecated method should also throw exception for invalid unit");
-
-            assertThrows(IllegalArgumentException.class, () -> drone.getFlowY("invalid_unit"), "Deprecated method should also throw exception for invalid unit");
+            @SuppressWarnings("deprecation") // Testing deprecated methods
+            class DeprecatedTests {
+                void test() {
+                    assertThrows(IllegalArgumentException.class, () -> drone.getFlowX("invalid_unit"), "Deprecated method should also throw exception for invalid unit");
+                    assertThrows(IllegalArgumentException.class, () -> drone.getFlowY("invalid_unit"), "Deprecated method should also throw exception for invalid unit");
+                }
+            }
+            new DeprecatedTests().test();
         });
     }
     

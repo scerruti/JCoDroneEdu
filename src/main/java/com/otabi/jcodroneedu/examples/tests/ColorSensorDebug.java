@@ -2,7 +2,6 @@ package com.otabi.jcodroneedu.examples.tests;
 
 import com.otabi.jcodroneedu.Drone;
 import com.otabi.jcodroneedu.DroneNotFoundException;
-import com.otabi.jcodroneedu.DroneSystem;
 import com.otabi.jcodroneedu.protocol.DataType;
 import com.otabi.jcodroneedu.protocol.cardreader.CardColor;
 
@@ -34,7 +33,7 @@ public class ColorSensorDebug {
                 in.readLine();
 
                 // Request color data
-                System.out.println("Requesting CardColor data...");
+                System.out.println("Requesting CardColor data..."); // Removed unused DataType reference
                 drone.sendRequest(DataType.CardColor);
 
                 // Wait for data

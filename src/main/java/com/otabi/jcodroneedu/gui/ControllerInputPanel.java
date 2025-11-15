@@ -62,6 +62,7 @@ public class ControllerInputPanel extends JPanel {
     
     private volatile boolean monitoring = false;
     private Thread updateThread;
+    @SuppressWarnings("unused") // Reserved for future debounce feature
     private volatile long lastInputTime = 0;
     
     // Track button press times for visual feedback (debounce)
@@ -70,6 +71,7 @@ public class ControllerInputPanel extends JPanel {
     
     // Button indicators
     private JLabel l1Button, l2Button, r1Button, r2Button;
+    @SuppressWarnings("unused") // Reserved for future power button display
     private JLabel hButton, sButton, pButton, powerButton;
     private JLabel upButton, downButton, leftButton, rightButton;
     

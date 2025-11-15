@@ -27,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.imageio.ImageIO;
-
 /**
  * The main class for controlling your CoDrone EDU drone.
  * 
@@ -4453,10 +4451,6 @@ public class Drone implements AutoCloseable {
 
     // Legacy method names for Python compatibility (deprecated in Python but supported)
     /**
-     * @deprecated Use {@link #get_flow_velocity_x(String)} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
-    /**
      * @deprecated Use {@link #getFlowVelocityX(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
@@ -4465,10 +4459,6 @@ public class Drone implements AutoCloseable {
         return getFlowVelocityX(unit);
     }
 
-    /**
-     * @deprecated Use {@link #get_flow_velocity_x()} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
     /**
      * @deprecated Use {@link #getFlowVelocityX()} instead.
      * This method is provided for backward compatibility with older Python code.
@@ -4479,10 +4469,6 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * @deprecated Use {@link #get_flow_velocity_y(String)} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
-    /**
      * @deprecated Use {@link #getFlowVelocityY(String)} instead.
      * This method is provided for backward compatibility with older Python code.
      */
@@ -4491,10 +4477,6 @@ public class Drone implements AutoCloseable {
         return getFlowVelocityY(unit);
     }
 
-    /**
-     * @deprecated Use {@link #get_flow_velocity_y()} instead.
-     * This method is provided for backward compatibility with older Python code.
-     */
     /**
      * @deprecated Use {@link #getFlowVelocityY()} instead.
      * This method is provided for backward compatibility with older Python code.
@@ -4661,41 +4643,26 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Performs a flip maneuver in the default direction (back).
+     * Requires battery level above 50% for safety.
+     * Based on Python CoDrone EDU flip() method.
+     * 
+     * @apiNote Delegates to {@link #flip(String)} using default direction
+     */
+    public void flip() {
+        flip(DroneSystem.FlightControlConstants.DEFAULT_FLIP_DIRECTION);
+    }
+
+    /**
      * Performs a flip maneuver in the specified direction.
      * Requires battery level above 50% for safety.
      * Based on Python CoDrone EDU flip() method.
      * 
      * @param direction The flip direction: "front", "back", "left", "right"
+     * @apiNote Delegates to {@link FlightController#flip(String)}
      */
     public void flip(String direction) {
-        // Check battery level for safety
-        int battery = getBattery();
-        if (battery < 50) {
-            System.out.println("Warning: Unable to perform flip; battery level is below 50%.");
-            // TODO: Add buzzer warning when buzzer methods are implemented
-            return;
-        }
-        
-        FlightController.FlightEvent flipMode;
-        switch (direction.toLowerCase()) {
-            case "back":
-                flipMode = FlightController.FlightEvent.FLIP_REAR;
-                break;
-            case "front":
-                flipMode = FlightController.FlightEvent.FLIP_FRONT;
-                break;
-            case "right":
-                flipMode = FlightController.FlightEvent.FLIP_RIGHT;
-                break;
-            case "left":
-                flipMode = FlightController.FlightEvent.FLIP_LEFT;
-                break;
-            default:
-                System.out.println("Invalid flip direction. Use: front, back, left, or right");
-                return;
-        }
-        
-        triggerFlightEvent(flipMode);
+        flightController.flip(direction);
     }
 
     /**

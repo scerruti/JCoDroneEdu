@@ -20,6 +20,7 @@ public class EasySensorMonitor {
         drone.pair();
         
         // Open sensor monitor with ONE line - that's it!
+        @SuppressWarnings("unused") // Monitor runs in background thread
         SensorMonitor monitor = new SensorMonitor(drone);
         
         // Now do your drone programming...

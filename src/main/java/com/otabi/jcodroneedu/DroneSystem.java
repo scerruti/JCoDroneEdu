@@ -1187,6 +1187,10 @@ public class DroneSystem
          * Matches Python implementation.
          */
         public static final double DEFAULT_HOVER_DURATION_SECONDS = 0.01;
+        
+        // Flip operation defaults
+        /** Default flip direction (matches Python flip() default) */
+        public static final String DEFAULT_FLIP_DIRECTION = "back";
     }
 
     /**

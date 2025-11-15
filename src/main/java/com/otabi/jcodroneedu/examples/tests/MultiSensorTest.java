@@ -17,6 +17,7 @@ import java.util.Locale;
 public class MultiSensorTest {
     public static void main(String[] args) {
         String port = null;
+        @SuppressWarnings("unused") // Reserved for future auto-test feature
         boolean auto = false;
         if (args != null) {
             for (String a : args) {

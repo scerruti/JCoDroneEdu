@@ -3,6 +3,7 @@ package com.otabi.jcodroneedu.test;
 import com.otabi.jcodroneedu.Drone;
 
 public class TestEducationalException {
+    @SuppressWarnings("deprecation") // Testing deprecated method behavior
     public static void main(String[] args) {
         try {
             try (Drone drone = new Drone()) {
