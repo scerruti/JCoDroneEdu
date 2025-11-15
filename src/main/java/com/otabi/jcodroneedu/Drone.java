@@ -2563,6 +2563,8 @@ public class Drone implements AutoCloseable {
      *     System.out.println("Descending to safe height");
      * }
      * }</pre>
+     * @pythonEquivalent get_height
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_height
      */
     public double getHeight() {
         return telemetryService.getHeight(DroneSystem.UnitConversion.UNIT_CENTIMETERS);
@@ -2574,6 +2576,8 @@ public class Drone implements AutoCloseable {
      * @param unit measurement unit ("cm", "mm", "m", or "in")
      * @return height in the specified unit
      * @since 1.0
+     * @pythonEquivalent get_height
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_height
      */
     public double getHeight(String unit) {
         return telemetryService.getHeight(unit);
@@ -4947,6 +4951,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_drone_LED_mode(r, g, b, mode, speed)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent set_drone_LED_mode
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led_mode
      */
     public void setDroneLEDMode(int red, int green, int blue, String mode, int speed) {
         // Validate input parameters
@@ -5192,6 +5198,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_controller_LED_mode(r, g, b, mode, speed)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent set_controller_LED_mode
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_controller_led_mode
      */
     public void setControllerLEDMode(int red, int green, int blue, String mode, int speed) {
         // Validate input parameters
@@ -5273,6 +5281,8 @@ public class Drone implements AutoCloseable {
      * Perfect for first programs and identification.</p>
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDRed() {
         setDroneLED(DroneSystem.ColorConstants.RGB_RED[0], 
@@ -5284,6 +5294,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to green.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDGreen() {
         setDroneLED(DroneSystem.ColorConstants.RGB_GREEN[0], 
@@ -5295,6 +5307,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to blue.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDBlue() {
         setDroneLED(DroneSystem.ColorConstants.RGB_BLUE[0], 
@@ -5306,6 +5320,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to yellow.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDYellow() {
         setDroneLED(DroneSystem.ColorConstants.RGB_YELLOW[0], 
@@ -5317,6 +5333,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to purple.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDPurple() {
         setDroneLED(DroneSystem.ColorConstants.RGB_PURPLE[0], 
@@ -5328,6 +5346,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to white.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDWhite() {
         setDroneLED(DroneSystem.ColorConstants.RGB_WHITE[0], 
@@ -5339,6 +5359,8 @@ public class Drone implements AutoCloseable {
      * Sets the drone LED to orange.
      * 
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLEDOrange() {
         setDroneLED(DroneSystem.ColorConstants.RGB_ORANGE[0], 
@@ -5358,6 +5380,8 @@ public class Drone implements AutoCloseable {
      * @param duration The duration to play the note in milliseconds
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
+     * @pythonEquivalent drone_buzzer
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#drone_buzzer
      */
     public void droneBuzzer(Object note, int duration) {
         if (duration < 0) {
@@ -5407,6 +5431,8 @@ public class Drone implements AutoCloseable {
      * @param duration The duration to play the note in milliseconds
      * @throws IllegalArgumentException if note is neither Note nor Integer, or if duration is negative
      * @educational
+     * @pythonEquivalent controller_buzzer
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#controller_buzzer
      */
     public void controllerBuzzer(Object note, int duration) {
         if (duration < 0) {
