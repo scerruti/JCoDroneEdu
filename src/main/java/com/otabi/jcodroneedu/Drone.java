@@ -624,6 +624,7 @@ public class Drone implements AutoCloseable {
      * @see #getFrontRange()
      * @educational
      * @pythonEquivalent avoid_wall(timeout, distance)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#avoid_wall
      */
     public void avoidWall(int timeout, int distance) {
         AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
@@ -689,6 +690,7 @@ public class Drone implements AutoCloseable {
      * @see #getFrontRange()
      * @educational
      * @pythonEquivalent keep_distance(timeout, distance)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#keep_distance
      */
     public void keepDistance(int timeout, int distance) {
         AutonomousMethodRegistry registry = AutonomousMethodRegistry.getInstance();
@@ -1455,6 +1457,7 @@ public class Drone implements AutoCloseable {
      * @see #moveForward(double, String, double)
      * @educational
      * @pythonEquivalent move_forward(distance)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_forward
      */
     public void moveForward(double distance) {
         moveForward(distance, "cm");
@@ -1482,6 +1485,7 @@ public class Drone implements AutoCloseable {
      * @see #moveForward(double, String, double)
      * @educational
      * @pythonEquivalent move_forward(distance, units)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_forward
      */
     public void moveForward(double distance, String units) {
         moveForward(distance, units, 0.5);
@@ -1532,6 +1536,7 @@ public class Drone implements AutoCloseable {
          * @see #moveBackward(double, String, double)
          * @educational
          * @pythonEquivalent move_backward(distance)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_backward
          */
         moveBackward(distance, "cm");
     }
@@ -1562,6 +1567,7 @@ public class Drone implements AutoCloseable {
          * @see #moveBackward(double, String, double)
          * @educational
          * @pythonEquivalent move_backward(distance, units)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_backward
          */
         moveBackward(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
@@ -1611,6 +1617,7 @@ public class Drone implements AutoCloseable {
          * @see #moveLeft(double, String, double)
          * @educational
          * @pythonEquivalent move_left(distance)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_left
          */
         moveLeft(distance, "cm");
     }
@@ -1641,6 +1648,7 @@ public class Drone implements AutoCloseable {
          * @see #moveLeft(double, String, double)
          * @educational
          * @pythonEquivalent move_left(distance, units)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_left
          */
         moveLeft(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
@@ -1690,6 +1698,7 @@ public class Drone implements AutoCloseable {
          * @see #moveRight(double, String, double)
          * @educational
          * @pythonEquivalent move_right(distance)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_right
          */
         moveRight(distance, "cm");
     }
@@ -1720,6 +1729,7 @@ public class Drone implements AutoCloseable {
          * @see #moveRight(double, String, double)
          * @educational
          * @pythonEquivalent move_right(distance, units)
+         * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move_right
          */
         moveRight(distance, units, DroneSystem.FlightControlConstants.DEFAULT_MOVEMENT_SPEED_MPS);
     }
@@ -5532,6 +5542,7 @@ public class Drone implements AutoCloseable {
      * @param blue Blue component (0-255), or null for random
      * @educational
      * @pythonEquivalent ping(r, g, b)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#ping
      */
     public void ping(Integer red, Integer green, Integer blue) {
         // Generate random color if any component is not specified
@@ -5570,6 +5581,7 @@ public class Drone implements AutoCloseable {
      * 
      * @educational
      * @pythonEquivalent ping()
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#ping
      */
     public void ping() {
         ping(null, null, null);
@@ -5623,6 +5635,7 @@ public class Drone implements AutoCloseable {
      * @see #controllerBuzzerSequence(String)
      * @educational
      * @pythonEquivalent drone_buzzer_sequence(kind)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#drone_buzzer_sequence
      */
     public void droneBuzzerSequence(String sequenceName) {
         BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();
@@ -5680,6 +5693,7 @@ public class Drone implements AutoCloseable {
      * @see #droneBuzzerSequence(String)
      * @educational
      * @pythonEquivalent controller_buzzer_sequence(kind)
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#controller_buzzer_sequence
      */
     public void controllerBuzzerSequence(String sequenceName) {
         BuzzerSequenceRegistry registry = BuzzerSequenceRegistry.getInstance();

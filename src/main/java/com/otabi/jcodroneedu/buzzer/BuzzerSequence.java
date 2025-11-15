@@ -62,6 +62,7 @@ import java.util.List;
  * @see Builder
  * @educational
  * @pythonEquivalent controller_buzzer_sequence(kind), drone_buzzer_sequence(kind)
+ * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#drone_buzzer_sequence
  */
 public class BuzzerSequence {
     
