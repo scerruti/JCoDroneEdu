@@ -249,6 +249,8 @@ public class Drone implements AutoCloseable {
      * 
      * @return true if connection successful (never returns false - program exits on failure)
      * @see #connect()
+     * @pythonEquivalent pair
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#pair
      */
     public boolean pair()
     {
@@ -272,6 +274,8 @@ public class Drone implements AutoCloseable {
      * @param portName The serial port name (e.g., "COM3", "/dev/ttyUSB0")
      * @return true if connection successful (never returns false - program exits on failure)
      * @see #connect(String)
+     * @pythonEquivalent pair
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#pair
      */
     public boolean pair(String portName)
     {
@@ -309,6 +313,8 @@ public class Drone implements AutoCloseable {
      * @return true if connection successful, false if connection failed but no exception occurred
      * @throws DroneNotFoundException if the drone controller cannot be found or connected to
      * @see #pair()
+     * @pythonEquivalent connect_bluetooth
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#connect_bluetooth
      */
     public boolean connect() throws DroneNotFoundException
     {
@@ -319,6 +325,8 @@ public class Drone implements AutoCloseable {
      * Connects to the CoDrone EDU controller on a specific serial port.
      * @param portName The name of the serial port (e.g., "COM3" or "/dev/ttyUSB0").
      * @return true if the connection was successful, false otherwise.
+     * @pythonEquivalent connect_bluetooth
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#connect_bluetooth
      */
     public boolean connect(String portName) throws DroneNotFoundException
     {
@@ -375,6 +383,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Disconnects from the drone controller and closes the serial port.
+     * @pythonEquivalent close
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#close
      */
     // @Deprecated
     public void close() {
@@ -383,6 +393,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Disconnects from the drone controller and closes the serial port.
+     * @pythonEquivalent close
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#close
      */
     public void disconnect() {
         serialPortManager.disconnect();
@@ -532,6 +544,8 @@ public class Drone implements AutoCloseable {
     /**
      * Commands the drone to take off and hover. This method blocks until the drone
      * reports it is in the takeoff state or a timeout occurs.
+     * @pythonEquivalent takeoff
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#takeoff
      */
     public void takeoff() {
         flightController.takeoff();
@@ -540,6 +554,8 @@ public class Drone implements AutoCloseable {
     /**
      * Commands the drone to land gently at its current position. This method blocks
      * until the drone reports it is in the landing state or a timeout occurs.
+     * @pythonEquivalent land
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#land
      */
     public void land() {
         flightController.land();
@@ -547,6 +563,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Immediately stops all motors. This is a critical safety command used for emergencies.
+     * @pythonEquivalent emergency_stop
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#emergency_stop
      */
     public void emergencyStop() {
         flightController.emergencyStop();
@@ -557,6 +575,8 @@ public class Drone implements AutoCloseable {
      * values for roll, pitch, yaw, and throttle.
      *
      * @param durationSeconds The duration to hover, in seconds (matching Python behavior).
+     * @pythonEquivalent hover
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#hover
      */
     public void hover(double durationSeconds) {
         flightController.hover(durationSeconds);
@@ -564,6 +584,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Hovers the drone in place for the default duration.
+     * @pythonEquivalent hover
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#hover
      */
     public void hover() {
         hover(DroneSystem.FlightControlConstants.DEFAULT_HOVER_DURATION_SECONDS);
@@ -571,6 +593,8 @@ public class Drone implements AutoCloseable {
 
     /**
      * Resets the drone's movement values to zero to ensure it stops any prior movement.
+     * @pythonEquivalent reset_move_values
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#reset_move_values
      */
     public void resetMoveValues() {
         flightController.resetMoveValues();
@@ -731,6 +755,8 @@ public class Drone implements AutoCloseable {
      *              to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *              direction and power of the output for that flight motion variable.
      *              Negative pitch is backwards, positive pitch is forwards.
+     * @pythonEquivalent set_pitch
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_pitch
      */
     public void setPitch(int pitch) {
         flightController.setPitch(pitch);
@@ -760,6 +786,8 @@ public class Drone implements AutoCloseable {
      *             to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *             direction and power of the output for that flight motion variable.
      *             Negative roll is left, positive roll is right.
+     * @pythonEquivalent set_roll
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_roll
      */
     public void setRoll(int roll) {
         flightController.setRoll(roll);
@@ -789,6 +817,8 @@ public class Drone implements AutoCloseable {
      *            to {@link DroneSystem.FlightControlConstants#CONTROL_VALUE_MAX}). The number represents the
      *            direction and power of the output for that flight motion variable.
      *            Negative yaw is right, positive yaw is left.
+     * @pythonEquivalent set_yaw
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_yaw
      */
     public void setYaw(int yaw) {
         flightController.setYaw(yaw);
@@ -819,6 +849,8 @@ public class Drone implements AutoCloseable {
      *                 The number represents the direction and power of the
      *                 output for that flight motion variable.
      *                 Negative throttle is down, positive throttle is up.
+     * @pythonEquivalent set_throttle
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_throttle
      */
     public void setThrottle(int throttle) {
         flightController.setThrottle(throttle);
@@ -827,6 +859,8 @@ public class Drone implements AutoCloseable {
     /**
      * Used with set_roll, set_pitch, set_yaw, set_throttle commands.
      * Sends flight movement values to the drone.
+     * @pythonEquivalent move
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move
      */
     public void move()
     {
@@ -838,6 +872,8 @@ public class Drone implements AutoCloseable {
      * Sends flight movement values to the drone.
      *
      * @param duration Number of seconds to perform the action
+     * @pythonEquivalent move
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#move
      */
     public void move(double duration)
     {
@@ -855,19 +891,22 @@ public class Drone implements AutoCloseable {
      * Returns current values of roll, pitch, yaw, and throttle.
      *
      * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
-     */
-    /**
-     * Returns current values of roll, pitch, yaw, and throttle.
-     *
-     * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
-     */
-    /**
      * @deprecated Use {@link #getMoveValues()} instead.
+     * @pythonEquivalent get_move_values
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_move_values
      */
     @Deprecated(forRemoval = true)
     public byte[] get_move_values() {
         return getMoveValues();
     }
+    
+    /**
+     * Returns current values of roll, pitch, yaw, and throttle.
+     *
+     * @return A byte array of roll(0), pitch (1), yaw (2) and throttle (3) values.
+     * @pythonEquivalent get_move_values
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#get_move_values
+     */
     public byte[] getMoveValues() {
         return flightController.getMoveValues();
     }
@@ -1367,6 +1406,8 @@ public class Drone implements AutoCloseable {
      *                  or use {@link DroneSystem.DirectionConstants} for type safety
      * @param power Power level from 0-100 (higher = faster movement)
      * @param duration Duration in seconds (how long to fly in that direction)
+     * @pythonEquivalent go
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#go
      */
     public void go(String direction, int power, int duration) {
         flightController.go(direction, power, duration);
@@ -1817,6 +1858,8 @@ public class Drone implements AutoCloseable {
      * // Quick turn right for 1 second  
      * drone.turn(-30, 1.0);
      * }</pre>
+     * @pythonEquivalent turn
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#turn
      */
     public void turn(int power, Double seconds) {
         flightController.turn(power, seconds);
@@ -1959,6 +2002,8 @@ public class Drone implements AutoCloseable {
      * // Turn exactly 90 degrees left
      * drone.turnDegree(90);
      * }</pre>
+     * @pythonEquivalent turn_degree
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#turn_degree
      */
     public void turnDegree(int degree) {
         turnDegree(degree, DroneSystem.FlightControlConstants.DEFAULT_TURN_TIMEOUT_SECONDS, DroneSystem.FlightControlConstants.DEFAULT_TURN_P_VALUE);
@@ -2012,6 +2057,8 @@ public class Drone implements AutoCloseable {
     * // Small adjustment turn
     * drone.turnLeft(10, 1.0);
     * }</pre>
+     * @pythonEquivalent turn_left
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#turn_left
      */
     public void turnLeft(int degrees, double timeout) {
         // Ensure positive degree value and cap at 179
@@ -2089,6 +2136,8 @@ public class Drone implements AutoCloseable {
     * // Small adjustment turn
     * drone.turnRight(10, 1.0);
     * }</pre>
+     * @pythonEquivalent turn_right
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#turn_right
      */
     public void turnRight(int degrees, double timeout) {
         // Ensure positive degree value and cap at 179
@@ -4855,6 +4904,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_drone_LED(r, g, b, 255)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent set_drone_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_drone_led
      */
     public void setDroneLED(int red, int green, int blue) {
         setDroneLED(red, green, blue, DroneSystem.ColorConstants.RGB_MAX);
@@ -4983,6 +5034,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.drone_LED_off()}
      * @since 1.0
      * @educational
+     * @pythonEquivalent drone_LED_off
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#drone_led_off
      */
     public void droneLEDOff() {
         Color color = createColor(0, 0, 0);
@@ -5070,6 +5123,8 @@ public class Drone implements AutoCloseable {
      * @apiNote Equivalent to Python's {@code drone.set_controller_LED(r, g, b, 255)}
      * @since 1.0
      * @educational
+     * @pythonEquivalent set_controller_LED
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Drone-Function-Documentation#set_controller_led
      */
     public void setControllerLED(int red, int green, int blue) {
         setControllerLED(red, green, blue, DroneSystem.ColorConstants.RGB_MAX);
