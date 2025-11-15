@@ -74,6 +74,17 @@ public class FlightController {
      */
     public void takeoff() {
         resetMoveValues();
+        
+        // Pre-flight validation
+        int battery = drone.getBattery();
+        if (battery < 20) {
+            log.warn("Takeoff may fail: battery critically low ({}%)", battery);
+        } else if (battery < 50) {
+            log.warn("Takeoff risky: battery low ({}%). Recommend landing soon.", battery);
+        }
+        
+        log.info("Takeoff initiated - battery: {}%, drone state: {}", battery, droneStatus.getState());
+        
         long timeout = DroneSystem.FlightControlConstants.TAKEOFF_LANDING_TIMEOUT_MS; // 4-second timeout for each stage
         long startTime = System.currentTimeMillis();
 
@@ -81,10 +92,15 @@ public class FlightController {
         while (System.currentTimeMillis() - startTime < timeout) {
             State currentState = droneStatus.getState();
             if (currentState != null && currentState.isTakeOff()) {
+                log.debug("Takeoff stage 1 complete - drone entered TAKEOFF state");
                 break; // Stage 1 complete
             }
             triggerFlightEvent(FlightEvent.TAKE_OFF);
             sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
+        }
+        
+        if (System.currentTimeMillis() - startTime >= timeout) {
+            log.warn("Takeoff stage 1 timeout - drone did not enter TAKEOFF state within {}ms", timeout);
         }
 
         // Stage 2: Wait for the drone to stabilize and enter FLIGHT mode
@@ -92,10 +108,13 @@ public class FlightController {
         while (System.currentTimeMillis() - startTime < timeout) {
             State currentState = droneStatus.getState();
             if (currentState != null && currentState.isFlight()) {
+                log.info("Takeoff successful - drone in stable flight");
                 return; // Takeoff successful and stable
             }
             sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
+        
+        log.warn("Takeoff stage 2 timeout - drone did not stabilize in FLIGHT state within {}ms", timeout);
     }
 
     /**
@@ -106,6 +125,9 @@ public class FlightController {
      */
     public void land() {
         resetMoveValues();
+        
+        log.info("Landing initiated - drone state: {}", droneStatus.getState());
+        
         long timeout = DroneSystem.FlightControlConstants.TAKEOFF_LANDING_TIMEOUT_MS; // 4-second timeout for each stage
         long startTime = System.currentTimeMillis();
 
@@ -113,10 +135,15 @@ public class FlightController {
         while (System.currentTimeMillis() - startTime < timeout) {
             State currentState = droneStatus.getState();
             if (currentState != null && currentState.isLanding()) {
+                log.debug("Landing stage 1 complete - drone entered LANDING state");
                 break; // Stage 1 complete
             }
             triggerFlightEvent(FlightEvent.LANDING);
             sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
+        }
+        
+        if (System.currentTimeMillis() - startTime >= timeout) {
+            log.warn("Landing stage 1 timeout - drone did not enter LANDING state within {}ms", timeout);
         }
 
         // Stage 2: Wait for the drone to complete landing and enter READY mode
@@ -124,16 +151,20 @@ public class FlightController {
         while (System.currentTimeMillis() - startTime < timeout) {
             State currentState = droneStatus.getState();
             if (currentState != null && currentState.isReady()) {
+                log.info("Landing successful - drone is ready");
                 return; // Landing successful
             }
             sleep(DroneSystem.FlightControlConstants.POLLING_INTERVAL_MS);
         }
+        
+        log.warn("Landing stage 2 timeout - drone did not complete landing within {}ms", timeout);
     }
 
     /**
      * Sends a command to stop all motors immediately.
      */
     public void emergencyStop() {
+        log.warn("Emergency stop triggered");
         resetMoveValues();
         triggerFlightEvent(FlightEvent.STOP);
     }
@@ -149,7 +180,7 @@ public class FlightController {
         // Check battery level for safety
         int battery = drone.getBattery();
         if (battery < 50) {
-            log.warn("Unable to perform flip; battery level is below 50%.");
+            log.warn("Flip blocked: battery level {}% is below 50% safety threshold", battery);
             // Play warning tones on controller buzzer (matching Python implementation)
             drone.controllerBuzzer(587, 100);
             drone.controllerBuzzer(554, 100);
@@ -157,6 +188,14 @@ public class FlightController {
             drone.controllerBuzzer(494, 150);
             return;
         }
+        
+        // Pre-flip diagnostics
+        State currentState = droneStatus.getState();
+        if (currentState == null || !currentState.isFlight()) {
+            log.warn("Flip may fail: drone not in stable flight state (current: {})", currentState);
+        }
+        
+        log.debug("Flip attempt: direction='{}', battery={}%", direction, battery);
         
         FlightEvent flipMode;
         switch (direction.toLowerCase()) {
@@ -173,10 +212,11 @@ public class FlightController {
                 flipMode = FlightEvent.FLIP_LEFT;
                 break;
             default:
-                log.warn("Invalid flip direction '{}'. Valid directions are: front, back, left, right", direction);
+                log.warn("Flip failed: invalid direction '{}'. Valid directions: front, back, left, right", direction);
                 return;
         }
         
+        log.info("Executing flip: direction={}", direction);
         triggerFlightEvent(flipMode);
     }
 
