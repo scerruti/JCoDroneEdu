@@ -24,6 +24,7 @@ Welcome! This guide will help you integrate drone programming into your computer
 
 ### Resources
 - [Hardware Guide]({{ '/guides/teacher/hardware.html' | relative_url }}) - Drone selection and setup
+- [Custom Projects]({{ '/guides/teacher/custom-projects.html' | relative_url }}) - Building Gradle/Maven projects
 - [Lesson Plans]({{ '/guides/teacher/lesson-plans.html' | relative_url }}) - Week-by-week templates
 - [Glossary]({{ '/guides/teacher/glossary.html' | relative_url }}) - Key terminology
 
