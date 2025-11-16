@@ -660,12 +660,14 @@ tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
 // --------------------------
 // Release artifact tasks
 // --------------------------
-// sourcesJar
+// sourcesJar - sources without examples
 val sourcesJar by tasks.registering(Jar::class) {
     archiveBaseName.set("codrone-edu-java")
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+    from(sourceSets.main.get().allSource) {
+        exclude("**/examples/**")
+    }
 }
 
 // javadocJar
@@ -712,57 +714,29 @@ tasks.named<org.gradle.api.tasks.javadoc.Javadoc>("javadoc") {
     }
 }
 
-// studentJar: core library only (no test helpers)
-val studentJar by tasks.registering(Jar::class) {
-    archiveBaseName.set("codrone-edu-java")
-    archiveVersion.set(project.version.toString())
-    archiveClassifier.set("student")
-    from(sourceSets.main.get().output)
-}
-
-// teacherJar: includes test helpers and teacher resources (packaged into a -teacher.jar)
-val teacherJar by tasks.registering(Jar::class) {
-    archiveBaseName.set("codrone-edu-java")
-    archiveVersion.set(project.version.toString())
-    archiveClassifier.set("teacher")
-    // Include main classes
-    from(sourceSets.main.get().output)
-    // Include test-support classes from test source sets to provide DroneTest, MockDrone, etc.
-    from(sourceSets.getByName("test").output)
-    // Include teacher docs if present
-    from("TEACHER_COPILOT_GUIDE.md") { into("docs") }
-}
-
 // Ensure publications include artifacts needed for Maven/Release
 publishing {
     publications {
-        create<MavenPublication>("student") {
+        create<MavenPublication>("maven") {
             from(components["java"])
             artifact(sourcesJar.get())
             artifact(javadocJar.get())
-            artifact(studentJar.get())
             artifactId = "codrone-edu-java"
-            groupId = project.group.toString()
-            version = project.version.toString()
-        }
-        // Teacher publication is not published to Maven Central; keep for local packaging and GitHub release
-        create<MavenPublication>("teacher") {
-            from(components["java"])
-            artifact(teacherJar.get())
-            artifactId = "codrone-edu-java-teacher"
             groupId = project.group.toString()
             version = project.version.toString()
         }
     }
 
-    // Configure OSSRH repository at root so root publish tasks are created
+    // Configure MCP Central Portal publishing
     repositories {
         maven {
-            name = "OSSRH"
+            name = "CentralPortal"
             url = uri("https://central.sonatype.com/api/v1/publish")
             credentials {
-                username = project.findProperty("ossrhUsername") as String? ?: ""
-                password = project.findProperty("ossrhPassword") as String? ?: ""
+                username = project.findProperty("centralPortalUsername") as String? 
+                    ?: System.getenv("CENTRAL_PORTAL_USERNAME") ?: ""
+                password = project.findProperty("centralPortalPassword") as String? 
+                    ?: System.getenv("CENTRAL_PORTAL_PASSWORD") ?: ""
             }
         }
     }
@@ -786,9 +760,8 @@ if (!signingKeyEnv.isNullOrBlank()) {
     try {
         val signingExt = extensions.getByName("signing") as org.gradle.plugins.signing.SigningExtension
         signingExt.useInMemoryPgpKeys(signingKeyText, signingPasswordEnv)
-        // Sign publications we publish
-        signingExt.sign(publishing.publications["student"])
-        signingExt.sign(publishing.publications["teacher"])
+        // Sign the main publication we publish to Maven Central
+        signingExt.sign(publishing.publications["maven"])
     } catch (e: Exception) {
         logger.warn("Could not configure in-memory signing: ${e.message}")
     }
