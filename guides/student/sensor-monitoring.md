@@ -573,7 +573,7 @@ public class MegaMonitor {
         drone.pair();
         
         // Create both panels
-        SensorPanel sensorPanel = new SensorPanel(drone);
+        SensorMonitorPanel sensorPanel = new SensorMonitorPanel(drone);
         ControllerInputPanel controllerPanel = new ControllerInputPanel(drone);
         
         // Build custom layout
@@ -622,7 +622,7 @@ Choose based on what you need to see:
 ### Building Your Own Project
 
 **Need just sensors in your GUI?**
-- Use `SensorPanel` component in your custom JFrame
+- Use `SensorMonitorPanel` component in your custom JFrame
 
 **Need just controller input in your GUI?**
 - Use `ControllerInputPanel` component in your custom JFrame
@@ -656,7 +656,7 @@ The JCoDroneEdu monitoring tools make learning and debugging much easier:
 | SensorDisplayGui | Run command | All sensors with GUI | Learning sensors |
 | ControllerInputGui | Run command | All controller with GUI | Learning controller |
 | BothMonitors | Run command | Everything + demo | Teaching & debugging |
-| SensorPanel | 5 steps | Sensors in your GUI | Custom projects |
+| SensorMonitorPanel | 5 steps | Sensors in your GUI | Custom projects |
 | ControllerInputPanel | 5 steps | Controller in your GUI | Custom projects |
 
 **Pro Tip**: Start every debugging session by opening a monitor. Seeing what your drone is actually doing makes fixing problems much faster!

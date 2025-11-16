@@ -85,6 +85,36 @@ tasks.register<JavaExec>("runSensorDisplayGui") {
 }
 
 // -----------------------------------------------------------------
+// Run Easy Sensor Monitor - one-line sensor monitoring
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runEasySensorMonitor") {
+    group = "verification"
+    description = "Runs the EasySensorMonitor example (one-line sensor monitoring)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.EasySensorMonitor")
+}
+
+// -----------------------------------------------------------------
+// Run Easy Controller Monitor - one-line controller monitoring
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runEasyControllerMonitor") {
+    group = "verification"
+    description = "Runs the EasyControllerMonitor example (one-line controller monitoring)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.EasyControllerMonitor")
+}
+
+// -----------------------------------------------------------------
+// Run Simple Controller Monitor - custom GUI with panel component
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runSimpleControllerMonitor") {
+    group = "verification"
+    description = "Runs the SimpleControllerMonitor example (custom GUI with ControllerInputPanel)."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.SimpleControllerMonitor")
+}
+
+// -----------------------------------------------------------------
 // Run Buzzer Test - tests drone and controller buzzer functionality
 // -----------------------------------------------------------------
 tasks.register<JavaExec>("runBuzzerTest") {
