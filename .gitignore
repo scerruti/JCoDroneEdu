@@ -17,6 +17,7 @@ env/
 Thumbs.db
 
 # Build artifacts
+build/
 .jekyll-cache/
 .jekyll-metadata
 _site/
