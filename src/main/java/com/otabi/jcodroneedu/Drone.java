@@ -6248,6 +6248,40 @@ public class Drone implements AutoCloseable {
         transfer(header, invertCommand);
     }
 
+    /**
+     * Draws a pixel image/region on the controller display in batch.
+     * This is significantly more efficient than drawing pixel-by-pixel or individual shapes,
+     * making it ideal for complex graphics, animations, or updating large display regions.
+     * 
+     * The image data should be provided as a byte array in bit-packed format, where each byte
+     * represents 8 vertical pixels. This format matches the controller display's internal
+     * monochrome pixel layout.
+     * 
+     * <p><strong>Performance:</strong> This method is the Java equivalent of Python's PIL/canvas-based
+     * drawing, enabling batch regional updates that can be orders of magnitude faster than
+     * drawing individual shapes or pixels.</p>
+     * 
+     * @param x X coordinate (starting position)
+     * @param y Y coordinate (starting position)
+     * @param width Width of image region
+     * @param height Height of image region
+     * @param imageData Byte array containing pixel data in bit-packed format
+     * @educational
+     * @pythonEquivalent controller_draw_canvas
+     * @pythonReference Canvas/PIL-based drawing operations in Python API
+     */
+    public void controllerDrawImage(int x, int y, int width, int height, byte[] imageData) {
+        DisplayDrawImage imageCommand = new DisplayDrawImage(x, y, width, height, imageData);
+        
+        Header header = new Header();
+        header.setDataType(DataType.DisplayDrawImage);
+        header.setLength(imageCommand.getSize());
+        header.setFrom(DeviceType.Base);
+        header.setTo(DeviceType.Controller);
+
+        transfer(header, imageCommand);
+    }
+
 
     // ========================================
     // Controller Input Methods
