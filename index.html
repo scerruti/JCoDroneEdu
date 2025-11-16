@@ -9,11 +9,12 @@
 <body>
   <header>
     <div class="container">
-      <a href="/" class="logo">CoDrone EDU Java</a>
+      <a href="/JCoDroneEdu/" class="logo">CoDrone EDU Java</a>
       <nav>
         <ul>
           <li><a href="#guides">Guides</a></li>
           <li><a href="#architecture">Architecture</a></li>
+          <li><a href="/JCoDroneEdu/blog/">Blog</a></li>
           <li><a href="javadoc/index.html">API Docs</a></li>
           <li><a href="https://github.com/scerruti/JCoDroneEdu">GitHub</a></li>
         </ul>
@@ -167,6 +168,31 @@
           <li>CSTA K-12 standards support</li>
           <li>Example programs aligned with lessons</li>
         </ul>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section style="background-color: #f6f8fa; padding: 3rem 0;">
+      <div class="container">
+        <h2>Latest from the Blog</h2>
+        <p>Updates, insights, and technical deep dives from the CoDrone EDU community</p>
+        
+        <div class="blog-preview">
+          {% for post in site.posts limit:3 %}
+            <div class="blog-preview-card">
+              <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+              <div class="blog-preview-meta">
+                <span class="date">{{ post.date | date: "%b %d, %Y" }}</span>
+              </div>
+              <p>{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+              <a href="{{ post.url | relative_url }}" class="read-link">Read More →</a>
+            </div>
+          {% endfor %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+          <a href="blog/" class="btn">View All Posts</a>
+        </div>
       </div>
     </section>
 
