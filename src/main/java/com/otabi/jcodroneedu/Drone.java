@@ -5,6 +5,7 @@ import com.otabi.jcodroneedu.autonomous.AutonomousMethod;
 import com.otabi.jcodroneedu.autonomous.AutonomousMethodRegistry;
 import com.otabi.jcodroneedu.buzzer.BuzzerSequence;
 import com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistry;
+import com.otabi.jcodroneedu.display.DisplayCanvas;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
@@ -6225,6 +6226,74 @@ public class Drone implements AutoCloseable {
      */
     public void controllerClearArea(int x, int y, int width, int height) {
         controllerClearArea(x, y, width, height, DisplayPixel.WHITE);
+    }
+
+    /**
+     * Creates a new canvas for drawing graphics on the controller display.
+     * 
+     * <p>The canvas provides two levels of drawing API:</p>
+     * <ul>
+     *   <li><strong>Simple API:</strong> Basic shape methods (drawRectangle, drawCircle, drawLine)</li>
+     *   <li><strong>Advanced API:</strong> Direct access to Java's Graphics2D for complex graphics</li>
+     * </ul>
+     * 
+     * <p><strong>Typical Usage:</strong></p>
+     * <pre>{@code
+     * // Simple API - good for beginners
+     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * canvas.setColor(Color.BLACK);
+     * canvas.drawRectangle(20, 30, 40, 10);
+     * canvas.drawCircle(80, 40, 15);
+     * drone.controllerDrawCanvas(canvas);
+     * }</pre>
+     * 
+     * <p><strong>Advanced Usage:</strong></p>
+     * <pre>{@code
+     * // Graphics2D - for complex graphics
+     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * Graphics2D g = canvas.getGraphics();
+     * g.fillPolygon(xpoints, ypoints, 3);
+     * g.drawArc(50, 50, 30, 30, 0, 180);
+     * drone.controllerDrawCanvas(canvas);
+     * }</pre>
+     * 
+     * <p><strong>Performance Note:</strong> Drawing to a canvas and sending once is much more efficient
+     * than calling multiple direct draw methods, as it reduces network communication to a single batch update.</p>
+     * 
+     * @return A new DisplayCanvas ready for drawing
+     * @educational
+     * @see DisplayCanvas
+     * @see #controllerDrawCanvas(DisplayCanvas)
+     */
+    public DisplayCanvas controllerCreateCanvas() {
+        return new DisplayCanvas();
+    }
+
+    /**
+     * Sends a completed canvas to the controller display.
+     * 
+     * <p>This method should be called after drawing on the canvas with all desired graphics.
+     * The entire canvas is sent as a single batch update, which is much more efficient than
+     * sending individual draw commands.</p>
+     * 
+     * <p><strong>Typical Usage:</strong></p>
+     * <pre>{@code
+     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * canvas.drawRectangle(20, 30, 40, 10);
+     * canvas.drawCircle(80, 40, 15);
+     * canvas.drawLine(10, 10, 50, 50);
+     * drone.controllerDrawCanvas(canvas);  // Send all at once
+     * }</pre>
+     * 
+     * @param canvas The canvas to display
+     * @educational
+     * @pythonEquivalent controller_draw_canvas
+     * @see DisplayCanvas
+     * @see #controllerCreateCanvas()
+     */
+    public void controllerDrawCanvas(DisplayCanvas canvas) {
+        byte[] imageData = canvas.toByteArray();
+        controllerDrawImage(0, 0, DisplayCanvas.DISPLAY_WIDTH, DisplayCanvas.DISPLAY_HEIGHT, imageData);
     }
 
     /**
