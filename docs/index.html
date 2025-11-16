@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoDrone EDU Java - API Documentation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        ul { line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <h1>CoDrone EDU Java - API Documentation</h1>
+    <p>Choose a version:</p>
+    <ul>
+        <li><a href="./latest/">Latest Release</a> (recommended)</li>
+    </ul>
+    <p>All versions:</p>
+    <ul id="versions"></ul>
+    <script>
+        fetch('https://api.github.com/repos/scerruti/JCoDroneEdu/tags')
+            .then(r => r.json())
+            .then(tags => {
+                const list = document.getElementById('versions');
+                tags
+                    .filter(t => t.name.match(/^v\d+\.\d+\.\d+/))
+                    .forEach(t => {
+                        const version = t.name.substring(1);
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = `./v${version}/`;
+                        a.textContent = `v${version}`;
+                        li.appendChild(a);
+                        list.appendChild(li);
+                    });
+            });
+    </script>
+</body>
+</html>
