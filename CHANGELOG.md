@@ -26,6 +26,19 @@ All notable changes to this project will be documented in this file.
 - Generated teacher-guide.md (4,500+ words) with all required educational sections
 - Generated student-guide.md (4,000+ words) with 15+ Robolink links
 - Added copyright headers and updated release strategy
+- Complete @since annotation coverage: 1,113/1,113 public methods now documented
+
+### Internal
+- Added 7 release process automation tasks for consistent, error-free releases:
+  - `updateCopyright` - Automatically updates copyright year in all files
+  - `validateSinceTags` - Validates all public methods have @since annotations
+  - `validateChangelog` - Validates CHANGELOG.md format and content
+  - `validateVersionConsistency` - Ensures version consistency across build files and tags
+  - `generateReleaseNotes` - Auto-generates GitHub release notes from CHANGELOG.md
+  - `checkDeprecations` - Reports deprecated methods and removal candidates
+  - `validateArtifacts` - Validates JAR integrity before publishing
+- Integrated all validation tasks into `preReleaseCheck` workflow
+- Created deprecation analysis report with Python API cross-reference
 
 ## v1.1.0 - 2025-10-28
 
