@@ -14,10 +14,11 @@ This guide will help you learn Java programming while flying the CoDrone EDU. Wh
 2. [Your First Flight](#your-first-flight)
 3. [Core Flight Concepts](#core-flight-concepts)
 4. [Working with Sensors](#working-with-sensors)
-5. [Building Flight Patterns](#building-flight-patterns)
-6. [API Reference by Category](#api-reference-by-category)
-7. [Common Problems & Debugging](#common-problems--debugging)
-8. [Next Steps & Advanced Topics](#next-steps--advanced-topics)
+5. [Monitoring Tools (Sensors & Controller)](#monitoring-tools-sensors--controller)
+6. [Building Flight Patterns](#building-flight-patterns)
+7. [API Reference by Category](#api-reference-by-category)
+8. [Common Problems & Debugging](#common-problems--debugging)
+9. [Next Steps & Advanced Topics](#next-steps--advanced-topics)
 
 ---
 
@@ -409,6 +410,79 @@ System.out.println("Estimated air temperature: " + actualTemp + "°C");
 ```
 
 This is a great opportunity to learn about sensor calibration - real sensors always have imperfections!
+
+---
+
+## Monitoring Tools (Sensors & Controller)
+
+**Want to see what your drone is doing in real-time?**
+
+When programming your drone, it's incredibly helpful to monitor sensor data and controller input as your code runs. The JCoDroneEdu library provides powerful monitoring tools that make debugging and learning much easier!
+
+### Quick Overview
+
+| Tool | What It Shows | Use Case |
+|------|---------------|----------|
+| **SensorDisplayGui** | All drone sensors in a GUI | Debugging flight behavior |
+| **ControllerInputGui** | Joystick and button states | Testing controller input |
+| **BothMonitors** | Everything at once! | Complete visibility |
+| **Easy monitors** | One-line monitoring | Quick checks while coding |
+
+### Using Monitoring Tools
+
+**See all your sensors at once:**
+```bash
+./gradlew runSensorDisplayGui
+```
+
+**Monitor controller input:**
+```bash
+./gradlew runControllerInputGui
+```
+
+**Run both together:**
+```bash
+./gradlew runBothMonitors
+```
+
+### Quick Example: One-Line Sensor Monitor
+
+Add monitoring to any program with just **one line**:
+
+```java
+import com.otabi.jcodroneedu.Drone;
+import com.otabi.jcodroneedu.gui.SensorMonitor;
+
+public class FlightTest {
+    public static void main(String[] args) {
+        Drone drone = new Drone();
+        drone.pair();
+        
+        // ONE LINE - opens sensor monitor window!
+        new SensorMonitor(drone);
+        
+        // Now program normally - sensors update in background
+        drone.takeoff();
+        drone.hover(3);
+        drone.land();
+        drone.close();
+    }
+}
+```
+
+### When to Use Monitoring Tools
+
+- **Debugging**: "Why isn't my altitude reading correct?"
+- **Learning**: "What do these sensor values actually mean?"
+- **Testing**: "Is my controller responding to input?"
+- **Demonstrations**: Show students what the drone sees
+
+**Learn More:** See the complete [Monitoring Tools Guide](guides/student/sensor-monitoring.md) for:
+- Detailed guide to SensorDisplayGui
+- Complete ControllerInputGui documentation
+- How to use both monitors together
+- Building custom GUIs with reusable panels
+- Example code for every pattern
 
 ---
 
