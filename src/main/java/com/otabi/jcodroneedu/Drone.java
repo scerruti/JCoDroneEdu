@@ -6052,6 +6052,22 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Draws a point on the specified canvas.
+     * 
+     * <p>This method allows drawing on a canvas that hasn't been sent to the display yet,
+     * matching the Python API pattern where drawing methods can optionally take a canvas.</p>
+     * 
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @param canvas The canvas to draw on
+     * @educational
+     * @pythonEquivalent controller_draw_point(x, y, canvas)
+     */
+    public void controllerDrawPoint(int x, int y, DisplayController canvas) {
+        canvas.getGraphics().drawLine(x, y, x, y);
+    }
+
+    /**
      * Draws a line on the controller display.
      * 
      * @param x1 Starting X coordinate
@@ -6085,6 +6101,24 @@ public class Drone implements AutoCloseable {
      */
     public void controllerDrawLine(int x1, int y1, int x2, int y2) {
         controllerDrawLine(x1, y1, x2, y2, DisplayPixel.BLACK, DisplayLine.SOLID);
+    }
+
+    /**
+     * Draws a line on the specified canvas.
+     * 
+     * <p>This method allows drawing on a canvas that hasn't been sent to the display yet,
+     * matching the Python API pattern where drawing methods can optionally take a canvas.</p>
+     * 
+     * @param x1 Starting X coordinate
+     * @param y1 Starting Y coordinate
+     * @param x2 Ending X coordinate
+     * @param y2 Ending Y coordinate
+     * @param canvas The canvas to draw on
+     * @educational
+     * @pythonEquivalent controller_draw_line(x1, y1, x2, y2, canvas)
+     */
+    public void controllerDrawLine(int x1, int y1, int x2, int y2, DisplayController canvas) {
+        canvas.drawLine(x1, y1, x2, y2);
     }
 
     /**
@@ -6125,6 +6159,24 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Draws a rectangle on the specified canvas.
+     * 
+     * <p>This method allows drawing on a canvas that hasn't been sent to the display yet,
+     * matching the Python API pattern where drawing methods can optionally take a canvas.</p>
+     * 
+     * @param x X coordinate of top-left corner
+     * @param y Y coordinate of top-left corner
+     * @param width Width of the rectangle
+     * @param height Height of the rectangle
+     * @param canvas The canvas to draw on
+     * @educational
+     * @pythonEquivalent controller_draw_rectangle(x, y, width, height, canvas)
+     */
+    public void controllerDrawRectangle(int x, int y, int width, int height, DisplayController canvas) {
+        canvas.drawRectangle(x, y, width, height);
+    }
+
+    /**
      * Draws a circle on the controller display.
      * 
      * @param x X coordinate of center
@@ -6156,6 +6208,23 @@ public class Drone implements AutoCloseable {
      */
     public void controllerDrawCircle(int x, int y, int radius) {
         controllerDrawCircle(x, y, radius, DisplayPixel.BLACK, true);
+    }
+
+    /**
+     * Draws a circle on the specified canvas.
+     * 
+     * <p>This method allows drawing on a canvas that hasn't been sent to the display yet,
+     * matching the Python API pattern where drawing methods can optionally take a canvas.</p>
+     * 
+     * @param x X coordinate of center
+     * @param y Y coordinate of center
+     * @param radius Radius of the circle
+     * @param canvas The canvas to draw on
+     * @educational
+     * @pythonEquivalent controller_draw_circle(x, y, radius, canvas)
+     */
+    public void controllerDrawCircle(int x, int y, int radius, DisplayController canvas) {
+        canvas.drawCircle(x, y, radius);
     }
 
     /**
