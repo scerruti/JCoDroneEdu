@@ -1,7 +1,7 @@
 ---
 layout: post
 title: I Take Exception to That!
-date: 2025-11-16
+date: 2025-11-04
 categories: [tutorial, exceptions, best-practices]
 author: CoDrone Team
 ---

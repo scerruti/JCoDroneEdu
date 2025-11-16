@@ -21,6 +21,9 @@ kramdown:
     block:
       line_numbers: false
 
+# Blog configuration
+permalink: /blog/:year/:month/:day/:title/
+
 # Collections
 collections:
   student_guides:
@@ -35,6 +38,12 @@ collections:
 
 # Defaults
 defaults:
+  - scope:
+      path: "_posts"
+      type: "posts"
+    values:
+      layout: "post"
+      category: "Blog"
   - scope:
       path: ""
       type: "student_guides"

@@ -1,0 +1,216 @@
+---
+layout: default
+---
+
+<div class="container post-container">
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">{{ page.title }}</h1>
+      
+      <div class="post-meta">
+        <span class="date">{{ page.date | date: "%B %d, %Y" }}</span>
+        {% if page.author %}
+          <span class="author">{{ page.author }}</span>
+        {% endif %}
+        {% if page.categories %}
+          <div class="post-categories">
+            {% for category in page.categories %}
+              <span class="category-tag">{{ category }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <div class="post-content">
+      {{ content }}
+    </div>
+
+    <footer class="post-footer">
+      <nav class="post-nav">
+        {% if page.previous.url %}
+          <a href="{{ page.previous.url | relative_url }}" class="prev-post">
+            ← {{ page.previous.title }}
+          </a>
+        {% endif %}
+        
+        {% if page.next.url %}
+          <a href="{{ page.next.url | relative_url }}" class="next-post">
+            {{ page.next.title }} →
+          </a>
+        {% endif %}
+      </nav>
+
+      <a href="{{ '/blog/' | relative_url }}" class="back-to-blog">← Back to Blog</a>
+    </footer>
+  </article>
+</div>
+
+<style>
+.post-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.post {
+  background: white;
+  padding: 2rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.post-header {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #e1e4e8;
+}
+
+.post-title {
+  margin: 0 0 1rem 0;
+  font-size: 2.5rem;
+  color: #24292e;
+  line-height: 1.25;
+}
+
+.post-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #586069;
+}
+
+.date {
+  font-weight: 500;
+}
+
+.post-categories {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.category-tag {
+  background-color: #f1f8ff;
+  border: 1px solid #c8e1ff;
+  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  color: #0366d6;
+}
+
+.post-content {
+  line-height: 1.8;
+  color: #24292e;
+  font-size: 1.05rem;
+}
+
+.post-content h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #24292e;
+  border-bottom: 1px solid #e1e4e8;
+  padding-bottom: 0.5rem;
+}
+
+.post-content h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #24292e;
+}
+
+.post-content code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.post-content pre {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.post-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.post-content ul, .post-content ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.post-content li {
+  margin: 0.5rem 0;
+}
+
+.post-content blockquote {
+  border-left: 4px solid #0366d6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #586069;
+  font-style: italic;
+}
+
+.post-footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e1e4e8;
+}
+
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.prev-post, .next-post {
+  color: #0366d6;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.prev-post:hover, .next-post:hover {
+  background-color: #f6f8fa;
+}
+
+.back-to-blog {
+  color: #0366d6;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back-to-blog:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .post {
+    padding: 1.5rem;
+  }
+
+  .post-title {
+    font-size: 1.75rem;
+  }
+
+  .post-nav {
+    flex-direction: column;
+  }
+
+  .post-content {
+    font-size: 1rem;
+  }
+}
+</style>
