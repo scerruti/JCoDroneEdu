@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Sensor Reading Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.004">
+  <properties/>
+  <testcase name="Should read battery level" classname="com.otabi.jcodroneedu.BasicSensorTest$SensorTests" time="0.003"/>
+  <testcase name="Should not use flight commands for sensor reading" classname="com.otabi.jcodroneedu.BasicSensorTest$SensorTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

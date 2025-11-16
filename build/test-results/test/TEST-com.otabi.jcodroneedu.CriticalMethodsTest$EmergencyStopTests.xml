@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Emergency Stop - Safety Critical" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:00" hostname="macbookair.lan" time="0.003">
+  <properties/>
+  <testcase name="emergency_stop() should be callable and tracked" classname="com.otabi.jcodroneedu.CriticalMethodsTest$EmergencyStopTests" time="0.0"/>
+  <testcase name="Should count multiple emergency_stop calls" classname="com.otabi.jcodroneedu.CriticalMethodsTest$EmergencyStopTests" time="0.002"/>
+  <testcase name="emergency_stop() should reset movement values" classname="com.otabi.jcodroneedu.CriticalMethodsTest$EmergencyStopTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

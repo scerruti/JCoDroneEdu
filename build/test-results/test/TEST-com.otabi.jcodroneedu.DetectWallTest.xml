@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.DetectWallTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:00" hostname="macbookair.lan" time="0.001">
+  <properties/>
+  <testcase name="detectsWallWhenObstacleWithinDistance()" classname="com.otabi.jcodroneedu.DetectWallTest" time="0.0"/>
+  <testcase name="doesNotDetectWallWhenNoObstacleWithinDistance()" classname="com.otabi.jcodroneedu.DetectWallTest" time="0.0"/>
+  <testcase name="detectsWallAtExactDistance()" classname="com.otabi.jcodroneedu.DetectWallTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

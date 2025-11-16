@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.DisplayProtocolTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.012">
+  <properties/>
+  <testcase name="testDisplayDrawLineProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.001"/>
+  <testcase name="testDisplayDrawImageProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.002"/>
+  <testcase name="testDisplayDrawRectProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.001"/>
+  <testcase name="testDisplayClearAllProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayClearProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayDrawStringProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.001"/>
+  <testcase name="testDisplayDrawCircleProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.001"/>
+  <testcase name="testDisplayDrawImageEmptyData()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayDrawPointProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayInvertProtocol()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayDrawImageNullData()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testNullStringHandling()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <testcase name="testDisplayDrawImageLargeData()" classname="com.otabi.jcodroneedu.DisplayProtocolTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

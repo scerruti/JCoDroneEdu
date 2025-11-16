@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational API Compatibility Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.005">
+  <properties/>
+  <testcase name="Should handle educational error scenarios gracefully" classname="com.otabi.jcodroneedu.DistanceMovementTest$EducationalCompatibilityTests" time="0.001"/>
+  <testcase name="Should provide Python-like API for educational use" classname="com.otabi.jcodroneedu.DistanceMovementTest$EducationalCompatibilityTests" time="0.001"/>
+  <testcase name="Should support different unit systems for education" classname="com.otabi.jcodroneedu.DistanceMovementTest$EducationalCompatibilityTests" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

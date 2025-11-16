@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Motion Sensor Tests" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.081">
+  <properties/>
+  <testcase name="Motion methods handle null motion gracefully" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.012"/>
+  <testcase name="getAccelX() returns X acceleration in G-force" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.021"/>
+  <testcase name="getAccelY() returns Y acceleration in G-force" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.022"/>
+  <testcase name="getAccelZ() returns Z acceleration in G-force" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.008"/>
+  <testcase name="getAngleX() returns roll angle in degrees" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.006"/>
+  <testcase name="getAngleY() returns pitch angle in degrees" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.004"/>
+  <testcase name="getAngleZ() returns yaw angle in degrees" classname="com.otabi.jcodroneedu.SensorDataAccessTest$MotionSensorTests" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

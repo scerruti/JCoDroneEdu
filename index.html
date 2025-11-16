@@ -2,16 +2,283 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CoDrone EDU Java API Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoDrone EDU Java - Learn Programming with Drones</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <h1>CoDrone EDU Java API Documentation</h1>
-  <p>
-    <a href="javadoc/index.html">View Javadoc</a>
-  </p>
-  <p>
-    This site hosts the latest published Javadoc for the CoDrone EDU Java API.<br>
-    For source code and releases, see <a href="https://github.com/scerruti/JCoDroneEdu">GitHub</a>.
-  </p>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">CoDrone EDU Java</a>
+      <nav>
+        <ul>
+          <li><a href="#guides">Guides</a></li>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="javadoc/index.html">API Docs</a></li>
+          <li><a href="https://github.com/scerruti/JCoDroneEdu">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <h1>Learn Java Programming with Drones</h1>
+        <p>Comprehensive educational resource for teaching AP Computer Science A using CoDrone EDU</p>
+        <a href="#guides" class="btn">Get Started</a>
+        <a href="javadoc/index.html" class="btn">View API Reference</a>
+      </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section id="guides">
+      <div class="container">
+        <h2>Learning Guides</h2>
+        <p>Complete documentation for students, teachers, and developers</p>
+        
+        <div class="cards">
+          <div class="card">
+            <h3>📚 Student Guide</h3>
+            <p>Comprehensive tutorial for grades 9-12. Learn to connect, fly patterns, read sensors, and build projects.</p>
+            <a href="guides/student-guide.html">Read Guide →</a>
+          </div>
+          
+          <div class="card">
+            <h3>👨‍🏫 Teacher Guide</h3>
+            <p>Setup and curriculum guidance for educators. Includes safety procedures, standards alignment, and lesson plans.</p>
+            <a href="guides/teacher-guide.html">Read Guide →</a>
+          </div>
+          
+          <div class="card">
+            <h3>⚙️ Design Guide</h3>
+            <p>Technical reference for maintainers and advanced developers. Architecture patterns, API design, and contribution guidelines.</p>
+            <a href="architecture/design-guide.html">Read Guide →</a>
+          </div>
+
+          <div class="card">
+            <h3>📖 Development History</h3>
+            <p>Evolution of the CoDroneEdu library from concept to production. Technical challenges, decisions, and lessons learned.</p>
+            <a href="architecture/development-history.html">Read History →</a>
+          </div>
+
+          <div class="card">
+            <h3>📡 Display Protocol Guide</h3>
+            <p>Deep dive into the 0x88 DisplayDrawImage batch protocol, echo mechanism, and interleaved transmission strategy.</p>
+            <a href="architecture/display-protocol.html">Read Protocol →</a>
+          </div>
+
+          <div class="card">
+            <h3>🔍 Knowledge Index</h3>
+            <p>Complete index of 71 documentation files organized hierarchically. Identify gaps, cross-references, and key insights.</p>
+            <a href="guides/knowledge-index.html">View Index →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Reference Section -->
+    <section id="api">
+      <div class="container">
+        <h2>API Reference</h2>
+        <p>Complete Javadoc documentation of all public methods and classes</p>
+        <p style="margin-top: 1.5rem;">
+          <a href="javadoc/index.html" class="btn">Browse Javadoc</a>
+        </p>
+        
+        <h3>Quick Navigation</h3>
+        <ul>
+          <li><a href="javadoc/com/otabi/jcodroneedu/Drone.html">Drone class - Main API entry point</a></li>
+          <li><a href="javadoc/com/otabi/jcodroneedu/DisplayController.html">DisplayController - Canvas drawing</a></li>
+          <li><a href="javadoc/com/otabi/jcodroneedu/protocol/display/DisplayDrawImage.html">DisplayDrawImage - 0x88 protocol</a></li>
+          <li><a href="javadoc/com/otabi/jcodroneedu/receiver/Receiver.html">Receiver - Communication handling</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture">
+      <div class="container">
+        <h2>Architecture & Implementation</h2>
+        <p>Technical documentation on design decisions, protocols, and implementation patterns</p>
+        
+        <div class="cards">
+          <div class="card">
+            <h3>System Architecture</h3>
+            <p>Manager pattern, three-tier API design, and communication flow. How the library is structured and why.</p>
+            <a href="architecture/system-architecture.html">Learn More →</a>
+          </div>
+          
+          <div class="card">
+            <h3>Display Protocol (0x88)</h3>
+            <p>Full analysis of the display image batching protocol, including echo mechanism discovery and transmission strategy.</p>
+            <a href="architecture/display-protocol.html">Read Protocol →</a>
+          </div>
+
+          <div class="card">
+            <h3>Sensor Calibration</h3>
+            <p>How we handle sensor inaccuracies (elevation offsets, temperature die effects) and provide calibration options.</p>
+            <a href="architecture/sensor-calibration.html">Read More →</a>
+          </div>
+
+          <div class="card">
+            <h3>Python Alignment</h3>
+            <p>Strategy for maintaining API compatibility with Python version. Three-tier approach satisfying all audiences.</p>
+            <a href="architecture/python-alignment.html">Read More →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section>
+      <div class="container">
+        <h2>Features & Capabilities</h2>
+        
+        <h3>✈️ Flight Control</h3>
+        <ul>
+          <li>Takeoff, land, and hover commands</li>
+          <li>Movement in all 6 directions (forward, backward, left, right, up, down)</li>
+          <li>Turning and rotation with absolute heading control</li>
+          <li>Emergency stop procedures</li>
+          <li>Automatic flight sequences</li>
+        </ul>
+
+        <h3>📊 Sensor Integration</h3>
+        <ul>
+          <li>Battery level monitoring</li>
+          <li>Range sensors (front, bottom) for obstacle detection</li>
+          <li>Barometric pressure sensor for altitude</li>
+          <li>IMU (accelerometer, gyroscope) for motion tracking</li>
+          <li>Temperature sensor with calibration options</li>
+          <li>Optical flow sensor</li>
+        </ul>
+
+        <h3>🎨 Display & Feedback</h3>
+        <ul>
+          <li>Drone LED control (RGB)</li>
+          <li>Controller LED control</li>
+          <li>Buzzer sequences and tones</li>
+          <li>Canvas drawing API</li>
+          <li>0x88 batch image protocol (100× faster rendering)</li>
+        </ul>
+
+        <h3>🎮 User Input</h3>
+        <ul>
+          <li>Controller button detection</li>
+          <li>Joystick input reading</li>
+          <li>Real-time input processing</li>
+        </ul>
+
+        <h3>📚 Educational Alignment</h3>
+        <ul>
+          <li>208 @educational tagged methods</li>
+          <li>101 @pythonEquivalent mappings</li>
+          <li>AP CSA standards compliance</li>
+          <li>CSTA K-12 standards support</li>
+          <li>Example programs aligned with lessons</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section>
+      <div class="container">
+        <h2>Quick Start</h2>
+        
+        <h3>Installation</h3>
+        <ol>
+          <li>Install Java Development Kit (JDK) 11 or newer</li>
+          <li>Download CoDrone EDU Java library from <a href="https://github.com/scerruti/JCoDroneEdu/releases">GitHub Releases</a></li>
+          <li>Set up your IDE (VS Code, IntelliJ IDEA, or BlueJ recommended)</li>
+          <li>Add the JAR file to your project dependencies</li>
+        </ol>
+
+        <h3>Your First Program</h3>
+        <pre><code>import com.otabi.jcodroneedu.Drone;
+
+public class FirstFlight {
+    public static void main(String[] args) {
+        Drone drone = new Drone();
+        
+        drone.pair();              // Connect to drone
+        drone.takeoff();           // Start flying
+        drone.hover(5);            // Stay in place for 5 seconds
+        drone.land();              // Come back down
+        drone.close();             // Disconnect
+    }
+}</code></pre>
+
+        <div class="alert info">
+          <strong>Next Step:</strong> Read the <a href="guides/student-guide.html">Student Guide</a> for comprehensive tutorials and examples.
+        </div>
+      </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section>
+      <div class="container">
+        <h2>Resources & Links</h2>
+        
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="javadoc/index.html">Complete Javadoc API Reference</a></li>
+          <li><a href="guides/knowledge-index.html">Knowledge Index (71 docs)</a></li>
+          <li><a href="https://docs.robolink.com/docs/CoDroneEDU/Python/getting-started">Official CoDrone EDU Docs (Robolink)</a></li>
+          <li><a href="https://learn.robolink.com/">Robolink Learn Platform (Lessons)</a></li>
+        </ul>
+
+        <h3>Development</h3>
+        <ul>
+          <li><a href="https://github.com/scerruti/JCoDroneEdu">GitHub Repository</a></li>
+          <li><a href="https://github.com/scerruti/JCoDroneEdu/releases">Download Releases</a></li>
+          <li><a href="https://github.com/scerruti/JCoDroneEdu/issues">Report Issues</a></li>
+        </ul>
+
+        <h3>Tools</h3>
+        <ul>
+          <li><a href="https://code.visualstudio.com/">VS Code (Recommended IDE)</a></li>
+          <li><a href="https://www.jetbrains.com/idea/">IntelliJ IDEA</a></li>
+          <li><a href="https://www.bluej.org/">BlueJ</a></li>
+          <li><a href="https://www.oracle.com/java/technologies/downloads/">Java JDK Downloads</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>
+        <h4>Documentation</h4>
+        <a href="guides/student-guide.html">Student Guide</a>
+        <a href="guides/teacher-guide.html">Teacher Guide</a>
+        <a href="javadoc/index.html">API Reference</a>
+        <a href="guides/knowledge-index.html">Knowledge Index</a>
+      </div>
+      <div>
+        <h4>Architecture</h4>
+        <a href="architecture/design-guide.html">Design Guide</a>
+        <a href="architecture/development-history.html">Development History</a>
+        <a href="architecture/display-protocol.html">Display Protocol</a>
+        <a href="architecture/system-architecture.html">System Architecture</a>
+      </div>
+      <div>
+        <h4>Community</h4>
+        <a href="https://github.com/scerruti/JCoDroneEdu">GitHub Repository</a>
+        <a href="https://github.com/scerruti/JCoDroneEdu/issues">Report Issues</a>
+        <a href="https://github.com/scerruti/JCoDroneEdu/discussions">Discussions</a>
+      </div>
+      <div>
+        <h4>External Links</h4>
+        <a href="https://docs.robolink.com/docs/CoDroneEDU/Python/getting-started">CoDrone EDU Docs</a>
+        <a href="https://learn.robolink.com/">Robolink Learn</a>
+        <a href="https://www.robolink.com/">Robolink.com</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 CoDrone EDU Java Library. Documentation generated from source code and architectural decisions. <a href="https://github.com/scerruti/JCoDroneEdu">View on GitHub</a></p>
+    </div>
+  </footer>
 </body>
 </html>

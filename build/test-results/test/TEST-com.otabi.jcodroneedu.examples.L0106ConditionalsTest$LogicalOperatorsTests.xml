@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Logical Operators Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
+  <properties/>
+  <testcase name="Should demonstrate AND/OR logic in flight control" classname="com.otabi.jcodroneedu.examples.L0106ConditionalsTest$LogicalOperatorsTests" time="0.0"/>
+  <testcase name="Should use NOT logic for safety conditions" classname="com.otabi.jcodroneedu.examples.L0106ConditionalsTest$LogicalOperatorsTests" time="0.001"/>
+  <testcase name="Should combine multiple conditions for complex decisions" classname="com.otabi.jcodroneedu.examples.L0106ConditionalsTest$LogicalOperatorsTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.ControllerDisplayTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="1.317">
+  <properties/>
+  <testcase name="testControllerDrawString()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.244"/>
+  <testcase name="testControllerDrawLine()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.185"/>
+  <testcase name="testDisplayEnums()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.002"/>
+  <testcase name="testControllerClearArea()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.127"/>
+  <testcase name="testControllerDrawRectangle()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.128"/>
+  <testcase name="testControllerInvertArea()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.066"/>
+  <testcase name="testControllerDrawPoint()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.302"/>
+  <testcase name="testControllerClearScreen()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.123"/>
+  <testcase name="testDisplayEnumFromByte()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.004"/>
+  <testcase name="testControllerDrawCircle()" classname="com.otabi.jcodroneedu.ControllerDisplayTest" time="0.128"/>
+  <system-out><![CDATA[21:32:59.278 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.343 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.398 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.463 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.520 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.525 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.589 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.650 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.707 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.713 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.774 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.837 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.841 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.905 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.966 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:59.970 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.034 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.036 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.100 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.160 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.217 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.282 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.337 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.339 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.404 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.460 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.468 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.530 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:00.593 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

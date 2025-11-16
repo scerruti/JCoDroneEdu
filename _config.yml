@@ -1,0 +1,75 @@
+# Jekyll Configuration for CoDrone EDU Java Documentation
+
+title: CoDrone EDU Java
+description: Learn Java programming with drones - Educational resource for AP Computer Science A
+url: "https://scerruti.github.io/JCoDroneEdu"
+baseurl: "/JCoDroneEdu"
+
+# Theme
+theme: jekyll-theme-minimal
+remote_theme: pages-themes/minimal@v0.2.0
+
+# Markdown processor
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
+# Collections
+collections:
+  student_guides:
+    output: true
+    permalink: /guides/student/:name/
+  teacher_guides:
+    output: true
+    permalink: /guides/teacher/:name/
+  architecture_docs:
+    output: true
+    permalink: /architecture/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "student_guides"
+    values:
+      layout: "guide"
+      category: "Student Guide"
+  - scope:
+      path: ""
+      type: "teacher_guides"
+    values:
+      layout: "guide"
+      category: "Teacher Guide"
+  - scope:
+      path: ""
+      type: "architecture_docs"
+    values:
+      layout: "guide"
+      category: "Architecture"
+
+# Plugins
+plugins:
+  - jekyll-remote-theme
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Build settings
+exclude:
+  - .git
+  - .gitignore
+  - README.md
+  - LICENSE
+  - CHANGELOG.md
+  - build/
+  - src/
+  - bin/
+  - .gradle
+  - .idea

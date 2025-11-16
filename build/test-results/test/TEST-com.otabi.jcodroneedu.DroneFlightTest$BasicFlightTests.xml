@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Basic Flight Operations" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.0">
+  <properties/>
+  <testcase name="Should use takeoff() and land() commands" classname="com.otabi.jcodroneedu.DroneFlightTest$BasicFlightTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

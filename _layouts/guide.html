@@ -1,0 +1,37 @@
+---
+layout: default
+---
+
+<section class="breadcrumb">
+  <div class="container">
+    {% if page.category %}
+      <a href="{{ '/' | relative_url }}">Home</a>
+      <span>/</span>
+      {% if page.category == 'Student Guide' %}
+        <a href="{{ '/guides/student/' | relative_url }}">Student Guide</a>
+      {% elsif page.category == 'Teacher Guide' %}
+        <a href="{{ '/guides/teacher/' | relative_url }}">Teacher Guide</a>
+      {% elsif page.category == 'Architecture' %}
+        <a href="{{ '/architecture/' | relative_url }}">Architecture</a>
+      {% endif %}
+      <span>/</span>
+      <span>{{ page.title }}</span>
+    {% endif %}
+  </div>
+</section>
+
+<section class="guide-content">
+  <div class="container">
+    <div class="sidebar-layout">
+      {% include sidebar.html %}
+      
+      <div class="content">
+        {% if page.title %}
+          <h1>{{ page.title }}</h1>
+        {% endif %}
+        
+        {{ content }}
+      </div>
+    </div>
+  </div>
+</section>

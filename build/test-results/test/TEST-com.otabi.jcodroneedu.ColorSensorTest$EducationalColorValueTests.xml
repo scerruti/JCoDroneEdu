@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational Color Value Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.003">
+  <properties/>
+  <testcase name="Color values should match DroneSystem.CardColorIndex constants" classname="com.otabi.jcodroneedu.ColorSensorTest$EducationalColorValueTests" time="0.0"/>
+  <testcase name="Should handle all standard color values correctly" classname="com.otabi.jcodroneedu.ColorSensorTest$EducationalColorValueTests" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

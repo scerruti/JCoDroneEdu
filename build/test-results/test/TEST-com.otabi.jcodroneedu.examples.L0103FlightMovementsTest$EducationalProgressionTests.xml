@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational Progression Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
+  <properties/>
+  <testcase name="Should build on L0102 concepts (pitch and roll)" classname="com.otabi.jcodroneedu.examples.L0103FlightMovementsTest$EducationalProgressionTests" time="0.0"/>
+  <testcase name="Should demonstrate all four movement axes" classname="com.otabi.jcodroneedu.examples.L0103FlightMovementsTest$EducationalProgressionTests" time="0.001"/>
+  <testcase name="Should prepare for variables lesson (L0104)" classname="com.otabi.jcodroneedu.examples.L0103FlightMovementsTest$EducationalProgressionTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

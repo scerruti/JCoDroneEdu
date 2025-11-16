@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="BuzzerSequenceRegistry Unit Tests" tests="23" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.012">
+  <properties/>
+  <testcase name="Thread safety: concurrent reads and writes" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.004"/>
+  <testcase name="Has returns false for missing sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Built-in sequences are registered on initialization" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Get retrieves registered sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Clear removes all sequences" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Count returns correct number of sequences" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="List returns all sequence names sorted" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.001"/>
+  <testcase name="getInstance returns singleton instance" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Register rejects blank name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Thread safety: concurrent registrations" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.002"/>
+  <testcase name="Register rejects null sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Register adds new sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Has returns true for existing sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Unregister removes sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Register rejects null name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="GenerateDocumentation creates markdown output" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.001"/>
+  <testcase name="RestoreBuiltIns re-adds default sequences" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Unregister can remove built-in sequences" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Get returns null for missing sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Register replaces existing sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="Unregister returns false for missing sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="GenerateDocumentation includes custom sequences" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.0"/>
+  <testcase name="RestoreBuiltIns is idempotent" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

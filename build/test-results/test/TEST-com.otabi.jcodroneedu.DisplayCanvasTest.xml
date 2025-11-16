@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.DisplayCanvasTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:00" hostname="macbookair.lan" time="0.565">
+  <properties/>
+  <testcase name="testFillCircle()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.532"/>
+  <testcase name="testGetImage()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.002"/>
+  <testcase name="testDrawCircle()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.003"/>
+  <testcase name="testClear()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <testcase name="testDrawRectangle()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <testcase name="testGraphics2DIntegration()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.004"/>
+  <testcase name="testComplexDrawing()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.002"/>
+  <testcase name="testCanvasCreation()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.0"/>
+  <testcase name="testDrawLine()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.0"/>
+  <testcase name="testCanvasDefaultColor()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <testcase name="testToByteArrayWithDrawing()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.004"/>
+  <testcase name="testToByteArray()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.002"/>
+  <testcase name="testClearResetsColor()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.0"/>
+  <testcase name="testFillRectangle()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <testcase name="testBoundaryDrawing()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <testcase name="testGetGraphics()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.0"/>
+  <testcase name="testMultipleOperations()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.003"/>
+  <testcase name="testSetColor()" classname="com.otabi.jcodroneedu.DisplayCanvasTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

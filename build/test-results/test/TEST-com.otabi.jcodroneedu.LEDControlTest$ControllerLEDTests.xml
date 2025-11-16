@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Controller LED Methods" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:02" hostname="macbookair.lan" time="0.049">
+  <properties/>
+  <testcase name="Should turn off controller LED" classname="com.otabi.jcodroneedu.LEDControlTest$ControllerLEDTests" time="0.009"/>
+  <testcase name="Should validate controller LED mode parameters" classname="com.otabi.jcodroneedu.LEDControlTest$ControllerLEDTests" time="0.002"/>
+  <testcase name="Should set controller LED with RGBA values" classname="com.otabi.jcodroneedu.LEDControlTest$ControllerLEDTests" time="0.007"/>
+  <testcase name="Should set controller LED mode with animations" classname="com.otabi.jcodroneedu.LEDControlTest$ControllerLEDTests" time="0.02"/>
+  <testcase name="Should set controller LED with RGB values" classname="com.otabi.jcodroneedu.LEDControlTest$ControllerLEDTests" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

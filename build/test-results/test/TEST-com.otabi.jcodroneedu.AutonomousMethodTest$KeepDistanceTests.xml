@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="KeepDistanceAutonomousMethod" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:57" hostname="macbookair.lan" time="2.009">
+  <properties/>
+  <testcase name="Should execute keepDistance and use front range sensor" classname="com.otabi.jcodroneedu.AutonomousMethodTest$KeepDistanceTests" time="2.009"/>
+  <system-out><![CDATA[]]>&#x1f916;<![CDATA[ Starting autonomous method: keepDistance
+✅ Completed autonomous method: keepDistance
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

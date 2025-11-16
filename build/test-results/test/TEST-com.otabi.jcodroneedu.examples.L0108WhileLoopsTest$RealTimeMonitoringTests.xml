@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Real-Time Monitoring Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.0">
+  <properties/>
+  <testcase name="Should demonstrate event-driven programming" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$RealTimeMonitoringTests" time="0.0"/>
+  <testcase name="Should demonstrate continuous monitoring patterns" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$RealTimeMonitoringTests" time="0.0"/>
+  <testcase name="Should adapt flight patterns based on real-time data" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$RealTimeMonitoringTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

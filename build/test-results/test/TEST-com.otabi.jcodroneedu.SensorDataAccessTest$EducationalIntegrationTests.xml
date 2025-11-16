@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational Integration Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:06" hostname="macbookair.lan" time="0.272">
+  <properties/>
+  <testcase name="L0106 Conditionals - Battery check example" classname="com.otabi.jcodroneedu.SensorDataAccessTest$EducationalIntegrationTests" time="0.252"/>
+  <testcase name="L0105 Variables - Position tracking example" classname="com.otabi.jcodroneedu.SensorDataAccessTest$EducationalIntegrationTests" time="0.016"/>
+  <testcase name="L0106 Conditionals - Obstacle avoidance example" classname="com.otabi.jcodroneedu.SensorDataAccessTest$EducationalIntegrationTests" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

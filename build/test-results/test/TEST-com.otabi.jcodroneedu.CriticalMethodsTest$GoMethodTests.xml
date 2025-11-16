@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Go Method - v2.3 Beginner-Friendly Movement" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:00" hostname="macbookair.lan" time="0.003">
+  <properties/>
+  <testcase name="go() with all parameters should be tracked" classname="com.otabi.jcodroneedu.CriticalMethodsTest$GoMethodTests" time="0.0"/>
+  <testcase name="go() should handle case insensitive directions" classname="com.otabi.jcodroneedu.CriticalMethodsTest$GoMethodTests" time="0.001"/>
+  <testcase name="go() should handle different directions" classname="com.otabi.jcodroneedu.CriticalMethodsTest$GoMethodTests" time="0.001"/>
+  <testcase name="go() should clamp power values to 0-100 range" classname="com.otabi.jcodroneedu.CriticalMethodsTest$GoMethodTests" time="0.0"/>
+  <testcase name="go() overloaded methods should use defaults" classname="com.otabi.jcodroneedu.CriticalMethodsTest$GoMethodTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

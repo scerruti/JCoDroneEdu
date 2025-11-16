@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Range Sensor Tests" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.061">
+  <properties/>
+  <testcase name="getHeight(unit) converts to different units" classname="com.otabi.jcodroneedu.SensorDataAccessTest$RangeSensorTests" time="0.018"/>
+  <testcase name="Range methods handle null range gracefully" classname="com.otabi.jcodroneedu.SensorDataAccessTest$RangeSensorTests" time="0.016"/>
+  <testcase name="getHeight() returns bottom range in centimeters" classname="com.otabi.jcodroneedu.SensorDataAccessTest$RangeSensorTests" time="0.006"/>
+  <testcase name="getFrontRange() returns front sensor distance" classname="com.otabi.jcodroneedu.SensorDataAccessTest$RangeSensorTests" time="0.019"/>
+  <system-out><![CDATA[21:33:07.449 [Test worker] WARN  com.otabi.jcodroneedu.TelemetryService - Range data not available for bottom range reading
+21:33:07.449 [Test worker] WARN  com.otabi.jcodroneedu.TelemetryService - Range data not available for front range reading
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

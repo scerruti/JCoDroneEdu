@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Position Sensor Tests" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.071">
+  <properties/>
+  <testcase name="getPosX(unit) supports different units" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.014"/>
+  <testcase name="Position methods handle null position gracefully" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.006"/>
+  <testcase name="getPosX() returns X position in centimeters" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.012"/>
+  <testcase name="getPosY() returns Y position in centimeters" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.013"/>
+  <testcase name="getPosZ() returns Z position in centimeters" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.006"/>
+  <testcase name="Position methods with units convert correctly" classname="com.otabi.jcodroneedu.SensorDataAccessTest$PositionSensorTests" time="0.018"/>
+  <system-out><![CDATA[21:33:07.362 [Test worker] WARN  com.otabi.jcodroneedu.TelemetryService - Position data not available for X reading
+21:33:07.362 [Test worker] WARN  com.otabi.jcodroneedu.TelemetryService - Position data not available for Y reading
+21:33:07.362 [Test worker] WARN  com.otabi.jcodroneedu.TelemetryService - Position data not available for Z reading
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

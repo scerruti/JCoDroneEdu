@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Connection and Resource Management" tests="45" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="8.355">
+  <properties/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.001"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should use a connection method (pair, connect, or try-with-resources)" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should properly clean up resources" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <testcase name="Should have proper exception handling" classname="com.otabi.jcodroneedu.DroneTest$ConnectionTests" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

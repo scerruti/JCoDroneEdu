@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Integration Tests - Multiple Critical Methods" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:00" hostname="macbookair.lan" time="0.008">
+  <properties/>
+  <testcase name="Student should be able to combine square pattern with safety checks" classname="com.otabi.jcodroneedu.CriticalMethodsTest$IntegrationTests" time="0.002"/>
+  <testcase name="Student should be able to use go() for simple obstacle avoidance" classname="com.otabi.jcodroneedu.CriticalMethodsTest$IntegrationTests" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

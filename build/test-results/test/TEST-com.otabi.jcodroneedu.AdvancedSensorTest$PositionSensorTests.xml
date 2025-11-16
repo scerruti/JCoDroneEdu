@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Position Sensor Tests" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:57" hostname="macbookair.lan" time="0.005">
+  <properties/>
+  <testcase name="Individual position getters should return 0 when no data available" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PositionSensorTests" time="0.001"/>
+  <testcase name="getPositionData() should return position array when data available" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PositionSensorTests" time="0.0"/>
+  <testcase name="Individual position getters should return correct values" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PositionSensorTests" time="0.001"/>
+  <testcase name="getPositionData() should return null when no position data available" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PositionSensorTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

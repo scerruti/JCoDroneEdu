@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Pressure Sensor Tests" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:56" hostname="macbookair.lan" time="0.543">
+  <properties/>
+  <testcase name="getPressure() should return 0.0 when no altitude data available" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PressureSensorTests" time="0.423"/>
+  <testcase name="getPressure(unit) should throw exception for unsupported units" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PressureSensorTests" time="0.001"/>
+  <testcase name="getPressure(unit) should convert to different units correctly" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PressureSensorTests" time="0.055"/>
+  <testcase name="getPressure() should return pressure in Pascals when data available" classname="com.otabi.jcodroneedu.AdvancedSensorTest$PressureSensorTests" time="0.06"/>
+  <system-out><![CDATA[21:32:56.559 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:56.671 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:56.787 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:56.915 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:56.973 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:57.031 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+]]></system-out>
+  <system-err><![CDATA[Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+]]></system-err>
+</testsuite>

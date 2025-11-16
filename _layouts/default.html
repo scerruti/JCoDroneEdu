@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  {% seo %}
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="{{ '/' | relative_url }}" class="logo">CoDrone EDU Java</a>
+      <nav>
+        <ul>
+          <li><a href="{{ '/guides/student/' | relative_url }}">Student Guide</a></li>
+          <li><a href="{{ '/guides/teacher/' | relative_url }}">Teacher Guide</a></li>
+          <li><a href="{{ '/architecture/' | relative_url }}">Architecture</a></li>
+          <li><a href="{{ site.url }}/javadoc/index.html">API Docs</a></li>
+          <li><a href="https://github.com/scerruti/JCoDroneEdu">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {{ content }}
+  </main>
+
+  <footer>
+    <div class="container">
+      <div>
+        <h4>Guides</h4>
+        <a href="{{ '/guides/student/' | relative_url }}">Student Guide</a>
+        <a href="{{ '/guides/teacher/' | relative_url }}">Teacher Guide</a>
+        <a href="{{ site.url }}/javadoc/index.html">API Reference</a>
+      </div>
+      <div>
+        <h4>Architecture</h4>
+        <a href="{{ '/architecture/design-guide/' | relative_url }}">Design Guide</a>
+        <a href="{{ '/architecture/development-history/' | relative_url }}">Development History</a>
+        <a href="{{ '/architecture/display-protocol/' | relative_url }}">Display Protocol</a>
+      </div>
+      <div>
+        <h4>Community</h4>
+        <a href="https://github.com/scerruti/JCoDroneEdu">GitHub Repository</a>
+        <a href="https://github.com/scerruti/JCoDroneEdu/issues">Report Issues</a>
+      </div>
+      <div>
+        <h4>External</h4>
+        <a href="https://docs.robolink.com/docs/CoDroneEDU/Python/getting-started">CoDrone EDU Docs</a>
+        <a href="https://learn.robolink.com/">Robolink Learn</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 CoDrone EDU Java Library. <a href="https://github.com/scerruti/JCoDroneEdu">View on GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<aside class="sidebar">
+  {% if page.category == 'Student Guide' %}
+    <h4>Student Guide</h4>
+    <ul>
+      <li><a href="{{ '/guides/student/' | relative_url }}">Overview</a></li>
+      <li><a href="{{ '/guides/student/getting-started.html' | relative_url }}">Getting Started</a></li>
+      <li><a href="{{ '/guides/student/first-flight.html' | relative_url }}">Your First Flight</a></li>
+      <li><a href="{{ '/guides/student/flight-concepts.html' | relative_url }}">Flight Concepts</a></li>
+      <li><a href="{{ '/guides/student/sensors.html' | relative_url }}">Working with Sensors</a></li>
+      <li><a href="{{ '/guides/student/flight-patterns.html' | relative_url }}">Flight Patterns</a></li>
+      <li><a href="{{ '/guides/student/api-reference.html' | relative_url }}">API Reference</a></li>
+      <li><a href="{{ '/guides/student/debugging.html' | relative_url }}">Debugging</a></li>
+      <li><a href="{{ '/guides/student/next-steps.html' | relative_url }}">Next Steps</a></li>
+    </ul>
+
+  {% elsif page.category == 'Teacher Guide' %}
+    <h4>Teacher Guide</h4>
+    <ul>
+      <li><a href="{{ '/guides/teacher/' | relative_url }}">Overview</a></li>
+      <li><a href="{{ '/guides/teacher/philosophy.html' | relative_url }}">Educational Philosophy</a></li>
+      <li><a href="{{ '/guides/teacher/setup.html' | relative_url }}">Setup & Administration</a></li>
+      <li><a href="{{ '/guides/teacher/github-classroom.html' | relative_url }}">GitHub Classroom</a></li>
+      <li><a href="{{ '/guides/teacher/student-accounts.html' | relative_url }}">Student Accounts</a></li>
+      <li><a href="{{ '/guides/teacher/ide-setup.html' | relative_url }}">IDE Setup</a></li>
+      <li><a href="{{ '/guides/teacher/curriculum.html' | relative_url }}">Curriculum Design</a></li>
+      <li><a href="{{ '/guides/teacher/standards.html' | relative_url }}">Standards Alignment</a></li>
+      <li><a href="{{ '/guides/teacher/hardware.html' | relative_url }}">Hardware Management</a></li>
+      <li><a href="{{ '/guides/teacher/lesson-plans.html' | relative_url }}">Lesson Plans</a></li>
+      <li><a href="{{ '/guides/teacher/glossary.html' | relative_url }}">Glossary</a></li>
+    </ul>
+
+  {% elsif page.category == 'Architecture' %}
+    <h4>Architecture</h4>
+    <ul>
+      <li><a href="{{ '/architecture/' | relative_url }}">Overview</a></li>
+    </ul>
+
+    <h4>Design Guide</h4>
+    <ul>
+      <li><a href="{{ '/architecture/design-guide/' | relative_url }}">Overview</a></li>
+      <li><a href="{{ '/architecture/design-guide/principles.html' | relative_url }}">Design Principles</a></li>
+      <li><a href="{{ '/architecture/design-guide/api-patterns.html' | relative_url }}">API Patterns</a></li>
+      <li><a href="{{ '/architecture/design-guide/adding-methods.html' | relative_url }}">Adding Methods</a></li>
+      <li><a href="{{ '/architecture/design-guide/adding-sensors.html' | relative_url }}">Adding Sensors</a></li>
+      <li><a href="{{ '/architecture/design-guide/testing.html' | relative_url }}">Testing Strategy</a></li>
+      <li><a href="{{ '/architecture/design-guide/contribution.html' | relative_url }}">Contributing</a></li>
+    </ul>
+
+    <h4>Development History</h4>
+    <ul>
+      <li><a href="{{ '/architecture/development-history/' | relative_url }}">Overview</a></li>
+      <li><a href="{{ '/architecture/development-history/timeline.html' | relative_url }}">Timeline</a></li>
+      <li><a href="{{ '/architecture/development-history/architecture.html' | relative_url }}">Architecture Evolution</a></li>
+      <li><a href="{{ '/architecture/development-history/challenges.html' | relative_url }}">Technical Challenges</a></li>
+      <li><a href="{{ '/architecture/development-history/lessons.html' | relative_url }}">Lessons Learned</a></li>
+    </ul>
+
+    <h4>Display Protocol</h4>
+    <ul>
+      <li><a href="{{ '/architecture/display-protocol/' | relative_url }}">Overview</a></li>
+      <li><a href="{{ '/architecture/display-protocol/discovery.html' | relative_url }}">Echo Discovery</a></li>
+      <li><a href="{{ '/architecture/display-protocol/protocol.html' | relative_url }}">Protocol Spec</a></li>
+      <li><a href="{{ '/architecture/display-protocol/interleaving.html' | relative_url }}">Interleaving Strategy</a></li>
+      <li><a href="{{ '/architecture/display-protocol/implementation.html' | relative_url }}">Implementation</a></li>
+    </ul>
+
+  {% endif %}
+
+  <h4>Quick Links</h4>
+  <ul>
+    <li><a href="{{ site.url }}/javadoc/index.html">Javadoc API</a></li>
+    <li><a href="https://github.com/scerruti/JCoDroneEdu">GitHub Repo</a></li>
+    <li><a href="https://learn.robolink.com/">Robolink Learn</a></li>
+  </ul>
+</aside>

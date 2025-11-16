@@ -1,0 +1,42 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m -Xlog:disable",
+    "java.jdt.ls.java.home": "/Library/Java/JavaVirtualMachines/jdk-21.0.1.jdk/Contents/Home",
+    "java.home": "/Library/Java/JavaVirtualMachines/jdk-21.0.1.jdk/Contents/Home",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "/Library/Java/JavaVirtualMachines/jdk-21.0.1.jdk/Contents/Home"
+        },
+        {
+            "name": "JavaSE-22",
+            "path": "/Users/scerruti/Library/Java/JavaVirtualMachines/openjdk-22.0.1/Contents/Home"
+        }
+    ],
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/*.pyc": true,
+        "**/__pycache__": true
+    },
+    "search.exclude": {
+        "**/__pycache__": true
+    },
+    "python.analysis.disabled": true,
+    "python.linting.enabled": false,
+    "python.analysis.extraPaths": [],
+    "python.analysis.include": [],
+    "python.analysis.exclude": [
+        "**"
+    ],
+    "python.defaultInterpreterPath": "",
+    "python.interpreter.infoVisibility": "hidden",
+    "pylance.analysis.disabled": true,
+    "pylance.diagnosticsMode": "off",
+    "extensions.ignoreRecommendations": true,
+    "[python]": {
+        "editor.defaultFormatter": null,
+        "editor.formatOnSave": false
+    }
+}

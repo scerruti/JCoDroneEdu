@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="BuzzerSequence Unit Tests" tests="26" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.004">
+  <properties/>
+  <testcase name="Builder requires non-null name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Minimum valid frequency (0 Hz for silence) is accepted" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder rejects invalid duration" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Complex sequence with mixed notes, pauses, and delays" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.001"/>
+  <testcase name="Builder requires at least one note" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder with delay creates correct notes" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder with pause creates correct notes" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Sequence is immutable - notes list cannot be modified" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder requires non-blank name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="toString includes sequence name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.001"/>
+  <testcase name="Builder accumulates notes across multiple builds" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Factory: createWarningSequence creates valid sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="getName returns correct name" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder rejects invalid frequency (negative)" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder creates valid sequence with notes" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder rejects invalid frequency (too high)" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="BuzzerNote stores all values correctly" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Factory: createErrorSequence creates valid sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Zero delay is accepted" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="getTotalDurationMs includes delays" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="getTotalDurationMs includes pauses" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Factory: createSuccessSequence creates valid sequence" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="getTotalDurationMs calculates correctly without delays" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Builder rejects negative delay" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Pause with zero duration is rejected" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <testcase name="Maximum valid frequency (10000 Hz) is accepted" classname="com.otabi.jcodroneedu.buzzer.BuzzerSequenceTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

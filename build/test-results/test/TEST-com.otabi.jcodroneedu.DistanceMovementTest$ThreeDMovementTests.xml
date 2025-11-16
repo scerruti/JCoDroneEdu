@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="3D Movement Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.003">
+  <properties/>
+  <testcase name="Should move in 3D space" classname="com.otabi.jcodroneedu.DistanceMovementTest$ThreeDMovementTests" time="0.001"/>
+  <testcase name="Should send absolute position commands" classname="com.otabi.jcodroneedu.DistanceMovementTest$ThreeDMovementTests" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

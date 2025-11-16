@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Practical Application Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
+  <properties/>
+  <testcase name="Should implement obstacle avoidance with while loops" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$PracticalApplicationTests" time="0.0"/>
+  <testcase name="Should create autonomous flight patterns" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$PracticalApplicationTests" time="0.0"/>
+  <testcase name="Should demonstrate safety monitoring systems" classname="com.otabi.jcodroneedu.examples.L0108WhileLoopsTest$PracticalApplicationTests" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

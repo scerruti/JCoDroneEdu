@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational Integration" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.787">
+  <properties/>
+  <testcase name="Should support classroom identification scenarios" classname="com.otabi.jcodroneedu.LEDControlTest$EducationalIntegrationTests" time="0.654"/>
+  <testcase name="Should support creative programming projects" classname="com.otabi.jcodroneedu.LEDControlTest$EducationalIntegrationTests" time="0.065"/>
+  <testcase name="Should support debugging with visual feedback" classname="com.otabi.jcodroneedu.LEDControlTest$EducationalIntegrationTests" time="0.065"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build what is described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/scerruti/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.15.4/58e850dde88f3cf20f41f659440bef33f6c4fe02/byte-buddy-agent-1.15.4.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

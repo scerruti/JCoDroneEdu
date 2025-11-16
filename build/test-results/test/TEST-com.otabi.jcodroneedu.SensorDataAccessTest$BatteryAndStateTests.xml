@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Battery and State Tests" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.004">
+  <properties/>
+  <testcase name="getBattery() handles null state gracefully" classname="com.otabi.jcodroneedu.SensorDataAccessTest$BatteryAndStateTests" time="0.001"/>
+  <testcase name="getFlightState() returns correct flight state" classname="com.otabi.jcodroneedu.SensorDataAccessTest$BatteryAndStateTests" time="0.001"/>
+  <testcase name="getFlightState() handles null state gracefully" classname="com.otabi.jcodroneedu.SensorDataAccessTest$BatteryAndStateTests" time="0.001"/>
+  <testcase name="getBattery() returns correct battery level" classname="com.otabi.jcodroneedu.SensorDataAccessTest$BatteryAndStateTests" time="0.0"/>
+  <testcase name="getMovementState() returns correct movement state" classname="com.otabi.jcodroneedu.SensorDataAccessTest$BatteryAndStateTests" time="0.0"/>
+  <system-out><![CDATA[21:33:07.477 [Test worker] WARN  com.otabi.jcodroneedu.FlightController - State data not available for battery reading
+21:33:07.479 [Test worker] WARN  com.otabi.jcodroneedu.FlightController - State data not available for flight state reading
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

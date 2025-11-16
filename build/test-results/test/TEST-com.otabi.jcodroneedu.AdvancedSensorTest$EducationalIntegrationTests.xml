@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Educational Integration Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:51" hostname="macbookair.lan" time="3.206">
+  <properties/>
+  <testcase name="Python API naming compatibility should be maintained" classname="com.otabi.jcodroneedu.AdvancedSensorTest$EducationalIntegrationTests" time="1.559"/>
+  <testcase name="Unit conversion should support common educational units" classname="com.otabi.jcodroneedu.AdvancedSensorTest$EducationalIntegrationTests" time="0.082"/>
+  <testcase name="All advanced sensor methods should have educational documentation" classname="com.otabi.jcodroneedu.AdvancedSensorTest$EducationalIntegrationTests" time="1.562"/>
+  <system-out><![CDATA[21:32:52.260 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.397 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.521 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.642 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.693 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.820 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.888 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:52.940 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.000 [Test worker] WARN  com.otabi.jcodroneedu.FlightController - Battery critically low: 0%. Land immediately.
+21:32:53.013 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.144 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.272 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.393 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.448 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.584 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.654 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.766 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.877 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:53.988 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.098 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.224 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.339 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.394 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.520 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.574 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.626 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.684 [Test worker] WARN  com.otabi.jcodroneedu.FlightController - Battery critically low: 0%. Land immediately.
+21:32:54.686 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.810 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:54.934 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:55.043 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:32:55.099 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+]]></system-out>
+  <system-err><![CDATA[Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Motion. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Range. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: State. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Motion. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Range. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: State. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+Warning: Timeout waiting for fresh data for tag: Altitude. Returning possibly stale data.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.ErrorDataTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.225">
+  <properties/>
+  <testcase name="Should return null when no error data available" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.014"/>
+  <testcase name="Should detect low battery error flag" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.002"/>
+  <testcase name="Should return error data array with correct format" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.001"/>
+  <testcase name="Should detect motion calibration error flag" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.0"/>
+  <testcase name="Should match Python API return format" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.0"/>
+  <testcase name="Should use default delay when no delay parameter provided" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.205"/>
+  <testcase name="Should handle multiple error flags simultaneously" classname="com.otabi.jcodroneedu.ErrorDataTest" time="0.001"/>
+  <system-out><![CDATA[21:33:01.259 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.273 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.275 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.276 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.276 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.277 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+21:33:01.483 [Test worker] ERROR com.otabi.jcodroneedu.SerialPortManager - Cannot write, serial port is not open.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

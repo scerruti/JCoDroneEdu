@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.otabi.jcodroneedu.ErrorDataObjectTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.008">
+  <properties/>
+  <testcase name="shouldCreateFromValidArray()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.004"/>
+  <testcase name="shouldDetectCriticalErrors()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldDetectSensorErrorUsingTypeSafeMethod()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldConvertTimestampCorrectly()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldWorkWithDroneGetErrorsMethod()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.001"/>
+  <testcase name="shouldProvideRawFlagsForCompatibility()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldProduceReadableToString()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldReturnNullFromInvalidArray()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.001"/>
+  <testcase name="shouldCompareTypeSafeVsBitwiseApproaches()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldDetectStateErrorUsingTypeSafeMethod()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldReturnEmptySetsWhenNoErrors()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldBeImmutable()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.001"/>
+  <testcase name="shouldProduceDetailedString()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <testcase name="shouldReturnErrorsAsEnumSets()" classname="com.otabi.jcodroneedu.ErrorDataObjectTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
