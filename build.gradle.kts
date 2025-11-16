@@ -286,6 +286,38 @@ tasks.register<JavaExec>("runControllerDisplayExample") {
     mainClass.set("com.otabi.jcodroneedu.examples.ControllerDisplayExample")
 }
 
+// Run ControllerDisplayCanvasExample - demonstrates canvas-based controller display functionality
+// -----------------------------------------------------------------
+tasks.register<JavaExec>("runControllerDisplayCanvasExample") {
+    group = "verification"
+    description = "Runs the ControllerDisplayCanvasExample to demonstrate canvas-based controller display with batching."
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.ControllerDisplayCanvasExample")
+}
+
+tasks.register<JavaExec>("runDisplayLineTest") {
+    group = "verification"
+    description = "Runs DisplayLineTest to diagnose display byte-packing format"
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.DisplayLineTest")
+}
+
+tasks.register<JavaExec>("runDisplayWhiteTest") {
+    group = "verification"
+    description = "Runs DisplayWhiteTest to test white/blank display"
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.DisplayWhiteTest")
+    // Forward stdin for keyboard input
+    standardInput = System.`in`
+}
+
+tasks.register<JavaExec>("runDisplayStagedTest") {
+    group = "verification"
+    description = "Runs DisplayStagedTest with clear visual progression"
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.otabi.jcodroneedu.examples.DisplayStagedTest")
+}
+
 // -----------------------------------------------------------------
 // Run Example Menu - interactive menu to launch any example
 // -----------------------------------------------------------------

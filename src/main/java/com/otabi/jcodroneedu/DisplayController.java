@@ -229,7 +229,8 @@ public class DisplayController {
     /**
      * Converts the canvas bitmap to a byte array in bit-packed format.
      * This is used internally to send the canvas to the drone display.
-     * Each byte represents 8 vertical pixels.
+     * Format: Column-by-column, with each byte representing 8 vertical pixels.
+     * Byte layout: bit 0 = top pixel, bit 7 = bottom pixel of 8-pixel column.
      * 
      * @return Byte array containing the canvas pixel data
      */
@@ -237,19 +238,24 @@ public class DisplayController {
         byte[] data = new byte[(DISPLAY_WIDTH * DISPLAY_HEIGHT) / 8];
         int dataIndex = 0;
         
-        // Convert from BufferedImage to bit-packed byte array
-        for (int x = 0; x < DISPLAY_WIDTH; x++) {
-            for (int y = 0; y < DISPLAY_HEIGHT; y += 8) {
+        // Pack row-by-row (not column-by-column):
+        // Bytes 0-15: pixels for rows 0-7, columns 0-127 (16 bytes per row group)
+        // Bytes 16-31: pixels for rows 8-15, columns 0-127
+        // etc.
+        // Each byte represents 8 vertical pixels in a single column within that row group.
+        //
+        // For TYPE_BYTE_BINARY with Graphics2D:
+        //   - Black (drawn): RGB value is 0xFF000000 (-16777216 in signed int)
+        //   - White (background): RGB value is 0xFFFFFFFF (-1 in signed int)
+        
+        for (int y = 0; y < DISPLAY_HEIGHT; y += 8) {
+            for (int x = 0; x < DISPLAY_WIDTH; x++) {
                 byte pixelByte = 0;
                 for (int bit = 0; bit < 8 && (y + bit) < DISPLAY_HEIGHT; bit++) {
-                    // Get pixel color from image
+                    // Get pixel value from image
                     int rgb = image.getRGB(x, y + bit);
-                    // Check if pixel is white (background)
-                    int brightness = (rgb >> 16) & 0xFF;  // Red channel
-                    boolean isWhite = brightness > 127;
-                    
-                    // Set bit if pixel is black (drawn)
-                    if (!isWhite) {
+                    // Check if pixel is black: 0xFF000000 = -16777216
+                    if (rgb == 0xFF000000 || rgb == -16777216) {
                         pixelByte |= (1 << bit);
                     }
                 }
