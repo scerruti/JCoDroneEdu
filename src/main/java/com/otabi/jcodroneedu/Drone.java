@@ -6262,6 +6262,8 @@ public class Drone implements AutoCloseable {
      * 
      * @return A new DisplayCanvas ready for drawing
      * @educational
+     * @pythonEquivalent controller_create_canvas
+     * @pythonReference Canvas/PIL-based drawing operations in Python API
      * @see DisplayCanvas
      * @see #controllerDrawCanvas(DisplayCanvas)
      */
@@ -6318,26 +6320,25 @@ public class Drone implements AutoCloseable {
     }
 
     /**
-     * Draws a pixel image/region on the controller display in batch.
-     * This is significantly more efficient than drawing pixel-by-pixel or individual shapes,
-     * making it ideal for complex graphics, animations, or updating large display regions.
+     * Draws a pixel image/region on the controller display in batch (low-level protocol method).
+     * 
+     * <p><strong>Note:</strong> This is a low-level protocol method. Most users should use
+     * {@link #controllerCreateCanvas()} and {@link #controllerDrawCanvas(DisplayCanvas)} instead.</p>
      * 
      * The image data should be provided as a byte array in bit-packed format, where each byte
      * represents 8 vertical pixels. This format matches the controller display's internal
      * monochrome pixel layout.
      * 
-     * <p><strong>Performance:</strong> This method is the Java equivalent of Python's PIL/canvas-based
-     * drawing, enabling batch regional updates that can be orders of magnitude faster than
-     * drawing individual shapes or pixels.</p>
+     * <p><strong>Performance:</strong> This is the low-level transport for batch pixel data updates.
+     * When combined with client-side canvas rendering, it enables efficient complex graphics.</p>
      * 
      * @param x X coordinate (starting position)
      * @param y Y coordinate (starting position)
      * @param width Width of image region
      * @param height Height of image region
      * @param imageData Byte array containing pixel data in bit-packed format
-     * @educational
-     * @pythonEquivalent controller_draw_canvas
-     * @pythonReference Canvas/PIL-based drawing operations in Python API
+     * @see #controllerCreateCanvas()
+     * @see #controllerDrawCanvas(DisplayCanvas)
      */
     public void controllerDrawImage(int x, int y, int width, int height, byte[] imageData) {
         DisplayDrawImage imageCommand = new DisplayDrawImage(x, y, width, height, imageData);
