@@ -1,3 +1,0 @@
-codrone-edu
-requests
-beautifulsoup4

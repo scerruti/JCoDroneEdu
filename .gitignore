@@ -1,0 +1,22 @@
+# Python virtual environments
+reference/python-venv/
+*.venv
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+.jekyll-cache/
+.jekyll-metadata
+_site/
