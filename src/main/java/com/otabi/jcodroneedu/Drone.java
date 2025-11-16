@@ -6364,7 +6364,39 @@ public class Drone implements AutoCloseable {
      */
     public void controllerDrawCanvas(DisplayController canvas) {
         byte[] imageData = canvas.toByteArray();
-        controllerDrawImage(0, 0, DisplayController.DISPLAY_WIDTH, DisplayController.DISPLAY_HEIGHT, imageData);
+        
+        // Protocol payload limit: 255 bytes
+        // DisplayDrawImage header: 8 bytes (x, y, width, height as shorts)
+        // Maximum image data per message: 255 - 8 = 247 bytes
+        final int MAX_PAYLOAD_SIZE = 255;
+        final int HEADER_SIZE = 8;
+        final int MAX_IMAGE_DATA_PER_MESSAGE = MAX_PAYLOAD_SIZE - HEADER_SIZE;
+        
+        // Send full display (128x64) in vertical chunks
+        // Each row is 16 bytes (128 pixels / 8 pixels per byte)
+        final int DISPLAY_WIDTH = DisplayController.DISPLAY_WIDTH;
+        final int PIXELS_PER_BYTE = 8;
+        final int BYTES_PER_ROW = DISPLAY_WIDTH / PIXELS_PER_BYTE;
+        
+        int yOffset = 0;
+        int offset = 0;
+        
+        while (offset < imageData.length) {
+            // Calculate how many rows we can send in this message
+            int remainingBytes = imageData.length - offset;
+            int bytesToSend = Math.min(remainingBytes, MAX_IMAGE_DATA_PER_MESSAGE);
+            int rowsToSend = (bytesToSend + BYTES_PER_ROW - 1) / BYTES_PER_ROW;
+            
+            // Extract chunk
+            byte[] chunk = new byte[bytesToSend];
+            System.arraycopy(imageData, offset, chunk, 0, bytesToSend);
+            
+            // Send this chunk
+            controllerDrawImage(0, yOffset, DISPLAY_WIDTH, rowsToSend, chunk);
+            
+            offset += bytesToSend;
+            yOffset += rowsToSend;
+        }
     }
 
     /**

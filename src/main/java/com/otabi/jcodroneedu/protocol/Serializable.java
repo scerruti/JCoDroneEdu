@@ -40,7 +40,10 @@ public interface Serializable {
 
     default byte[] toArray()
     {
-        ByteBuffer buffer = ByteBuffer.allocate(getSize());
+        // Convert signed byte to unsigned int for allocate()
+        // Since getSize() returns a signed byte, we need to mask to get the unsigned value
+        int size = getSize() & 0xFF;
+        ByteBuffer buffer = ByteBuffer.allocate(size);
         buffer.order(ByteOrder.LITTLE_ENDIAN);  // Set byte order to match drone protocol
         pack(buffer);
         return buffer.array();

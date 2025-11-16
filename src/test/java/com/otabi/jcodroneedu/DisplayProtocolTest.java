@@ -332,26 +332,30 @@ public class DisplayProtocolTest {
 
     @Test
     void testDisplayDrawImageLargeData() {
-        // Test with larger image data (simulating a full display buffer: 128x64 monochrome)
-        // Display is 128x64 = 8192 pixels, stored as 1024 bytes (8 pixels per byte)
-        byte[] largeImageData = new byte[1024];
+        // Test with realistic large image data representing part of a full display
+        // (Full 128x64 display = 1024 bytes, but protocol limits single message to 255 bytes)
+        // This tests a chunk that could be one part of a full display update
+        byte[] largeImageData = new byte[240];  // 240 bytes of image data
         for (int i = 0; i < largeImageData.length; i++) {
             largeImageData[i] = (byte) (i % 256);
         }
         
-        DisplayDrawImage image = new DisplayDrawImage(0, 0, 128, 64, largeImageData);
+        // This represents a chunk of the display update with 240 bytes of image data
+        DisplayDrawImage image = new DisplayDrawImage(0, 0, 128, 30, largeImageData);
         
         // Test values
         assertEquals(0, image.getX());
         assertEquals(0, image.getY());
         assertEquals(128, image.getWidth());
-        assertEquals(64, image.getHeight());
-        assertEquals(1024, image.getImageData().length);
-        assertEquals(8 + 1024, image.getSize());
+        assertEquals(30, image.getHeight());
+        assertEquals(240, image.getImageData().length);
+        // Total payload: 8 bytes header + 240 bytes image = 248 bytes (fits in 255 limit)
+        // Note: getSize() returns byte, so 248 is stored as (byte)248 = -8
+        assertEquals((byte)248, image.getSize());
         
         // Test serialization
         byte[] data = image.toArray();
-        assertEquals(8 + 1024, data.length);
+        assertEquals(248, data.length);
         
         // Test parsing
         DisplayDrawImage parsed = new DisplayDrawImage();
@@ -361,7 +365,7 @@ public class DisplayProtocolTest {
         assertEquals(0, parsed.getX());
         assertEquals(0, parsed.getY());
         assertEquals(128, parsed.getWidth());
-        assertEquals(64, parsed.getHeight());
+        assertEquals(30, parsed.getHeight());
         assertArrayEquals(largeImageData, parsed.getImageData());
     }
 }

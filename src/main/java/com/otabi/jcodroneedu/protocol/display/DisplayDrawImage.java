@@ -69,6 +69,7 @@ public class DisplayDrawImage implements Serializable {
     @Override
     public byte getSize() {
         // 2 bytes (x) + 2 bytes (y) + 2 bytes (width) + 2 bytes (height) + image data length
+        // Note: Protocol payload limit is 255 bytes, so large images must be sent in chunks
         return (byte) (8 + imageData.length);
     }
 
