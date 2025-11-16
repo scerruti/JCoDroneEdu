@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Educational Progression Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should demonstrate complete programming concept mastery" classname="com.otabi.jcodroneedu.examples.L0110FunctionsTest$EducationalProgressionTests" time="0.001"/>
-  <testcase name="Should build on nested loop concepts from L0109" classname="com.otabi.jcodroneedu.examples.L0110FunctionsTest$EducationalProgressionTests" time="0.0"/>
-  <testcase name="Should prepare for advanced programming concepts" classname="com.otabi.jcodroneedu.examples.L0110FunctionsTest$EducationalProgressionTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

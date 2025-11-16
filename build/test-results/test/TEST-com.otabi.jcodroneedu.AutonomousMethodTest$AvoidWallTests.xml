@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="AvoidWallAutonomousMethod" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.123">
-  <properties/>
-  <testcase name="Should execute avoidWall and use front range sensor" classname="com.otabi.jcodroneedu.AutonomousMethodTest$AvoidWallTests" time="0.123"/>
-  <system-out><![CDATA[]]>&#x1f916;<![CDATA[ Starting autonomous method: avoidWall
-✅ Completed autonomous method: avoidWall
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

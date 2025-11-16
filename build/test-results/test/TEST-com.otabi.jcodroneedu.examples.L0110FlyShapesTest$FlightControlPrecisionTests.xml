@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Flight Control Precision Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should demonstrate precise turning for shape corners" classname="com.otabi.jcodroneedu.examples.L0110FlyShapesTest$FlightControlPrecisionTests" time="0.001"/>
-  <testcase name="Should maintain consistent altitude during shapes" classname="com.otabi.jcodroneedu.examples.L0110FlyShapesTest$FlightControlPrecisionTests" time="0.0"/>
-  <testcase name="Should control flight speed for shape accuracy" classname="com.otabi.jcodroneedu.examples.L0110FlyShapesTest$FlightControlPrecisionTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

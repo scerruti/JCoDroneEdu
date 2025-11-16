@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Loop Variable Scope Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should demonstrate loop variable independence" classname="com.otabi.jcodroneedu.examples.L0109NestedLoopsTest$LoopVariableScopeTests" time="0.001"/>
-  <testcase name="Should demonstrate proper variable scope in nested loops" classname="com.otabi.jcodroneedu.examples.L0109NestedLoopsTest$LoopVariableScopeTests" time="0.0"/>
-  <testcase name="Should use different variables for inner and outer loops" classname="com.otabi.jcodroneedu.examples.L0109NestedLoopsTest$LoopVariableScopeTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Code Quality Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should complete execution in reasonable time" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$CodeQualityTests" time="0.001"/>
-  <testcase name="Should demonstrate multiple implementation approaches" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$CodeQualityTests" time="0.0"/>
-  <testcase name="Should handle exceptions appropriately" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$CodeQualityTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

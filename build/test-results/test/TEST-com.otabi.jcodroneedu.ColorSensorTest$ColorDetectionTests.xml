@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Color Detection Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.003">
-  <properties/>
-  <testcase name="get_colors() should return NONE (0) when initialized" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDetectionTests" time="0.0"/>
-  <testcase name="get_colors() should return front and back color values" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDetectionTests" time="0.0"/>
-  <testcase name="get_colors() should handle unsigned byte conversion for color values" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDetectionTests" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

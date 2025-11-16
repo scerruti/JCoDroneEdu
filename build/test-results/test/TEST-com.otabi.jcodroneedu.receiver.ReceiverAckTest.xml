@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.otabi.jcodroneedu.receiver.ReceiverAckTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.0">
-  <properties/>
-  <testcase name="onAckReceived_completesPendingFuture()" classname="com.otabi.jcodroneedu.receiver.ReceiverAckTest" time="0.0"/>
-  <testcase name="onAckReceived_nullDoesNotThrow()" classname="com.otabi.jcodroneedu.receiver.ReceiverAckTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

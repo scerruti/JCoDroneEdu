@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Backward Movement Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:01" hostname="macbookair.lan" time="0.002">
-  <properties/>
-  <testcase name="Should move backward with default parameters" classname="com.otabi.jcodroneedu.DistanceMovementTest$BackwardMovementTests" time="0.0"/>
-  <testcase name="Should move backward with specified units and speed" classname="com.otabi.jcodroneedu.DistanceMovementTest$BackwardMovementTests" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

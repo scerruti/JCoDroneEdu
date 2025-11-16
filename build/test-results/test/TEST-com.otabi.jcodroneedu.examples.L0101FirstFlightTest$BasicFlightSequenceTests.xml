@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Basic Flight Sequence Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should complete full flight sequence: takeoff -&gt; hover -&gt; land" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$BasicFlightSequenceTests" time="0.0"/>
-  <testcase name="Should use proper hover duration (5 seconds as per lesson)" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$BasicFlightSequenceTests" time="0.001"/>
-  <testcase name="Should properly close/cleanup resources" classname="com.otabi.jcodroneedu.examples.L0101FirstFlightTest$BasicFlightSequenceTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

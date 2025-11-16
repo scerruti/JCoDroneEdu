@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Variable Operations Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:33:07" hostname="macbookair.lan" time="0.001">
-  <properties/>
-  <testcase name="Should demonstrate variable scope understanding" classname="com.otabi.jcodroneedu.examples.L0105VariablesTest$VariableOperationsTests" time="0.001"/>
-  <testcase name="Should demonstrate variable modification and updates" classname="com.otabi.jcodroneedu.examples.L0105VariablesTest$VariableOperationsTests" time="0.0"/>
-  <testcase name="Should use variables for flight timing calculations" classname="com.otabi.jcodroneedu.examples.L0105VariablesTest$VariableOperationsTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
