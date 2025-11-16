@@ -14,6 +14,7 @@ This guide covers everything from connecting to your first drone through buildin
 - **Getting Started** - Install software, connect your drone, run your first program
 - **Flight Concepts** - Understand movement commands, turning, and flight basics
 - **Sensors** - Read battery, distance, altitude, and motion sensors
+- **Monitoring Tools** - Real-time sensor and controller visibility for debugging
 - **Flight Patterns** - Build shapes and patterns using loops and functions
 - **API Reference** - Quick lookup for all major commands
 - **Debugging** - Solve common problems and troubleshoot issues
@@ -73,10 +74,11 @@ public class FirstFlight {
 2. [Your First Flight]({{ '/guides/student/first-flight.html' | relative_url }}) - Make your drone fly
 3. [Flight Concepts]({{ '/guides/student/flight-concepts.html' | relative_url }}) - Movement, variables, conditionals
 4. [Working with Sensors]({{ '/guides/student/sensors.html' | relative_url }}) - Read battery, distance, altitude
-5. [Flight Patterns]({{ '/guides/student/flight-patterns.html' | relative_url }}) - Loops, shapes, functions
-6. [API Reference]({{ '/guides/student/api-reference.html' | relative_url }}) - Quick lookup by category
-7. [Debugging]({{ '/guides/student/debugging.html' | relative_url }}) - Solve common problems
-8. [Next Steps]({{ '/guides/student/next-steps.html' | relative_url }}) - Advanced projects and learning
+5. [Monitoring Tools]({{ '/guides/student/monitoring-tools.html' | relative_url }}) - Real-time sensor and controller visibility
+6. [Flight Patterns]({{ '/guides/student/flight-patterns.html' | relative_url }}) - Loops, shapes, functions
+7. [API Reference]({{ '/guides/student/api-reference.html' | relative_url }}) - Quick lookup by category
+8. [Debugging]({{ '/guides/student/debugging.html' | relative_url }}) - Solve common problems
+9. [Next Steps]({{ '/guides/student/next-steps.html' | relative_url }}) - Advanced projects and learning
 
 ---
 

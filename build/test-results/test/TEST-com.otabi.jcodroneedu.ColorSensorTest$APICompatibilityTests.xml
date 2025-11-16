@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="API Compatibility Tests" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.003">
-  <properties/>
-  <testcase name="Return types should be appropriate for educational use" classname="com.otabi.jcodroneedu.ColorSensorTest$APICompatibilityTests" time="0.001"/>
-  <testcase name="Methods should match Python API naming conventions" classname="com.otabi.jcodroneedu.ColorSensorTest$APICompatibilityTests" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

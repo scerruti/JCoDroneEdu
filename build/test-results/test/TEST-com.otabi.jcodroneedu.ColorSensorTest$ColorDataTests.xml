@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Color Data Tests" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-11-16T05:32:59" hostname="macbookair.lan" time="0.003">
-  <properties/>
-  <testcase name="get_color_data() should return HSV data when available" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDataTests" time="0.002"/>
-  <testcase name="get_color_data() should return zeros when initialized" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDataTests" time="0.0"/>
-  <testcase name="get_color_data() should handle unsigned byte conversion correctly" classname="com.otabi.jcodroneedu.ColorSensorTest$ColorDataTests" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
