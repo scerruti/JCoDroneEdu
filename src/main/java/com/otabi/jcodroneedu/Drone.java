@@ -5483,6 +5483,18 @@ public class Drone implements AutoCloseable {
     }
 
     /**
+     * Plays a tone on the drone buzzer at the specified frequency for the given duration.
+     * This is a convenience overload for frequency-based buzzer control.
+     * 
+     * @param frequency The frequency in Hz (e.g., 500, 1000, 1500)
+     * @param durationMs The duration in milliseconds
+     * @educational
+     */
+    public void droneBuzzer(int frequency, int durationMs) {
+        droneBuzzer((Integer) frequency, durationMs);
+    }
+
+    /**
      * Plays a note using the controller's buzzer for a specified duration.
      * The controller buzzer provides local audio feedback for students.
      * 
@@ -5522,6 +5534,18 @@ public class Drone implements AutoCloseable {
         
         // Send mute command to stop the buzzer
         sendBuzzerMute(DeviceType.Controller, 10);
+    }
+
+    /**
+     * Plays a tone on the controller buzzer at the specified frequency for the given duration.
+     * This is a convenience overload for frequency-based buzzer control.
+     * 
+     * @param frequency The frequency in Hz (e.g., 500, 1000, 1500)
+     * @param durationMs The duration in milliseconds
+     * @educational
+     */
+    public void controllerBuzzer(int frequency, int durationMs) {
+        controllerBuzzer((Integer) frequency, durationMs);
     }
 
     /**
