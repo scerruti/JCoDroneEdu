@@ -1,4 +1,4 @@
-package com.otabi.jcodroneedu.display;
+package com.otabi.jcodroneedu;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -6,7 +6,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 /**
- * A graphics canvas for drawing on the controller display screen.
+ * Manages graphics and drawing operations on the controller display screen.
  * 
  * <p>This class provides two levels of API:</p>
  * <ul>
@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
  * <p><strong>Typical Usage:</strong></p>
  * <pre>{@code
  * // Create a canvas
- * DisplayCanvas canvas = drone.controllerCreateCanvas();
+ * DisplayController canvas = drone.controllerCreateCanvas();
  * 
  * // Draw using simple API
  * canvas.setColor(Color.BLACK);
@@ -31,13 +31,12 @@ import java.awt.image.BufferedImage;
  * 
  * <p><strong>Advanced Usage (Graphics2D):</strong></p>
  * <pre>{@code
- * DisplayCanvas canvas = drone.controllerCreateCanvas();
+ * DisplayController canvas = drone.controllerCreateCanvas();
  * Graphics2D g = canvas.getGraphics();
  * 
  * // Use standard Java Graphics2D operations
  * g.setColor(Color.BLACK);
  * g.fillPolygon(xpoints, ypoints, 3);  // Triangle
- * g.setStroke(new BasicStroke(2));
  * g.drawArc(50, 50, 30, 30, 0, 180);
  * 
  * drone.controllerDrawCanvas(canvas);
@@ -54,7 +53,7 @@ import java.awt.image.BufferedImage;
  * @see java.awt.image.BufferedImage
  * @educational
  */
-public class DisplayCanvas {
+public class DisplayController {
     
     /** Display width in pixels */
     public static final int DISPLAY_WIDTH = 128;
@@ -70,7 +69,7 @@ public class DisplayCanvas {
      * Creates a new display canvas with the correct dimensions for the controller display.
      * The canvas is initialized with a white background.
      */
-    public DisplayCanvas() {
+    public DisplayController() {
         this.image = new BufferedImage(DISPLAY_WIDTH, DISPLAY_HEIGHT, BufferedImage.TYPE_BYTE_BINARY);
         this.graphics = image.createGraphics();
         this.currentColor = Color.BLACK;

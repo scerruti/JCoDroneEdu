@@ -5,7 +5,6 @@ import com.otabi.jcodroneedu.autonomous.AutonomousMethod;
 import com.otabi.jcodroneedu.autonomous.AutonomousMethodRegistry;
 import com.otabi.jcodroneedu.buzzer.BuzzerSequence;
 import com.otabi.jcodroneedu.buzzer.BuzzerSequenceRegistry;
-import com.otabi.jcodroneedu.display.DisplayCanvas;
 import com.otabi.jcodroneedu.protocol.*;
 import com.otabi.jcodroneedu.protocol.linkmanager.Request;
 import com.otabi.jcodroneedu.protocol.buzzer.*;
@@ -6240,7 +6239,7 @@ public class Drone implements AutoCloseable {
      * <p><strong>Typical Usage:</strong></p>
      * <pre>{@code
      * // Simple API - good for beginners
-     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * DisplayController canvas = drone.controllerCreateCanvas();
      * canvas.setColor(Color.BLACK);
      * canvas.drawRectangle(20, 30, 40, 10);
      * canvas.drawCircle(80, 40, 15);
@@ -6250,7 +6249,7 @@ public class Drone implements AutoCloseable {
      * <p><strong>Advanced Usage:</strong></p>
      * <pre>{@code
      * // Graphics2D - for complex graphics
-     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * DisplayController canvas = drone.controllerCreateCanvas();
      * Graphics2D g = canvas.getGraphics();
      * g.fillPolygon(xpoints, ypoints, 3);
      * g.drawArc(50, 50, 30, 30, 0, 180);
@@ -6260,15 +6259,15 @@ public class Drone implements AutoCloseable {
      * <p><strong>Performance Note:</strong> Drawing to a canvas and sending once is much more efficient
      * than calling multiple direct draw methods, as it reduces network communication to a single batch update.</p>
      * 
-     * @return A new DisplayCanvas ready for drawing
+     * @return A new DisplayController ready for drawing
      * @educational
      * @pythonEquivalent controller_create_canvas
      * @pythonReference Canvas/PIL-based drawing operations in Python API
-     * @see DisplayCanvas
-     * @see #controllerDrawCanvas(DisplayCanvas)
+     * @see DisplayController
+     * @see #controllerDrawCanvas(DisplayController)
      */
-    public DisplayCanvas controllerCreateCanvas() {
-        return new DisplayCanvas();
+    public DisplayController controllerCreateCanvas() {
+        return new DisplayController();
     }
 
     /**
@@ -6280,7 +6279,7 @@ public class Drone implements AutoCloseable {
      * 
      * <p><strong>Typical Usage:</strong></p>
      * <pre>{@code
-     * DisplayCanvas canvas = drone.controllerCreateCanvas();
+     * DisplayController canvas = drone.controllerCreateCanvas();
      * canvas.drawRectangle(20, 30, 40, 10);
      * canvas.drawCircle(80, 40, 15);
      * canvas.drawLine(10, 10, 50, 50);
@@ -6290,12 +6289,13 @@ public class Drone implements AutoCloseable {
      * @param canvas The canvas to display
      * @educational
      * @pythonEquivalent controller_draw_canvas
-     * @see DisplayCanvas
+     * @pythonReference Canvas/PIL-based drawing operations in Python API
+     * @see DisplayController
      * @see #controllerCreateCanvas()
      */
-    public void controllerDrawCanvas(DisplayCanvas canvas) {
+    public void controllerDrawCanvas(DisplayController canvas) {
         byte[] imageData = canvas.toByteArray();
-        controllerDrawImage(0, 0, DisplayCanvas.DISPLAY_WIDTH, DisplayCanvas.DISPLAY_HEIGHT, imageData);
+        controllerDrawImage(0, 0, DisplayController.DISPLAY_WIDTH, DisplayController.DISPLAY_HEIGHT, imageData);
     }
 
     /**
@@ -6323,7 +6323,7 @@ public class Drone implements AutoCloseable {
      * Draws a pixel image/region on the controller display in batch (low-level protocol method).
      * 
      * <p><strong>Note:</strong> This is a low-level protocol method. Most users should use
-     * {@link #controllerCreateCanvas()} and {@link #controllerDrawCanvas(DisplayCanvas)} instead.</p>
+     * {@link #controllerCreateCanvas()} and {@link #controllerDrawCanvas(DisplayController)} instead.</p>
      * 
      * The image data should be provided as a byte array in bit-packed format, where each byte
      * represents 8 vertical pixels. This format matches the controller display's internal
@@ -6338,7 +6338,7 @@ public class Drone implements AutoCloseable {
      * @param height Height of image region
      * @param imageData Byte array containing pixel data in bit-packed format
      * @see #controllerCreateCanvas()
-     * @see #controllerDrawCanvas(DisplayCanvas)
+     * @see #controllerDrawCanvas(DisplayController)
      */
     public void controllerDrawImage(int x, int y, int width, int height, byte[] imageData) {
         DisplayDrawImage imageCommand = new DisplayDrawImage(x, y, width, height, imageData);

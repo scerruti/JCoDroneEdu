@@ -1,13 +1,13 @@
 package com.otabi.jcodroneedu.examples;
 
 import com.otabi.jcodroneedu.Drone;
-import com.otabi.jcodroneedu.display.DisplayCanvas;
+import com.otabi.jcodroneedu.DisplayController;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
- * Example demonstrating the DisplayCanvas API for drawing on the controller display.
+ * Example demonstrating the DisplayController API for drawing on the controller display.
  * 
  * <p>This example shows two approaches:</p>
  * <ul>
@@ -32,7 +32,7 @@ public class ControllerDisplayCanvasExample {
         System.out.println("=== Simple Drawing API ===");
         
         // Create a canvas
-        DisplayCanvas canvas = drone.controllerCreateCanvas();
+        DisplayController canvas = drone.controllerCreateCanvas();
         
         // Set color to black
         canvas.setColor(Color.BLACK);
@@ -60,7 +60,7 @@ public class ControllerDisplayCanvasExample {
         System.out.println("=== Advanced Graphics2D API ===");
         
         // Create a canvas
-        DisplayCanvas canvas = drone.controllerCreateCanvas();
+        DisplayController canvas = drone.controllerCreateCanvas();
         
         // Get the underlying Graphics2D object
         Graphics2D g = canvas.getGraphics();
@@ -98,7 +98,7 @@ public class ControllerDisplayCanvasExample {
         System.out.println("=== Mixed Simple and Advanced API ===");
         
         // Create a canvas
-        DisplayCanvas canvas = drone.controllerCreateCanvas();
+        DisplayController canvas = drone.controllerCreateCanvas();
         
         // Use simple API
         canvas.setColor(Color.BLACK);
@@ -134,7 +134,7 @@ public class ControllerDisplayCanvasExample {
         System.out.println("=== Canvas Update Example ===");
         
         // First drawing
-        DisplayCanvas canvas = drone.controllerCreateCanvas();
+        DisplayController canvas = drone.controllerCreateCanvas();
         canvas.setColor(Color.BLACK);
         canvas.fillRectangle(0, 0, 64, 64);
         drone.controllerDrawCanvas(canvas);
@@ -173,7 +173,7 @@ public class ControllerDisplayCanvasExample {
         // Method 2: Canvas batching (faster - single network message)
         System.out.println("Method 2: Canvas batching");
         long start2 = System.currentTimeMillis();
-        DisplayCanvas canvas = drone.controllerCreateCanvas();
+        DisplayController canvas = drone.controllerCreateCanvas();
         canvas.setColor(Color.BLACK);
         for (int i = 0; i < 10; i++) {
             canvas.drawLine(i * 10, 0, i * 10, 64);

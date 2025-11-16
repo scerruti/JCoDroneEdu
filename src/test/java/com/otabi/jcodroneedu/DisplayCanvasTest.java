@@ -1,6 +1,5 @@
 package com.otabi.jcodroneedu;
 
-import com.otabi.jcodroneedu.display.DisplayCanvas;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -9,31 +8,31 @@ import java.awt.Graphics2D;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for DisplayCanvas functionality.
+ * Tests for DisplayController functionality.
  * Verifies both the simple drawing API and Graphics2D integration.
  */
 public class DisplayCanvasTest {
 
     @Test
     void testCanvasCreation() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
-        assertEquals(DisplayCanvas.DISPLAY_WIDTH, canvas.getWidth());
-        assertEquals(DisplayCanvas.DISPLAY_HEIGHT, canvas.getHeight());
+        assertEquals(DisplayController.DISPLAY_WIDTH, canvas.getWidth());
+        assertEquals(DisplayController.DISPLAY_HEIGHT, canvas.getHeight());
         assertEquals(128, canvas.getWidth());
         assertEquals(64, canvas.getHeight());
     }
 
     @Test
     void testCanvasDefaultColor() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         assertEquals(Color.BLACK, canvas.getColor());
     }
 
     @Test
     void testSetColor() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         canvas.setColor(Color.WHITE);
         assertEquals(Color.WHITE, canvas.getColor());
@@ -44,7 +43,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testDrawRectangle() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Should not throw exception
@@ -53,7 +52,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testFillRectangle() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Should not throw exception
@@ -62,7 +61,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testDrawCircle() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Should not throw exception
@@ -71,7 +70,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testFillCircle() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Should not throw exception
@@ -80,7 +79,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testDrawLine() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Should not throw exception
@@ -89,7 +88,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testClear() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         canvas.fillRectangle(0, 0, 128, 64);
         
@@ -103,7 +102,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testGetGraphics() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         Graphics2D g = canvas.getGraphics();
         
         assertNotNull(g);
@@ -115,16 +114,16 @@ public class DisplayCanvasTest {
 
     @Test
     void testGetImage() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         assertNotNull(canvas.getImage());
-        assertEquals(DisplayCanvas.DISPLAY_WIDTH, canvas.getImage().getWidth());
-        assertEquals(DisplayCanvas.DISPLAY_HEIGHT, canvas.getImage().getHeight());
+        assertEquals(DisplayController.DISPLAY_WIDTH, canvas.getImage().getWidth());
+        assertEquals(DisplayController.DISPLAY_HEIGHT, canvas.getImage().getHeight());
     }
 
     @Test
     void testToByteArray() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         byte[] data = canvas.toByteArray();
         
@@ -134,7 +133,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testToByteArrayWithDrawing() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         canvas.fillRectangle(0, 0, 128, 8);  // Fill first row of pixels
         
@@ -151,7 +150,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testComplexDrawing() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Draw multiple shapes
@@ -166,7 +165,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testGraphics2DIntegration() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         Graphics2D g = canvas.getGraphics();
         
         // Use Graphics2D to draw a filled polygon
@@ -183,7 +182,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testMultipleOperations() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         // Simple API
         canvas.setColor(Color.BLACK);
@@ -205,7 +204,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testClearResetsColor() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         
         canvas.setColor(Color.WHITE);
         assertEquals(Color.WHITE, canvas.getColor());
@@ -218,7 +217,7 @@ public class DisplayCanvasTest {
 
     @Test
     void testBoundaryDrawing() {
-        DisplayCanvas canvas = new DisplayCanvas();
+        DisplayController canvas = new DisplayController();
         canvas.setColor(Color.BLACK);
         
         // Draw at boundaries
