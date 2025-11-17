@@ -165,6 +165,31 @@ To publish to Maven Local (for local testing):
 ./gradlew publishMavenJavaPublicationToMavenLocal -Pversion=1.4.0-SNAPSHOT
 ```
 
+## Developer Tools
+
+### API Comparison Tool
+
+The `compareApis` Gradle task compares the Java API with the Python CoDrone EDU API to ensure feature parity:
+
+```bash
+# Compare against default version
+./gradlew compareApis
+
+# Compare against latest PyPI version
+./gradlew compareApis -PcompareLatest=true
+
+# Compare against specific version
+./gradlew compareApis -PapiVersion=2.6.0
+```
+
+This generates a detailed comparison report showing:
+- Methods available in both APIs
+- Methods missing in Java
+- Methods unique to Java
+- Method mapping details
+
+**See [COMPARE_APIS_DOCUMENTATION.md](COMPARE_APIS_DOCUMENTATION.md) for complete usage and troubleshooting guide.**
+
 ## Contributing
 We welcome contributions once the core API is stabilized. For now:
 - Open issues for bugs or feature requests.
