@@ -1026,9 +1026,28 @@ tasks.register("compareApis") {
         
         // If compareLatest flag is set, fetch latest version from PyPI
         if (compareLatest && targetVersion == null) {
-            println("📦 Fetching latest codrone-edu version from PyPI... (disabled, version fetch logic removed)")
-            // Disabled: Used ByteArrayOutputStream and Python subprocess
-            targetVersion = null
+            println("📦 Fetching latest codrone-edu version from PyPI...")
+            try {
+                val versionFile = file("$buildDir/pypi-version.txt")
+                versionFile.parentFile.mkdirs()
+                
+                val result = exec {
+                    commandLine("python3", "scripts/fetch_pypi_version.py")
+                    standardOutput = versionFile.outputStream()
+                    isIgnoreExitValue = true
+                }
+                
+                if (result.exitValue == 0) {
+                    targetVersion = versionFile.readText().trim()
+                    println("✓ Latest version from PyPI: $targetVersion")
+                } else {
+                    println("⚠️  Failed to fetch version from PyPI, using default")
+                    targetVersion = null
+                }
+            } catch (e: Exception) {
+                println("⚠️  Error fetching PyPI version: ${e.message}")
+                targetVersion = null
+            }
         }
         
         // Use target version or fall back to configured version
@@ -1062,23 +1081,25 @@ tasks.register("compareApis") {
             }
         }
         
-        // Determine pip executable path
-        val pipExecutable = if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            venvDir.absolutePath + "\\Scripts\\pip"
-        } else {
-            venvDir.absolutePath + "/bin/pip"
-        }
-        
-        // Determine python executable path
-        val pythonExecutable = if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            venvDir.absolutePath + "\\Scripts\\python"
-        } else {
-            venvDir.absolutePath + "/bin/python"
-        }
-        
         // Check if correct version is installed, upgrade/install if needed
-        // Disabled: Used ByteArrayOutputStream and Python subprocess
-        println("✅ Python codrone-edu version check/install logic disabled")
+        println("📦 Checking codrone-edu version $pythonVersion...")
+        try {
+            val checkResult = exec {
+                commandLine("python3", "scripts/check_install_package.py", 
+                           venvDir.absolutePath, pythonVersion, "--install")
+                isIgnoreExitValue = true
+            }
+            
+            if (checkResult.exitValue == 0) {
+                println("✓ codrone-edu version $pythonVersion is ready")
+            } else {
+                println("⚠️  Warning: Could not verify/install codrone-edu version")
+                println("   The comparison will still run with hardcoded Python method list")
+            }
+        } catch (e: Exception) {
+            println("⚠️  Warning: Error checking Python package: ${e.message}")
+            println("   The comparison will still run with hardcoded Python method list")
+        }
         
         val reportFile = file(outputFileName)
         val report = StringBuilder()
