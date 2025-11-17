@@ -1,6 +1,6 @@
 # API Comparison Report
 
-**Java Version:** 1.4.0-SNAPSHOT
+**Java Version:** 1.5.0-SNAPSHOT
 **Python API Version:** 2.6.0
 
 ## Summary
