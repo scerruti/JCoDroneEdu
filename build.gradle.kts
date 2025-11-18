@@ -12,6 +12,20 @@ plugins {
     id("maven-publish")
     id("signing")
     id("com.gradleup.nmcp.aggregation") version "1.2.1"
+    id("jacoco")
+}
+
+// JaCoCo test coverage configuration
+jacoco {
+    toolVersion = "0.8.11" // Use latest stable version or adjust as needed
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 // Ensure a consistent Java toolchain for local and CI builds. This makes Gradle

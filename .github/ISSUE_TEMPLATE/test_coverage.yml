@@ -1,0 +1,102 @@
+name: Test Coverage Task
+description: Create a new test coverage improvement task
+title: "[TEST] Add unit tests for <component>"
+labels: ["test", "coverage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Test Coverage Task
+        Use this template to create a new test coverage improvement task.
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      description: Which sprint does this belong to?
+      options:
+        - Sprint 1 - Critical API & Core Logic
+        - Sprint 2 - ML & Data Processing Logic
+        - Sprint 3 - Protocols, Communication, and Utilities
+        - Sprint 4 - System, Storage, and Integration
+        - Sprint 5 - Examples, Demos, and Edge Packages
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: What is the priority of this task?
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Component/Class to Test
+      description: Which class or component needs test coverage?
+      placeholder: "e.g., Drone.java, FlightController.java, protocol.Header"
+    validations:
+      required: true
+
+  - type: textarea
+    id: methods
+    attributes:
+      label: Methods/Features to Cover
+      description: List the specific methods or features that need test coverage
+      placeholder: |
+        - takeoff()
+        - land()
+        - move()
+        - setDroneColor()
+    validations:
+      required: true
+
+  - type: textarea
+    id: test-scenarios
+    attributes:
+      label: Test Scenarios
+      description: Describe the test scenarios that should be covered
+      placeholder: |
+        1. Test successful takeoff command
+        2. Test land command after takeoff
+        3. Test move with valid parameters
+        4. Test edge cases (negative values, out of range)
+        5. Test error handling
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What criteria must be met for this task to be considered complete?
+      value: |
+        - [ ] All listed methods have unit tests
+        - [ ] Tests achieve at least 80% code coverage for target component
+        - [ ] All tests pass locally (`./gradlew test`)
+        - [ ] Tests follow existing patterns in TESTING_GUIDE.md
+        - [ ] Edge cases and error conditions are tested
+        - [ ] Tests are well-documented with clear assertions
+        - [ ] CI/CD pipeline passes all tests
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List any dependencies or blocking issues
+      placeholder: "Depends on #123, Blocked by #456"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any additional context or considerations
