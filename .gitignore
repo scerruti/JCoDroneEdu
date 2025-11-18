@@ -47,3 +47,4 @@ bin/
 
 ### Python Virtual Environment ###
 /reference/python-venv/scripts/__pycache__/
+reference/python-venv/
