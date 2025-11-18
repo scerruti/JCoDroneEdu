@@ -1051,7 +1051,7 @@ tasks.register("compareApis") {
         }
         
         // Use target version or fall back to configured version
-        val pythonVersion = targetVersion ?: (project.findProperty("pythonApiVersion")?.toString() ?: "2.2.0")
+        val pythonVersion = targetVersion ?: (project.findProperty("codroneEduPythonVersion")?.toString() ?: "2.2.0")
         val venvDir = file("reference/python-venv")
         
         // Use version in output filename
@@ -1081,23 +1081,24 @@ tasks.register("compareApis") {
             }
         }
         
-        // Check if correct version is installed, upgrade/install if needed
-        println("📦 Checking codrone-edu version $pythonVersion...")
+        // Upgrade pip and install codrone-edu in the venv using the venv's python
+        val isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+        val venvPython = if (isWindows)
+            venvDir.absolutePath + "\\Scripts\\python.exe"
+        else
+            venvDir.absolutePath + "/bin/python"
+
+        println("📦 Upgrading pip and installing codrone-edu==$pythonVersion in venv...")
         try {
-            val checkResult = exec {
-                commandLine("python3", "scripts/check_install_package.py", 
-                           venvDir.absolutePath, pythonVersion, "--install")
-                isIgnoreExitValue = true
+            exec {
+                commandLine(venvPython, "-m", "pip", "install", "--upgrade", "pip")
             }
-            
-            if (checkResult.exitValue == 0) {
-                println("✓ codrone-edu version $pythonVersion is ready")
-            } else {
-                println("⚠️  Warning: Could not verify/install codrone-edu version")
-                println("   The comparison will still run with hardcoded Python method list")
+            exec {
+                commandLine(venvPython, "-m", "pip", "install", "codrone-edu==$pythonVersion")
             }
+            println("✓ codrone-edu version $pythonVersion is ready")
         } catch (e: Exception) {
-            println("⚠️  Warning: Error checking Python package: ${e.message}")
+            println("⚠️  Warning: Could not install codrone-edu version $pythonVersion in venv: ${e.message}")
             println("   The comparison will still run with hardcoded Python method list")
         }
         
@@ -1109,7 +1110,7 @@ tasks.register("compareApis") {
         report.appendLine("**Java Version:** ${project.version}")
         report.appendLine("**Python API Version:** $pythonVersion")
         if (compareLatest) {
-            report.appendLine("**Comparison Mode:** Latest vs. Built (${project.findProperty("pythonApiVersion") ?: "2.2.0"})")
+            report.appendLine("**Comparison Mode:** Latest vs. Built (${project.findProperty("codroneEduPythonVersion") ?: "2.2.0"})")
         }
         report.appendLine()
         
