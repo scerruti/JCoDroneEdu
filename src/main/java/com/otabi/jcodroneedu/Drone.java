@@ -232,6 +232,194 @@ public class Drone implements AutoCloseable {
         colorClassifierLoaded = false;
     }
 
+    /**
+     * Appends new color samples to an existing color label file in the dataset.
+     * 
+     * <p>This method adds new training samples to an existing color label in your
+     * color classifier dataset. The samples are appended to the label's data file,
+     * allowing you to expand your training set over time.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Append new red color samples to the dataset
+     * double[][] samples = {
+     *     {5.0, 200.0, 180.0, 50.0},   // H, S, V, L values
+     *     {7.0, 205.0, 175.0, 52.0}
+     * };
+     * drone.appendColorData("red", samples, "my_color_dataset/");
+     * }</pre>
+     * 
+     * @param label The color label name (e.g., "red", "blue", "green")
+     * @param samples 2D array of HSVL color samples to append. Each row is one sample with [H, S, V, L] values
+     * @param datasetPath Path to the dataset directory containing label files
+     * @throws java.io.IOException if the label file does not exist or cannot be written
+     * @throws IllegalStateException if the color classifier has not been created
+     * @since 1.4.0
+     * @pythonEquivalent append_color_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Function-Documentation#append_color_data
+     */
+    public void appendColorData(String label, double[][] samples, String datasetPath) throws java.io.IOException {
+        if (colorClassifier == null) {
+            throw new IllegalStateException("Color classifier not initialized. Call loadClassifier() or loadColorData() first.");
+        }
+        colorClassifier.appendColorData(label, samples, datasetPath);
+    }
+
+    /**
+     * Loads the color classifier from a dataset directory without displaying a graph.
+     * 
+     * <p>This method loads color training data from a directory of text files and
+     * trains a K-Nearest Neighbors (KNN) classifier for color classification. Each
+     * text file in the directory represents one color label, with each line containing
+     * HSVL values for one training sample.</p>
+     * 
+     * <h3>Dataset Structure:</h3>
+     * <pre>
+     * my_dataset/
+     *   red.txt       (each line: H S V L values)
+     *   blue.txt
+     *   green.txt
+     * </pre>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Load classifier from dataset directory
+     * drone.loadClassifier("my_color_dataset/");
+     * 
+     * // Now you can use predictColors() to classify colors
+     * String color = drone.predictColors(new double[]{5.0, 200.0, 180.0, 50.0});
+     * }</pre>
+     * 
+     * @param datasetPath Path to the dataset directory containing color label files
+     * @throws java.io.IOException if the dataset cannot be loaded or is invalid
+     * @since 1.4.0
+     * @pythonEquivalent load_classifier
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Function-Documentation#load_classifier
+     */
+    public void loadClassifier(String datasetPath) throws java.io.IOException {
+        colorClassifier = new ColorClassifier();
+        colorClassifier.loadColorData(datasetPath, false);
+        colorClassifierLoaded = true;
+    }
+
+    /**
+     * Loads color training data from a dataset directory and optionally displays a 3D visualization.
+     * 
+     * <p>This method loads color training data from a directory of text files and
+     * trains a K-Nearest Neighbors (KNN) classifier for color classification. Each
+     * text file in the directory represents one color label, with each line containing
+     * HSVL values for one training sample.</p>
+     * 
+     * <p>When {@code showGraph} is true, a 3D scatter plot of the training data is
+     * displayed, showing the first three dimensions (HSV) of your color data. This
+     * visualization helps you understand the distribution and separation of your
+     * color classes.</p>
+     * 
+     * <h3>Dataset Structure:</h3>
+     * <pre>
+     * my_dataset/
+     *   red.txt       (each line: H S V L values)
+     *   blue.txt
+     *   green.txt
+     * </pre>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Load classifier and show visualization
+     * drone.loadColorData("my_color_dataset/", true);
+     * 
+     * // Use the classifier to predict colors
+     * String color = drone.predictColors(new double[]{5.0, 200.0, 180.0, 50.0});
+     * }</pre>
+     * 
+     * @param datasetPath Path to the dataset directory containing color label files
+     * @param showGraph If true, displays a 3D scatter plot of the training data
+     * @throws java.io.IOException if the dataset cannot be loaded or is invalid
+     * @since 1.4.0
+     * @pythonEquivalent load_color_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Function-Documentation#load_color_data
+     */
+    public void loadColorData(String datasetPath, boolean showGraph) throws java.io.IOException {
+        colorClassifier = new ColorClassifier();
+        colorClassifier.loadColorData(datasetPath, showGraph);
+        colorClassifierLoaded = true;
+    }
+
+    /**
+     * Creates a new color label file in the dataset with initial training samples.
+     * 
+     * <p>This method creates a new text file for a color label in your dataset directory
+     * and writes the provided training samples to it. Use this to start a new color
+     * category in your classifier.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Create a new color label "orange" with initial samples
+     * double[][] samples = {
+     *     {15.0, 200.0, 180.0, 50.0},   // H, S, V, L values
+     *     {18.0, 205.0, 175.0, 52.0},
+     *     {20.0, 195.0, 185.0, 48.0}
+     * };
+     * drone.newColorData("orange", samples, "my_color_dataset/");
+     * }</pre>
+     * 
+     * @param label The new color label name (e.g., "orange", "purple")
+     * @param samples 2D array of HSVL color samples. Each row is one sample with [H, S, V, L] values
+     * @param datasetPath Path to the dataset directory where the new label file will be created
+     * @throws java.io.IOException if the label file already exists or cannot be created
+     * @throws IllegalStateException if the color classifier has not been created
+     * @since 1.4.0
+     * @pythonEquivalent new_color_data
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Function-Documentation#new_color_data
+     */
+    public void newColorData(String label, double[][] samples, String datasetPath) throws java.io.IOException {
+        if (colorClassifier == null) {
+            throw new IllegalStateException("Color classifier not initialized. Call loadClassifier() or loadColorData() first.");
+        }
+        colorClassifier.newColorData(label, samples, datasetPath);
+    }
+
+    /**
+     * Predicts the color label for given HSVL color data using the trained classifier.
+     * 
+     * <p>This method uses the loaded K-Nearest Neighbors (KNN) classifier to predict
+     * which color label best matches the provided HSVL values. The classifier must
+     * be loaded first using {@link #loadClassifier(String)} or {@link #loadColorData(String, boolean)}.</p>
+     * 
+     * <h3>Usage Example:</h3>
+     * <pre>{@code
+     * // Load the classifier first
+     * drone.loadClassifier("my_color_dataset/");
+     * 
+     * // Get color data from the drone's sensor
+     * int[][] colorData = drone.getColorData();
+     * if (colorData != null && colorData[0] != null) {
+     *     // Convert to double array for prediction
+     *     double[] hsvl = new double[colorData[0].length];
+     *     for (int i = 0; i < colorData[0].length; i++) {
+     *         hsvl[i] = colorData[0][i];
+     *     }
+     *     
+     *     // Predict the color
+     *     String predictedColor = drone.predictColors(hsvl);
+     *     System.out.println("Detected color: " + predictedColor);
+     * }
+     * }</pre>
+     * 
+     * @param colorData Array of HSVL values [H, S, V, L] to classify
+     * @return The predicted color label as a String (e.g., "red", "blue", "green")
+     * @throws IllegalStateException if the classifier has not been loaded
+     * @since 1.4.0
+     * @pythonEquivalent predict_colors
+     * @pythonReference https://docs.robolink.com/docs/CoDroneEDU/Python/Function-Documentation#predict_colors
+     */
+    public String predictColors(double[] colorData) {
+        if (colorClassifier == null || !colorClassifierLoaded) {
+            throw new IllegalStateException("Color classifier not loaded. Call loadClassifier() or loadColorData() first.");
+        }
+        return colorClassifier.predictColor(colorData);
+    }
+
     private static final Logger log = LogManager.getLogger(Drone.class);
 
     // --- Core Components ---

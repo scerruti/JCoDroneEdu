@@ -46,4 +46,5 @@ bin/
 .DS_Store
 
 ### Python Virtual Environment ###
-/reference/python-venv/
+/reference/python-venv/scripts/__pycache__/
+reference/python-venv/

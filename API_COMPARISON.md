@@ -1,29 +1,23 @@
 # API Comparison Report
 
-**Java Version:** 1.4.0-SNAPSHOT
+**Java Version:** 1.5.0-SNAPSHOT
 **Python API Version:** 2.6.0
 
 ## Summary
 
 - **Python Methods:** 127
-- **Java Methods:** 207
-- **Matched Methods:** 131
-  - Documented (@pythonEquivalent): 89
+- **Java Methods:** 212
+- **Matched Methods:** 136
+  - Documented (@pythonEquivalent): 94
   - Inferred (by name): 42
-- **In Python, Not Java:** 5
+- **In Python, Not Java:** 0
 - **In Java, Not Python:** 76
 
 **Note:** Java methods use @pythonEquivalent annotations to document their Python API mapping.
 
 ## Methods in Python but NOT in Java
 
-⚠️ Consider implementing these methods:
-
-- `append_color_data()`
-- `load_classifier()`
-- `load_color_data()`
-- `new_color_data()`
-- `predict_colors()`
+✅ All Python methods have Java equivalents!
 
 ## Methods in Java but NOT in Python
 

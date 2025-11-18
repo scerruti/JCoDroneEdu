@@ -1026,13 +1026,32 @@ tasks.register("compareApis") {
         
         // If compareLatest flag is set, fetch latest version from PyPI
         if (compareLatest && targetVersion == null) {
-            println("📦 Fetching latest codrone-edu version from PyPI... (disabled, version fetch logic removed)")
-            // Disabled: Used ByteArrayOutputStream and Python subprocess
-            targetVersion = null
+            println("📦 Fetching latest codrone-edu version from PyPI...")
+            try {
+                val versionFile = file("$buildDir/pypi-version.txt")
+                versionFile.parentFile.mkdirs()
+                
+                val result = exec {
+                    commandLine("python3", "scripts/fetch_pypi_version.py")
+                    standardOutput = versionFile.outputStream()
+                    isIgnoreExitValue = true
+                }
+                
+                if (result.exitValue == 0) {
+                    targetVersion = versionFile.readText().trim()
+                    println("✓ Latest version from PyPI: $targetVersion")
+                } else {
+                    println("⚠️  Failed to fetch version from PyPI, using default")
+                    targetVersion = null
+                }
+            } catch (e: Exception) {
+                println("⚠️  Error fetching PyPI version: ${e.message}")
+                targetVersion = null
+            }
         }
         
         // Use target version or fall back to configured version
-        val pythonVersion = targetVersion ?: (project.findProperty("pythonApiVersion")?.toString() ?: "2.2.0")
+        val pythonVersion = targetVersion ?: (project.findProperty("codroneEduPythonVersion")?.toString() ?: "2.2.0")
         val venvDir = file("reference/python-venv")
         
         // Use version in output filename
@@ -1062,23 +1081,26 @@ tasks.register("compareApis") {
             }
         }
         
-        // Determine pip executable path
-        val pipExecutable = if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            venvDir.absolutePath + "\\Scripts\\pip"
-        } else {
-            venvDir.absolutePath + "/bin/pip"
-        }
-        
-        // Determine python executable path
-        val pythonExecutable = if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            venvDir.absolutePath + "\\Scripts\\python"
-        } else {
+        // Upgrade pip and install codrone-edu in the venv using the venv's python
+        val isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+        val venvPython = if (isWindows)
+            venvDir.absolutePath + "\\Scripts\\python.exe"
+        else
             venvDir.absolutePath + "/bin/python"
+
+        println("📦 Upgrading pip and installing codrone-edu==$pythonVersion in venv...")
+        try {
+            exec {
+                commandLine(venvPython, "-m", "pip", "install", "--upgrade", "pip")
+            }
+            exec {
+                commandLine(venvPython, "-m", "pip", "install", "codrone-edu==$pythonVersion")
+            }
+            println("✓ codrone-edu version $pythonVersion is ready")
+        } catch (e: Exception) {
+            println("⚠️  Warning: Could not install codrone-edu version $pythonVersion in venv: ${e.message}")
+            println("   The comparison will still run with hardcoded Python method list")
         }
-        
-        // Check if correct version is installed, upgrade/install if needed
-        // Disabled: Used ByteArrayOutputStream and Python subprocess
-        println("✅ Python codrone-edu version check/install logic disabled")
         
         val reportFile = file(outputFileName)
         val report = StringBuilder()
@@ -1088,7 +1110,7 @@ tasks.register("compareApis") {
         report.appendLine("**Java Version:** ${project.version}")
         report.appendLine("**Python API Version:** $pythonVersion")
         if (compareLatest) {
-            report.appendLine("**Comparison Mode:** Latest vs. Built (${project.findProperty("pythonApiVersion") ?: "2.2.0"})")
+            report.appendLine("**Comparison Mode:** Latest vs. Built (${project.findProperty("codroneEduPythonVersion") ?: "2.2.0"})")
         }
         report.appendLine()
         
@@ -1286,6 +1308,36 @@ tasks.register("compareApis") {
         }
         println()
         println("✅ Report saved to: API_COMPARISON.md")
+        
+        // =================================================================
+        // Generate Enhanced Two-Tier Report with Design Rationale
+        // =================================================================
+        println()
+        println("📋 Generating enhanced two-tier comparison...")
+        
+        try {
+            // Create documented methods file
+            val docMethodsFile = file("$buildDir/documented_methods.txt")
+            docMethodsFile.parentFile.mkdirs()
+            docMethodsFile.writeText(pythonMethods.joinToString("\n"))
+            
+            // Generate enhanced report
+            val enhancedOutputFile = outputFileName.replace(".md", "_ENHANCED.md")
+            val result = exec {
+                commandLine("python3", "scripts/generate_enhanced_comparison.py",
+                           project.version.toString(), pythonVersion, enhancedOutputFile)
+                isIgnoreExitValue = true
+            }
+            
+            if (result.exitValue == 0) {
+                println("✅ Enhanced report saved to: $enhancedOutputFile")
+            } else {
+                println("⚠️  Enhanced report generation failed (basic report still available)")
+            }
+        } catch (e: Exception) {
+            println("⚠️  Could not generate enhanced report: ${e.message}")
+        }
+        
         println("=" .repeat(60))
     }
 }
